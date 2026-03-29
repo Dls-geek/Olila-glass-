@@ -73,7 +73,7 @@ function MainApp() {
               <Store className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-800">ShopEase</h1>
+              <h1 className="text-xl font-bold text-gray-800">Olila Glass</h1>
               <p className="text-xs text-gray-500">Retail Manager</p>
             </div>
           </div>
