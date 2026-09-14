@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Lock, Mail } from 'lucide-react';
-import { Button, Input, useToast } from './ui';
+import { useToast } from './ui';
 
 export function LoginPage() {
-  const [email, setEmail] = useState('admin@shop.com');
-  const [password, setPassword] = useState('1234');
+  const [email, setEmail] = useState('Deshi Voj');
+  const [password, setPassword] = useState('root');
+  const [showPass, setShowPass] = useState(false);
   const { login, isLoading } = useApp();
   const toast = useToast();
 
@@ -18,43 +18,84 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#e9ecef] p-4">
-      <div className="w-full max-w-sm rounded-[4px] border border-[#dee2e6] bg-white p-6 shadow-card">
-        <div className="mb-6 flex flex-col items-center">
-          <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#28a745] text-center text-[11px] font-bold leading-tight text-[#1e7e34]">
-            অলিলা
-            <br />
-            গ্লাস
+    <div className="flex min-h-screen">
+      <div
+        className="hidden w-1/2 bg-cover bg-center lg:block"
+        style={{
+          backgroundImage:
+            'linear-gradient(160deg,#0b3d2e 0%,#1b7a3a 45%,#0e5c3a 100%)',
+        }}
+      />
+      <div
+        className="flex w-full items-center justify-center px-6 py-10 lg:w-1/2"
+        style={{ background: '#E6F2F4' }}
+      >
+        <div className="w-full max-w-[420px]">
+          <div className="mb-4">
+            <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full border-[3px] border-[#00a65a] text-[11px] font-bold leading-tight text-[#008d4c]">
+              অলিলা
+              <br />
+              গ্লাস
+            </div>
           </div>
-          <h1 className="text-lg font-semibold">Olila Glass</h1>
-          <p className="text-[13px] text-[#6c757d]">Retail Manager</p>
+          <h3
+            style={{
+              color: '#1e293b',
+              fontWeight: 700,
+              fontSize: 24,
+              marginBottom: 10,
+            }}
+          >
+            Sign Into Your Account
+          </h3>
+          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 30 }}>
+            Welcome back! Please enter your details.
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <input
+                className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 text-[15px]"
+                placeholder="username or email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+                required
+              />
+            </div>
+            <div className="relative">
+              <input
+                type={showPass ? 'text' : 'password'}
+                className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 text-[15px]"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-5 top-3 text-[#6c757d]"
+                onClick={() => setShowPass((v) => !v)}
+              >
+                {showPass ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="h-[46px] w-full rounded bg-[#00a65a] text-[16px] font-semibold text-white hover:bg-[#008d4c]"
+            >
+              {isLoading ? 'Login…' : 'Login'}
+            </button>
+            <div className="flex items-center justify-between text-[14px]">
+              <label className="flex items-center gap-2" style={{ color: '#4b5563' }}>
+                <input type="checkbox" /> Remember me
+              </label>
+              <span style={{ color: '#2348C2', fontWeight: 600 }}>
+                Forgot Password?
+              </span>
+            </div>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email address"
-            type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            icon={<Mail className="h-4 w-4" />}
-            autoComplete="email"
-          />
-          <Input
-            label="Password"
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            icon={<Lock className="h-4 w-4" />}
-            autoComplete="current-password"
-          />
-          <Button type="submit" variant="success" fullWidth isLoading={isLoading}>
-            {isLoading ? 'Signing in…' : 'Login'}
-          </Button>
-        </form>
-        <p className="mt-4 text-center text-[12px] text-[#6c757d]">
-          Demo: admin@shop.com / 1234
-        </p>
       </div>
     </div>
   );

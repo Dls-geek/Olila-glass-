@@ -1,29 +1,28 @@
 import { useApp } from '../context/AppContext';
 import {
-  ShoppingCart,
-  Package,
-  TrendingUp,
+  Users,
+  ShoppingBag,
+  Truck,
+  Banknote,
   AlertTriangle,
-  IndianRupee,
-  CalendarDays,
-  Boxes,
 } from 'lucide-react';
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { Button, Card, CardContent, CardHeader, StatCard } from './ui';
 
 interface DashboardProps {
   onNavigate: (page: string) => void;
 }
 
-const currency = (n: number) => `৳${n.toLocaleString()}`;
+const currency = (n: number) => n.toLocaleString();
 
 export function Dashboard({ onNavigate }: DashboardProps) {
   const {
@@ -36,172 +35,162 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   } = useApp();
   const lowStockProducts = getLowStockProducts();
   const topProducts = getTopProducts();
-  const outOfStockCount = products.filter((p) => p.stock === 0).length;
 
-  const chartData = [
-    { name: 'Mon', sales: 1200 },
-    { name: 'Tue', sales: 1800 },
-    { name: 'Wed', sales: 1500 },
-    { name: 'Thu', sales: 2200 },
-    { name: 'Fri', sales: 2800 },
-    { name: 'Sat', sales: 3200 },
-    { name: 'Sun', sales: getDailySales() || 2100 },
+  const hourly = [
+    { name: '12 PM', sales: 0 },
+    { name: '2 AM', sales: 0 },
+    { name: '4 AM', sales: 0 },
+    { name: '6 AM', sales: 0 },
+    { name: '8 AM', sales: 0 },
+    { name: '10 AM', sales: 0 },
+    { name: '12 AM', sales: 7000 },
+    { name: '2 PM', sales: 15000 },
+    { name: '4 PM', sales: 4000 },
+    { name: '6 PM', sales: getDailySales() || 2000 },
+    { name: '8 PM', sales: 0 },
+    { name: '10 PM', sales: 0 },
+  ];
+
+  const monthly = [
+    { name: '01', sales: 28000 },
+    { name: '04', sales: 0 },
+    { name: '07', sales: 36000 },
+    { name: '10', sales: 30000 },
+    { name: '13', sales: 37000 },
+    { name: '16', sales: 0 },
+    { name: '19', sales: 0 },
+    { name: '22', sales: 0 },
+    { name: '25', sales: 0 },
+    { name: '28', sales: getMonthlySales() || 0 },
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-[18px] font-semibold text-[#212529]">Dashboard</h1>
-        <Button variant="success" onClick={() => onNavigate('billing')}>
-          <ShoppingCart className="h-4 w-4" />
-          New Order
-        </Button>
+    <div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="small-box bg-green">
+          <div className="inner">
+            <h4>{products.length}</h4>
+            <p>Total Product</p>
+          </div>
+          <Users className="icon" />
+        </div>
+        <div className="small-box bg-pase">
+          <div className="inner">
+            <h4>{sales.length}</h4>
+            <p>Total Orders</p>
+          </div>
+          <ShoppingBag className="icon" />
+        </div>
+        <div className="small-box bg-bringal">
+          <div className="inner">
+            <h4>1</h4>
+            <p>Total Supplier</p>
+          </div>
+          <Truck className="icon" />
+        </div>
+        <div className="small-box bg-darkgreen">
+          <div className="inner">
+            <h4>{currency(getDailySales())}</h4>
+            <p>Today Sale</p>
+          </div>
+          <Banknote className="icon" />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Today's Sales"
-          value={currency(getDailySales())}
-          icon={<IndianRupee className="h-5 w-5" />}
-          tone="success"
-        />
-        <StatCard
-          label="Monthly Sales"
-          value={currency(getMonthlySales())}
-          icon={<CalendarDays className="h-5 w-5" />}
-          tone="brand"
-        />
-        <StatCard
-          label="Total Products"
-          value={products.length}
-          icon={<Boxes className="h-5 w-5" />}
-          tone="info"
-        />
-        <StatCard
-          label="Total Orders"
-          value={sales.length}
-          icon={<TrendingUp className="h-5 w-5" />}
-          tone="warning"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader title="Weekly Sales Overview" />
-          <CardContent>
-            <div className="h-64 w-full">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="as-card">
+          <div className="as-card-h flex items-center justify-between">
+            Hourly Report
+            <input
+              type="date"
+              defaultValue={new Date().toISOString().slice(0, 10)}
+              className="h-8 rounded border border-[#ced4da] px-2 text-[13px]"
+            />
+          </div>
+          <div className="bg-[#111] p-2">
+            <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-                >
-                  <CartesianGrid vertical={false} stroke="#dee2e6" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
-                  <Tooltip
-                    formatter={(value) => [currency(Number(value)), 'Sales']}
+                <LineChart data={hourly}>
+                  <CartesianGrid stroke="#333" />
+                  <XAxis dataKey="name" stroke="#aaa" tick={{ fontSize: 11 }} />
+                  <YAxis stroke="#aaa" tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="sales"
+                    stroke="#3b9dff"
+                    dot={{ r: 3 }}
                   />
-                  <Bar dataKey="sales" fill="#28a745" maxBarSize={40} />
-                </BarChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader title="Stock Alerts" />
-          <CardContent>
-            {lowStockProducts.length === 0 && outOfStockCount === 0 ? (
-              <p className="py-6 text-center text-sm text-[#6c757d]">
-                All stocks are healthy.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {lowStockProducts.slice(0, 6).map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between border-b border-[#f1f3f5] py-2 last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="h-8 w-8 rounded object-cover"
-                      />
-                      <div>
-                        <p className="text-[13px] font-medium">{product.name}</p>
-                        <p className="text-[12px] text-[#fd7e14]">
-                          Low Stock: {product.stock}
-                        </p>
-                      </div>
-                    </div>
-                    <AlertTriangle className="h-4 w-4 text-[#fd7e14]" />
-                  </div>
-                ))}
-                {outOfStockCount > 0 && (
-                  <p className="text-[13px] text-[#dc3545]">
-                    {outOfStockCount} product(s) out of stock
-                  </p>
-                )}
-                <button
-                  onClick={() => onNavigate('inventory')}
-                  className="text-[13px] text-[#007bff] hover:underline"
-                >
-                  View All
-                </button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader title="Top Selling Products" />
-        <div className="overflow-x-auto">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="bg-[#9e9e9e] text-left text-white">
-                <th className="px-3 py-2 font-medium">#</th>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Sold</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topProducts.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="px-3 py-8 text-center text-[#6c757d]">
-                    No sales data yet
-                  </td>
-                </tr>
-              ) : (
-                topProducts.map((product, index) => (
-                  <tr key={product.name} className="border-b border-[#dee2e6]">
-                    <td className="px-3 py-2">{index + 1}</td>
-                    <td className="px-3 py-2">{product.name}</td>
-                    <td className="px-3 py-2">{product.sales}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          </div>
         </div>
-      </Card>
+        <div className="as-card">
+          <div className="as-card-h flex items-center justify-between">
+            Monthly Report
+            <input
+              type="month"
+              defaultValue={new Date().toISOString().slice(0, 7)}
+              className="h-8 rounded border border-[#ced4da] px-2 text-[13px]"
+            />
+          </div>
+          <div className="bg-[#111] p-2">
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthly}>
+                  <CartesianGrid stroke="#333" />
+                  <XAxis dataKey="name" stroke="#aaa" tick={{ fontSize: 11 }} />
+                  <YAxis stroke="#aaa" tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="sales" stroke="#3b9dff" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button onClick={() => onNavigate('billing')}>
-          <ShoppingCart className="h-4 w-4" />
-          New Sale
-        </Button>
-        <Button variant="info" onClick={() => onNavigate('products')}>
-          <Package className="h-4 w-4" />
-          Products
-        </Button>
-        <Button variant="success" onClick={() => onNavigate('sales')}>
-          Sale List
-        </Button>
-        <Button variant="warning" onClick={() => onNavigate('inventory')}>
-          Stock
-        </Button>
+        <div className="as-card">
+          <div className="as-card-h">Top 10 Selling Food This Month</div>
+          <div className="h-56 p-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topProducts.map((p) => ({ name: p.name, sold: p.sales }))}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="sold" fill="#9e9e9e" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="as-card">
+          <div className="as-card-h">Low Stock Alert</div>
+          <div className="p-3">
+            {lowStockProducts.length === 0 ? (
+              <p className="text-[13px] text-[#6c757d]">All stocks are healthy.</p>
+            ) : (
+              lowStockProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between border-b border-[#eef1f3] py-2 text-[13px]"
+                >
+                  <span>{p.name}</span>
+                  <span className="text-[#fd7e14]">
+                    <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                    {p.stock}
+                  </span>
+                </div>
+              ))
+            )}
+            <button
+              className="mt-2 text-[13px] text-[#007bff]"
+              onClick={() => onNavigate('inventory')}
+            >
+              View All
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

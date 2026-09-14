@@ -27,7 +27,15 @@ const emptyForm = {
 
 const currency = (n: number) => String(n);
 
-export function ProductsPage() {
+export function ProductsPage({
+  mode = 'list',
+  onAdd,
+  onList,
+}: {
+  mode?: 'list' | 'form';
+  onAdd?: () => void;
+  onList?: () => void;
+}) {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();
   const toast = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,6 +93,7 @@ export function ProductsPage() {
     }
     resetForm();
     setShowModal(false);
+    onList?.();
   };
 
   const openEditModal = (product: Product) => {
@@ -117,6 +126,65 @@ export function ProductsPage() {
   const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, filteredProducts.length);
 
+  if (mode === 'form') {
+    return (
+      <div className="as-card p-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Input
+            label="Name *"
+            value={formData.name}
+            onChange={(e) => setField('name', e.target.value)}
+          />
+          <Input
+            label="Category *"
+            value={formData.category}
+            onChange={(e) => setField('category', e.target.value)}
+          />
+          <Input
+            label="Image URL"
+            value={formData.image_url}
+            onChange={(e) => setField('image_url', e.target.value)}
+          />
+          <Input
+            label="Price"
+            type="number"
+            value={formData.selling_price}
+            onChange={(e) => setField('selling_price', e.target.value)}
+          />
+          <Input
+            label="Cost Price"
+            type="number"
+            value={formData.purchase_price}
+            onChange={(e) => setField('purchase_price', e.target.value)}
+          />
+          <Input
+            label="Alert Quantity"
+            type="number"
+            value={formData.low_stock_alert}
+            onChange={(e) => setField('low_stock_alert', e.target.value)}
+          />
+          <Input
+            label="Stock Quantity"
+            type="number"
+            value={formData.stock}
+            onChange={(e) => setField('stock', e.target.value)}
+          />
+          <Input
+            label="SKU"
+            value={formData.sku}
+            onChange={(e) => setField('sku', e.target.value)}
+          />
+        </div>
+        <div className="mt-6 flex justify-center gap-3">
+          <Button onClick={handleSubmit}>Save</Button>
+          <Button variant="success" onClick={() => onList?.()}>
+            List
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -130,7 +198,8 @@ export function ProductsPage() {
             size="sm"
             onClick={() => {
               resetForm();
-              setShowModal(true);
+              if (onAdd) onAdd();
+              else setShowModal(true);
             }}
           >
             <Plus className="h-3.5 w-3.5" />
