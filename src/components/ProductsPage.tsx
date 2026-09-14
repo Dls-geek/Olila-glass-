@@ -111,7 +111,7 @@ export function ProductsPage() {
     setFormData((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Products</h1>
@@ -151,7 +151,7 @@ export function ProductsPage() {
       </Card>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {filteredProducts.map((product) => {
           const out = product.stock === 0;
           const low = product.stock > 0 && product.stock <= product.low_stock_alert;

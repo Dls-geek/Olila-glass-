@@ -35,7 +35,7 @@ export function SalesPage() {
     .reduce((sum, s) => sum + s.total_amount, 0);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div>
         <h1 className="text-xl font-bold text-slate-900">Sales History</h1>
         <p className="text-sm text-slate-500">
