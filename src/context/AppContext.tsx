@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Product, Sale, SaleItem, InventoryLog, CartItem, User } from '../types';
+import { useToast } from '../components/ui';
 
 interface AppState {
   user: User | null;
@@ -229,6 +230,7 @@ const sampleLogs: InventoryLog[] = [
 ];
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [state, dispatch] = useReducer(appReducer, {
     ...initialState,
     products: sampleProducts,
@@ -294,7 +296,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     if (product.stock <= 0) {
-      alert('Product is out of stock!');
+      toast.warning(`${product.name} is out of stock.`);
       return;
     }
     dispatch({ type: 'ADD_TO_CART', payload: { product, quantity } });
@@ -322,7 +324,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Check stock
     for (const item of state.cart) {
       if (item.quantity > item.product.stock) {
-        alert(`Not enough stock for ${item.product.name}. Available: ${item.product.stock}`);
+        toast.error(
+          `Not enough stock for ${item.product.name}. Available: ${item.product.stock}.`
+        );
         return null;
       }
     }

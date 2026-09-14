@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ToastProvider } from './components/ui';
 import { LoginPage } from './components/LoginPage';
 import { Dashboard } from './components/Dashboard';
 import { BillingPage } from './components/BillingPage';
 import { ProductsPage } from './components/ProductsPage';
 import { InventoryPage } from './components/InventoryPage';
 import { SalesPage } from './components/SalesPage';
+import { cn } from './utils/cn';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -13,9 +15,39 @@ import {
   Receipt,
   BarChart3,
   LogOut,
-  Store,
   Menu,
+  X,
 } from 'lucide-react';
+
+const navItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'billing', label: 'Billing', icon: ShoppingCart },
+  { id: 'products', label: 'Products', icon: Package },
+  { id: 'inventory', label: 'Inventory', icon: BarChart3 },
+  { id: 'sales', label: 'Sales', icon: Receipt },
+];
+
+const pageMeta: Record<string, { title: string; subtitle: string }> = {
+  dashboard: { title: 'Dashboard', subtitle: "Your store at a glance" },
+  billing: { title: 'Billing', subtitle: 'Create a new sale' },
+  products: { title: 'Products', subtitle: 'Manage your catalog' },
+  inventory: { title: 'Inventory', subtitle: 'Track stock levels' },
+  sales: { title: 'Sales', subtitle: 'Review transaction history' },
+};
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
+        <span className="text-lg font-bold">O</span>
+      </div>
+      <div className="leading-tight">
+        <h1 className="text-base font-bold text-slate-900">Olila Glass</h1>
+        <p className="text-xs text-slate-500">Retail Manager</p>
+      </div>
+    </div>
+  );
+}
 
 function MainApp() {
   const { user, logout } = useApp();
@@ -25,14 +57,6 @@ function MainApp() {
   if (!user) {
     return <LoginPage />;
   }
-
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'billing', label: 'Billing', icon: ShoppingCart },
-    { id: 'products', label: 'Products', icon: Package },
-    { id: 'inventory', label: 'Inventory', icon: BarChart3 },
-    { id: 'sales', label: 'Sales', icon: Receipt },
-  ];
 
   const renderPage = () => {
     switch (currentPage) {
@@ -51,120 +75,138 @@ function MainApp() {
     }
   };
 
+  const meta = pageMeta[currentPage] ?? pageMeta.dashboard;
+  const initials = (user.name || 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Mobile Sidebar Overlay */}
+    <div className="flex min-h-screen bg-canvas">
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
       >
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <Store className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-800">Olila Glass</h1>
-              <p className="text-xs text-gray-500">Retail Manager</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between px-5 py-5">
+          <BrandMark />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 lg:hidden"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <nav className="p-4 space-y-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                setCurrentPage(item.id);
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                currentPage === item.id
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          ))}
+        <nav className="flex-1 space-y-1 px-3 py-2">
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Menu
+          </p>
+          {navItems.map((item) => {
+            const active = currentPage === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setCurrentPage(item.id);
+                  setSidebarOpen(false);
+                }}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  active
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                )}
+              >
+                <item.icon
+                  className={cn(
+                    'h-5 w-5',
+                    active ? 'text-white' : 'text-slate-400'
+                  )}
+                />
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-          <div className="bg-gray-50 rounded-xl p-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-bold">
-                  {user.name?.charAt(0) || 'U'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800">{user.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user.role}</p>
-              </div>
+        <div className="border-t border-slate-100 p-3">
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-slate-800">
+                {user.name}
+              </p>
+              <p className="truncate text-xs capitalize text-slate-500">
+                {user.role}
+              </p>
             </div>
           </div>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            <LogOut className="h-5 w-5 text-slate-400" />
+            Sign out
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      {/* Main */}
+      <div className="flex min-h-screen flex-1 flex-col">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+                aria-label="Open menu"
               >
-                <Menu className="w-6 h-6 text-gray-600" />
+                <Menu className="h-5 w-5" />
               </button>
               <div>
-                <h2 className="text-xl font-bold text-gray-800 capitalize">
-                  {currentPage}
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {meta.title}
                 </h2>
-                <p className="text-sm text-gray-500">
-                  {new Date().toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                <p className="hidden text-sm text-slate-500 sm:block">
+                  {meta.subtitle}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm text-gray-500">Store Status</p>
-                <p className="font-semibold text-green-600 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  Open
+            <div className="flex items-center gap-4">
+              <div className="hidden text-right sm:block">
+                <p className="text-xs text-slate-400">
+                  {new Date().toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </p>
+                <p className="flex items-center justify-end gap-1.5 text-sm font-medium text-emerald-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Store open
                 </p>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto">
-          {renderPage()}
-        </main>
+        <main className="flex-1 overflow-auto">{renderPage()}</main>
       </div>
     </div>
   );
@@ -172,8 +214,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainApp />
-    </AppProvider>
+    <ToastProvider>
+      <AppProvider>
+        <MainApp />
+      </AppProvider>
+    </ToastProvider>
   );
 }

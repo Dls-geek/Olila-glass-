@@ -4,203 +4,279 @@ import {
   Package,
   TrendingUp,
   AlertTriangle,
-  DollarSign,
-  Calendar,
-  BarChart3,
+  IndianRupee,
+  CalendarDays,
   Boxes,
+  ArrowRight,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from 'recharts';
+import { Card, CardContent, CardHeader, StatCard, Badge, Button } from './ui';
+
 interface DashboardProps {
- onNavigate: (page: string) => void;
+  onNavigate: (page: string) => void;
 }
+
+const currency = (n: number) => `৳${n.toLocaleString()}`;
+
+const quickActions = [
+  {
+    id: 'billing',
+    label: 'New Sale',
+    hint: 'Open billing counter',
+    icon: ShoppingCart,
+  },
+  {
+    id: 'products',
+    label: 'Products',
+    hint: 'Manage your catalog',
+    icon: Package,
+  },
+  { id: 'sales', label: 'Sales', hint: 'View history', icon: TrendingUp },
+  { id: 'inventory', label: 'Inventory', hint: 'Check stock', icon: Boxes },
+];
+
 export function Dashboard({ onNavigate }: DashboardProps) {
- const { products, sales, getDailySales, getMonthlySales, getLowStockProducts, getTopProducts } = useApp();
- const lowStockProducts = getLowStockProducts();
- const topProducts = getTopProducts();
- const outOfStockCount = products.filter(p => p.stock === 0).length;
- const chartData = [
- { name: 'Mon', sales: 1200 },
- { name: 'Tue', sales: 1800 },
- { name: 'Wed', sales: 1500 },
- { name: 'Thu', sales: 2200 },
- { name: 'Fri', sales: 2800 },
- { name: 'Sat', sales: 3200 },
- { name: 'Sun', sales: getDailySales() || 2100 },
- ];
- return (<div className="p-6 space-y-6">
- {/* Header */}
- <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
- <div>
- <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
- <p className="text-gray-500">Welcome back! Here's your store overview.</p>
- </div>
- <button onClick={() => onNavigate('billing')} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
- <ShoppingCart className="w-5 h-5"/>
- Quick Billing
- </button>
- </div>
+  const {
+    products,
+    sales,
+    getDailySales,
+    getMonthlySales,
+    getLowStockProducts,
+    getTopProducts,
+  } = useApp();
+  const lowStockProducts = getLowStockProducts();
+  const topProducts = getTopProducts();
+  const outOfStockCount = products.filter((p) => p.stock === 0).length;
+  const alertCount = lowStockProducts.length + outOfStockCount;
 
- {/* Stats Cards */}
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between">
- <div>
- <p className="text-gray-500 text-sm">Today's Sales</p>
- <p className="text-3xl font-bold text-gray-800 mt-1">৳{getDailySales().toLocaleString()}</p>
- </div>
- <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
- <DollarSign className="w-7 h-7 text-green-600"/>
- </div>
- </div>
- </div>
+  const chartData = [
+    { name: 'Mon', sales: 1200 },
+    { name: 'Tue', sales: 1800 },
+    { name: 'Wed', sales: 1500 },
+    { name: 'Thu', sales: 2200 },
+    { name: 'Fri', sales: 2800 },
+    { name: 'Sat', sales: 3200 },
+    { name: 'Sun', sales: getDailySales() || 2100 },
+  ];
 
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between">
- <div>
- <p className="text-gray-500 text-sm">Monthly Sales</p>
- <p className="text-3xl font-bold text-gray-800 mt-1">৳{getMonthlySales().toLocaleString()}</p>
- </div>
- <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
- <Calendar className="w-7 h-7 text-blue-600"/>
- </div>
- </div>
- </div>
+  return (
+    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">
+            Welcome back 👋
+          </h1>
+          <p className="text-sm text-slate-500">
+            Here's what's happening in your store today.
+          </p>
+        </div>
+        <Button onClick={() => onNavigate('billing')}>
+          <ShoppingCart className="h-4 w-4" />
+          Quick Billing
+        </Button>
+      </div>
 
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between">
- <div>
- <p className="text-gray-500 text-sm">Total Products</p>
- <p className="text-3xl font-bold text-gray-800 mt-1">{products.length}</p>
- </div>
- <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
- <Boxes className="w-7 h-7 text-purple-600"/>
- </div>
- </div>
- </div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Today's Sales"
+          value={currency(getDailySales())}
+          icon={<IndianRupee className="h-5 w-5" />}
+          tone="success"
+        />
+        <StatCard
+          label="Monthly Sales"
+          value={currency(getMonthlySales())}
+          icon={<CalendarDays className="h-5 w-5" />}
+          tone="brand"
+        />
+        <StatCard
+          label="Total Products"
+          value={products.length}
+          icon={<Boxes className="h-5 w-5" />}
+          tone="info"
+        />
+        <StatCard
+          label="Total Orders"
+          value={sales.length}
+          icon={<TrendingUp className="h-5 w-5" />}
+          tone="warning"
+        />
+      </div>
 
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between">
- <div>
- <p className="text-gray-500 text-sm">Total Sales</p>
- <p className="text-3xl font-bold text-gray-800 mt-1">{sales.length}</p>
- </div>
- <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
- <TrendingUp className="w-7 h-7 text-orange-600"/>
- </div>
- </div>
- </div>
- </div>
+      {/* Chart + Alerts */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title="Weekly Sales Overview"
+            subtitle="Revenue for the last 7 days"
+          />
+          <CardContent>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    vertical={false}
+                    stroke="#e2e8f0"
+                    strokeDasharray="4 4"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(99,102,241,0.06)' }}
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 10px 30px -12px rgba(15,23,42,0.18)',
+                      fontSize: '13px',
+                    }}
+                    formatter={(value) => [currency(Number(value)), 'Sales']}
+                  />
+                  <Bar dataKey="sales" fill="#4f46e5" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
- {/* Main Content Grid */}
- <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
- {/* Sales Chart */}
- <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between mb-6">
- <h3 className="text-lg font-semibold text-gray-800">Weekly Sales Overview</h3>
- <BarChart3 className="w-5 h-5 text-gray-400"/>
- </div>
- <div className="h-64">
- <ResponsiveContainer width="100%" height="100%">
- <BarChart data={chartData}>
- <XAxis dataKey="name" axisLine={false} tickLine={false}/>
- <YAxis axisLine={false} tickLine={false}/>
- <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}/>
- <Bar dataKey="sales" fill="url(#colorGradient)" radius={[8, 8, 0, 0]}/>
- <defs>
- <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
- <stop offset="0%" stopColor="#3B82F6"/>
- <stop offset="100%" stopColor="#8B5CF6"/>
- </linearGradient>
- </defs>
- </BarChart>
- </ResponsiveContainer>
- </div>
- </div>
+        {/* Stock alerts */}
+        <Card>
+          <CardHeader
+            title="Stock Alerts"
+            action={
+              <Badge tone={alertCount > 0 ? 'danger' : 'success'}>
+                {alertCount} {alertCount === 1 ? 'item' : 'items'}
+              </Badge>
+            }
+          />
+          <CardContent className="pt-1">
+            {alertCount === 0 ? (
+              <div className="py-8 text-center">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                  <Package className="h-6 w-6" />
+                </div>
+                <p className="text-sm text-slate-500">
+                  All stock levels are healthy.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {lowStockProducts.slice(0, 4).map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-2.5"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="h-9 w-9 rounded-md object-cover"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-slate-800">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-amber-600">
+                          {product.stock} left in stock
+                        </p>
+                      </div>
+                    </div>
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
+                  </div>
+                ))}
+                {outOfStockCount > 0 && (
+                  <div className="flex items-center gap-2 rounded-lg bg-red-50 p-2.5 text-sm font-medium text-red-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    {outOfStockCount} product(s) out of stock
+                  </div>
+                )}
+                <button
+                  onClick={() => onNavigate('inventory')}
+                  className="mt-1 flex w-full items-center justify-center gap-1 rounded-lg py-2 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50"
+                >
+                  View inventory
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
- {/* Low Stock Alerts */}
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <div className="flex items-center justify-between mb-4">
- <h3 className="text-lg font-semibold text-gray-800">Stock Alerts</h3>
- <span className={`px-3 py-1 rounded-full text-sm font-medium ${lowStockProducts.length > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
- {lowStockProducts.length + outOfStockCount} items
- </span>
- </div>
- 
- {lowStockProducts.length === 0 && outOfStockCount === 0 ? (<div className="text-center py-8">
- <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
- <Package className="w-8 h-8 text-green-600"/>
- </div>
- <p className="text-gray-500">All stocks are healthy!</p>
- </div>) : (<div className="space-y-3">
- {lowStockProducts.slice(0, 4).map(product => (<div key={product.id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-xl">
- <div className="flex items-center gap-3">
- <img src={product.image_url} alt={product.name} className="w-10 h-10 rounded-lg object-cover"/>
- <div>
- <p className="font-medium text-gray-800 text-sm">{product.name}</p>
- <p className="text-xs text-yellow-600">Low Stock: {product.stock} left</p>
- </div>
- </div>
- <AlertTriangle className="w-4 h-4 text-yellow-500"/>
- </div>))}
- {outOfStockCount > 0 && (<div className="p-3 bg-red-50 rounded-xl">
- <p className="text-red-600 font-medium text-sm">
- <AlertTriangle className="w-4 h-4 inline mr-1"/>
- {outOfStockCount} product(s) out of stock
- </p>
- </div>)}
- <button onClick={() => onNavigate('inventory')} className="w-full mt-2 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors">
- View All →
- </button>
- </div>)}
- </div>
- </div>
+      {/* Bottom row */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader title="Top Selling Products" />
+          <CardContent className="pt-1">
+            {topProducts.length === 0 ? (
+              <p className="py-8 text-center text-sm text-slate-500">
+                No sales data yet.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {topProducts.map((product, index) => (
+                  <div
+                    key={product.name}
+                    className="flex items-center justify-between rounded-lg px-2 py-2.5 hover:bg-slate-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-600">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm font-medium text-slate-700">
+                        {product.name}
+                      </span>
+                    </div>
+                    <Badge tone="brand">{product.sales} sold</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
- {/* Bottom Row */}
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
- {/* Top Selling Products */}
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h3>
- {topProducts.length === 0 ? (<div className="text-center py-8 text-gray-500">
- No sales data yet
- </div>) : (<div className="space-y-3">
- {topProducts.map((product, index) => (<div key={product.name} className="flex items-center justify-between">
- <div className="flex items-center gap-3">
- <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-100 text-yellow-600' : index === 1 ? 'bg-gray-100 text-gray-600' : 'bg-orange-100 text-orange-600'}`}>
- {index + 1}
- </span>
- <span className="font-medium text-gray-700">{product.name}</span>
- </div>
- <span className="text-blue-600 font-semibold">{product.sales} sold</span>
- </div>))}
- </div>)}
- </div>
-
- {/* Quick Actions */}
- <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
- <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
- <div className="grid grid-cols-2 gap-4">
- <button onClick={() => onNavigate('billing')} className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-150 transition-all text-left">
- <ShoppingCart className="w-8 h-8 text-blue-600 mb-2"/>
- <p className="font-semibold text-blue-700">New Sale</p>
- <p className="text-xs text-blue-500">Create invoice</p>
- </button>
- <button onClick={() => onNavigate('products')} className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl hover:from-purple-100 hover:to-purple-150 transition-all text-left">
- <Package className="w-8 h-8 text-purple-600 mb-2"/>
- <p className="font-semibold text-purple-700">Products</p>
- <p className="text-xs text-purple-500">Manage items</p>
- </button>
- <button onClick={() => onNavigate('sales')} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:green-blue-150 transition-all text-left">
- <BarChart3 className="w-8 h-8 text-green-600 mb-2"/>
- <p className="font-semibold text-green-700">Sales</p>
- <p className="text-xs text-green-500">View history</p>
- </button>
- <button onClick={() => onNavigate('inventory')} className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl hover:from-orange-100 hover:to-orange-150 transition-all text-left">
- <TrendingUp className="w-8 h-8 text-orange-600 mb-2"/>
- <p className="font-semibold text-orange-700">Inventory</p>
- <p className="text-xs text-orange-500">Check stocks</p>
- </button>
- </div>
- </div>
- </div>
- </div>);
+        <Card>
+          <CardHeader title="Quick Actions" />
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map(({ id, label, hint, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => onNavigate(id)}
+                  className="group flex flex-col items-start rounded-lg border border-slate-200 p-4 text-left transition-colors hover:border-brand-300 hover:bg-brand-50"
+                >
+                  <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800">{label}</p>
+                  <p className="text-xs text-slate-500">{hint}</p>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }
