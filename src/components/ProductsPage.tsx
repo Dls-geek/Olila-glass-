@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Package, Plus, Search, Edit, Trash2, Filter } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import type { Product } from '../types';
 import {
-  Badge,
   Button,
-  Card,
   ConfirmDialog,
   Input,
   Modal,
@@ -15,8 +13,6 @@ import {
 
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200';
-
-const currency = (n: number) => `৳${n.toLocaleString()}`;
 
 const emptyForm = {
   name: '',
@@ -29,6 +25,8 @@ const emptyForm = {
   sku: '',
 };
 
+const currency = (n: number) => String(n);
+
 export function ProductsPage() {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();
   const toast = useToast();
@@ -38,6 +36,9 @@ export function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const [openAction, setOpenAction] = useState<string | null>(null);
 
   const categories = ['all', ...Array.from(new Set(products.map((p) => p.category)))];
 
@@ -50,6 +51,13 @@ export function ProductsPage() {
       selectedCategory === 'all' || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, currentPage, pageSize]);
 
   const resetForm = () => {
     setFormData(emptyForm);
@@ -79,11 +87,6 @@ export function ProductsPage() {
     setShowModal(false);
   };
 
-  const openAddModal = () => {
-    resetForm();
-    setShowModal(true);
-  };
-
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
     setFormData({
@@ -97,6 +100,7 @@ export function ProductsPage() {
       sku: product.sku || '',
     });
     setShowModal(true);
+    setOpenAction(null);
   };
 
   const confirmDelete = () => {
@@ -110,238 +114,260 @@ export function ProductsPage() {
   const setField = (key: keyof typeof emptyForm, value: string) =>
     setFormData((prev) => ({ ...prev, [key]: value }));
 
+  const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, filteredProducts.length);
+
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Products</h1>
-          <p className="text-sm text-slate-500">
-            {products.length} items in your catalog
-          </p>
+    <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-[18px] font-semibold">Product List</h1>
+        <div className="flex gap-2">
+          <Button variant="info" size="sm">
+            <Download className="h-3.5 w-3.5" />
+            Export Product
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            New Product
+          </Button>
         </div>
-        <Button onClick={openAddModal}>
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
       </div>
 
-      {/* Filters */}
-      <Card className="p-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Input
-            containerClassName="flex-1"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name, category, or SKU…"
-            icon={<Search className="h-5 w-5" />}
-          />
-          <Select
-            containerClassName="sm:w-56"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            icon={<Filter className="h-4 w-4" />}
-          >
-            {categories.map((cat) => (
+      <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+        <Select
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="all">Select products</option>
+          {categories
+            .filter((c) => c !== 'all')
+            .map((cat) => (
               <option key={cat} value={cat}>
-                {cat === 'all' ? 'All Categories' : cat}
+                {cat}
               </option>
             ))}
-          </Select>
-        </div>
-      </Card>
-
-      {/* Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-        {filteredProducts.map((product) => {
-          const out = product.stock === 0;
-          const low = product.stock > 0 && product.stock <= product.low_stock_alert;
-          return (
-            <Card key={product.id} interactive className="overflow-hidden">
-              <div className="relative">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="h-40 w-full object-cover"
-                />
-                <div className="absolute left-3 top-3">
-                  {out && <Badge tone="danger">Out of stock</Badge>}
-                  {low && <Badge tone="warning">Low stock</Badge>}
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h3 className="truncate font-semibold text-slate-900">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-slate-500">{product.category}</p>
-                  </div>
-                  {product.sku && (
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-500">
-                      {product.sku}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mb-4 grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <p className="text-xs text-slate-400">Sell price</p>
-                    <p className="font-semibold text-slate-900">
-                      {currency(product.selling_price)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Cost price</p>
-                    <p className="font-semibold text-slate-900">
-                      {currency(product.purchase_price)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Stock</p>
-                    <p
-                      className={
-                        'font-semibold ' +
-                        (out
-                          ? 'text-red-600'
-                          : low
-                            ? 'text-amber-600'
-                            : 'text-slate-900')
-                      }
-                    >
-                      {product.stock} units
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Profit</p>
-                    <p className="font-semibold text-emerald-600">
-                      {currency(product.selling_price - product.purchase_price)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    fullWidth
-                    onClick={() => openEditModal(product)}
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:bg-red-50"
-                    onClick={() => setDeleteTarget(product)}
-                    aria-label={`Delete ${product.name}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
+        </Select>
+        <Select
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="all">Select All</option>
+          {categories
+            .filter((c) => c !== 'all')
+            .map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+        </Select>
       </div>
 
-      {filteredProducts.length === 0 && (
-        <div className="py-16 text-center">
-          <Package className="mx-auto mb-4 h-16 w-16 text-slate-300" />
-          <p className="text-slate-500">No products found</p>
-          <p className="text-sm text-slate-400">
-            Try adjusting your search or add a new product.
-          </p>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-[13px]">
+          Show
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
+            className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+          entries
         </div>
-      )}
+        <div className="flex items-center gap-2 text-[13px]">
+          Search:
+          <input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+            className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+          />
+        </div>
+      </div>
 
-      {/* Add / Edit modal */}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] text-[13px]">
+          <thead>
+            <tr className="bg-[#9e9e9e] text-left text-white">
+              <th className="px-3 py-2 font-medium">#</th>
+              <th className="px-3 py-2 font-medium">Image</th>
+              <th className="px-3 py-2 font-medium">Name</th>
+              <th className="px-3 py-2 font-medium">Category</th>
+              <th className="px-3 py-2 font-medium">SKU</th>
+              <th className="px-3 py-2 font-medium">Cost Price</th>
+              <th className="px-3 py-2 font-medium">Selling Price</th>
+              <th className="px-3 py-2 font-medium">Stock</th>
+              <th className="px-3 py-2 font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paged.map((product, idx) => (
+              <tr key={product.id} className="border-b border-[#dee2e6] hover:bg-[#f8f9fa]">
+                <td className="px-3 py-2">{start + idx}</td>
+                <td className="px-3 py-2">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="h-10 w-10 rounded object-cover"
+                  />
+                </td>
+                <td className="px-3 py-2">{product.name}</td>
+                <td className="px-3 py-2">{product.category}</td>
+                <td className="px-3 py-2">{product.sku || '-'}</td>
+                <td className="px-3 py-2">{currency(product.purchase_price)}</td>
+                <td className="px-3 py-2">{currency(product.selling_price)}</td>
+                <td className="px-3 py-2">{product.stock}</td>
+                <td className="relative px-3 py-2">
+                  <Button
+                    variant="info"
+                    size="sm"
+                    onClick={() =>
+                      setOpenAction(openAction === product.id ? null : product.id)
+                    }
+                  >
+                    Action ▾
+                  </Button>
+                  {openAction === product.id && (
+                    <div className="absolute right-3 z-10 mt-1 w-28 rounded-[4px] border border-[#dee2e6] bg-white py-1 shadow-card">
+                      <button
+                        className="block w-full px-3 py-1.5 text-left text-[13px] hover:bg-[#f8f9fa]"
+                        onClick={() => openEditModal(product)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="block w-full px-3 py-1.5 text-left text-[13px] text-[#dc3545] hover:bg-[#f8f9fa]"
+                        onClick={() => {
+                          setDeleteTarget(product);
+                          setOpenAction(null);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+        <p>
+          Showing {start} to {end} of {filteredProducts.length} entries
+        </p>
+        <div className="flex overflow-hidden rounded-[4px] border border-[#dee2e6]">
+          <button
+            className="px-3 py-1.5 disabled:text-[#adb5bd]"
+            disabled={currentPage === 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .slice(0, 5)
+            .map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={
+                  n === currentPage
+                    ? 'bg-[#007bff] px-3 py-1.5 text-white'
+                    : 'border-l border-[#dee2e6] px-3 py-1.5'
+                }
+              >
+                {n}
+              </button>
+            ))}
+          <button
+            className="border-l border-[#dee2e6] px-3 py-1.5 disabled:text-[#adb5bd]"
+            disabled={currentPage === totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title={editingProduct ? 'Edit Product' : 'Add New Product'}
-        subtitle={
-          editingProduct
-            ? 'Update the details for this product.'
-            : 'Add a new item to your catalog.'
-        }
+        title={editingProduct ? 'Edit Product' : 'Add Product'}
         size="lg"
         footer={
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>
-              {editingProduct ? 'Update Product' : 'Add Product'}
+          <div className="flex justify-center gap-3">
+            <Button onClick={handleSubmit}>Save</Button>
+            <Button variant="success" onClick={() => setShowModal(false)}>
+              List
             </Button>
           </div>
         }
       >
-        <div className="p-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <Input
-                label="Product image URL"
-                value={formData.image_url}
-                onChange={(e) => setField('image_url', e.target.value)}
-                placeholder="https://…"
-              />
-              {formData.image_url && (
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  className="mt-3 h-20 w-20 rounded-lg border border-slate-200 object-cover"
-                />
-              )}
-            </div>
-            <Input
-              label="Product name *"
-              value={formData.name}
-              onChange={(e) => setField('name', e.target.value)}
-              placeholder="Enter product name"
-            />
-            <Input
-              label="Category *"
-              value={formData.category}
-              onChange={(e) => setField('category', e.target.value)}
-              placeholder="e.g. Glassware, Ceramic"
-            />
-            <Input
-              label="Purchase price (৳)"
-              type="number"
-              value={formData.purchase_price}
-              onChange={(e) => setField('purchase_price', e.target.value)}
-              placeholder="0"
-            />
-            <Input
-              label="Selling price (৳) *"
-              type="number"
-              value={formData.selling_price}
-              onChange={(e) => setField('selling_price', e.target.value)}
-              placeholder="0"
-            />
-            <Input
-              label="Stock quantity"
-              type="number"
-              value={formData.stock}
-              onChange={(e) => setField('stock', e.target.value)}
-              placeholder="0"
-            />
-            <Input
-              label="Low stock alert level"
-              type="number"
-              value={formData.low_stock_alert}
-              onChange={(e) => setField('low_stock_alert', e.target.value)}
-              placeholder="5"
-            />
-            <Input
-              label="SKU / Barcode"
-              containerClassName="md:col-span-2"
-              value={formData.sku}
-              onChange={(e) => setField('sku', e.target.value)}
-              placeholder="Optional"
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
+          <Input
+            label="Name *"
+            value={formData.name}
+            onChange={(e) => setField('name', e.target.value)}
+          />
+          <Input
+            label="Category *"
+            value={formData.category}
+            onChange={(e) => setField('category', e.target.value)}
+          />
+          <Input
+            label="Image URL"
+            value={formData.image_url}
+            onChange={(e) => setField('image_url', e.target.value)}
+          />
+          <Input
+            label="Price"
+            type="number"
+            value={formData.selling_price}
+            onChange={(e) => setField('selling_price', e.target.value)}
+          />
+          <Input
+            label="Cost Price"
+            type="number"
+            value={formData.purchase_price}
+            onChange={(e) => setField('purchase_price', e.target.value)}
+          />
+          <Input
+            label="Alert Quantity"
+            type="number"
+            value={formData.low_stock_alert}
+            onChange={(e) => setField('low_stock_alert', e.target.value)}
+          />
+          <Input
+            label="Stock Quantity"
+            type="number"
+            value={formData.stock}
+            onChange={(e) => setField('stock', e.target.value)}
+          />
+          <Input
+            label="SKU"
+            value={formData.sku}
+            onChange={(e) => setField('sku', e.target.value)}
+          />
         </div>
       </Modal>
 

@@ -1,73 +1,52 @@
 @import "tailwindcss";
 
 /*
-  Olila Glass design tokens.
-  A single refined accent (brand) built on a cool indigo/slate hue,
-  neutral grays for surfaces, and restrained semantic colors.
+  Visual language matched to the AmarSolution restaurant admin / POS
+  (white icon sidebar, gray DataTables, green POS, Bootstrap-style buttons).
 */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif;
 
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
+  --color-brand-50: #e8f5e9;
+  --color-brand-100: #c8e6c9;
+  --color-brand-200: #a5d6a7;
+  --color-brand-300: #81c784;
+  --color-brand-400: #66bb6a;
+  --color-brand-500: #4caf50;
+  --color-brand-600: #28a745;
+  --color-brand-700: #1e7e34;
+  --color-brand-800: #155d27;
+  --color-brand-900: #0d3d1a;
 
+  --color-pos: #1b7a3a;
+  --color-pos-dark: #14632e;
+  --color-cyan-btn: #17a2b8;
+  --color-table-head: #9e9e9e;
+  --color-canvas: #e9ecef;
   --color-surface: #ffffff;
-  --color-canvas: #f8fafc;
 
-  --radius-lg: 0.75rem;
-  --radius-xl: 0.875rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.375rem;
 
-  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04),
-    0 1px 3px 0 rgb(15 23 42 / 0.06);
-  --shadow-elevated: 0 10px 30px -12px rgb(15 23 42 / 0.18),
-    0 4px 12px -6px rgb(15 23 42 / 0.1);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-elevated: 0 8px 24px rgb(0 0 0 / 0.18);
 }
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
   }
 
   body {
     background-color: var(--color-canvas);
-    color: var(--color-slate-800);
+    color: #212529;
     font-family: var(--font-sans);
+    font-size: 14px;
   }
 
-  /* Refined focus ring for interactive elements */
   :where(button, a, input, select, textarea):focus-visible {
-    outline: 2px solid var(--color-brand-500);
-    outline-offset: 2px;
-  }
-
-  /* Subtle, unobtrusive scrollbars */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-slate-300) transparent;
-  }
-  *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  *::-webkit-scrollbar-thumb {
-    background-color: var(--color-slate-300);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-slate-400);
+    outline: 2px solid #80bdff;
+    outline-offset: 1px;
   }
 }
 

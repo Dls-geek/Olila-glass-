@@ -9,9 +9,8 @@ export function Card({ className, interactive = false, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'rounded-xl border border-slate-200 bg-white shadow-card',
-        interactive &&
-          'transition-shadow hover:shadow-elevated focus-within:shadow-elevated',
+        'rounded-[4px] border border-[#dee2e6] bg-white',
+        interactive && 'hover:shadow-card',
         className
       )}
       {...props}
@@ -36,7 +35,7 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4',
+        'flex items-center justify-between gap-4 border-b border-[#dee2e6] px-4 py-3',
         className
       )}
       {...props}
@@ -44,10 +43,10 @@ export function CardHeader({
       {children ?? (
         <div className="min-w-0">
           {title && (
-            <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+            <h3 className="text-[16px] font-semibold text-[#212529]">{title}</h3>
           )}
           {subtitle && (
-            <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>
+            <p className="mt-0.5 text-[13px] text-[#6c757d]">{subtitle}</p>
           )}
         </div>
       )}
@@ -60,5 +59,5 @@ export function CardContent({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('p-5', className)} {...props} />;
+  return <div className={cn('p-4', className)} {...props} />;
 }

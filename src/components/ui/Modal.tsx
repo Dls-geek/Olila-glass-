@@ -9,7 +9,7 @@ interface ModalProps {
   subtitle?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
@@ -17,6 +17,7 @@ const sizes = {
   sm: 'max-w-md',
   md: 'max-w-lg',
   lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
 };
 
 export function Modal({
@@ -52,12 +53,12 @@ export function Modal({
       aria-modal="true"
     >
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/45 animate-fade-in"
         onClick={onClose}
       />
       <div
         className={cn(
-          'relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-elevated animate-scale-in',
+          'relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[4px] bg-white shadow-elevated animate-scale-in',
           sizes[size],
           className
         )}

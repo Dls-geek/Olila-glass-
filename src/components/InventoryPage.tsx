@@ -1,19 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import {
-  Package,
-  Search,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  TrendingUp,
-  TrendingDown,
-  History,
-  Filter,
-  Boxes,
-} from 'lucide-react';
+import { TrendingDown, TrendingUp } from 'lucide-react';
 import type { Product } from '../types';
-import { Badge, Card, CardContent, CardHeader, Input, Select, StatCard } from './ui';
+import { Card, CardHeader } from './ui';
 
 const currency = (n: number) => `৳${n.toLocaleString()}`;
 
@@ -29,6 +18,8 @@ export function InventoryPage() {
   const { products, inventoryLogs } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -39,6 +30,16 @@ export function InventoryPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, currentPage, pageSize]);
+
+  const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, filteredProducts.length);
+
   const lowStock = products.filter(
     (p) => p.stock <= p.low_stock_alert && p.stock > 0
   ).length;
@@ -46,185 +47,187 @@ export function InventoryPage() {
   const inStock = products.filter((p) => p.stock > 0).length;
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Inventory</h1>
-        <p className="text-sm text-slate-500">
-          Track and manage your stock levels
-        </p>
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          ['Total Products', products.length, '#007bff'],
+          ['In Stock', inStock, '#28a745'],
+          ['Low Stock', lowStock, '#fd7e14'],
+          ['Out of Stock', outOfStock, '#dc3545'],
+        ].map(([label, value, color]) => (
+          <div
+            key={String(label)}
+            className="rounded-[4px] border border-[#dee2e6] bg-white p-3"
+          >
+            <p className="text-[12px] text-[#6c757d]">{label}</p>
+            <p className="text-2xl font-semibold" style={{ color: String(color) }}>
+              {value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Total Products"
-          value={products.length}
-          icon={<Boxes className="h-5 w-5" />}
-          tone="brand"
-        />
-        <StatCard
-          label="In Stock"
-          value={inStock}
-          icon={<CheckCircle className="h-5 w-5" />}
-          tone="success"
-        />
-        <StatCard
-          label="Low Stock"
-          value={lowStock}
-          icon={<AlertTriangle className="h-5 w-5" />}
-          tone="warning"
-        />
-        <StatCard
-          label="Out of Stock"
-          value={outOfStock}
-          icon={<XCircle className="h-5 w-5" />}
-          tone="danger"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Table */}
-        <Card className="overflow-hidden lg:col-span-2">
-          <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row">
-            <Input
-              containerClassName="flex-1"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search products…"
-              icon={<Search className="h-5 w-5" />}
-            />
-            <Select
-              containerClassName="sm:w-44"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              icon={<Filter className="h-4 w-4" />}
-            >
-              <option value="all">All status</option>
-              <option value="good">In stock</option>
-              <option value="low">Low stock</option>
-              <option value="out">Out of stock</option>
-            </Select>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4 lg:col-span-2">
+          <h1 className="mb-3 text-[18px] font-semibold">Stock</h1>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[13px]">
+              Show
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+              </select>
+              entries
+              <select
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+              >
+                <option value="all">All</option>
+                <option value="good">In Stock</option>
+                <option value="low">Low Stock</option>
+                <option value="out">Out of Stock</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2 text-[13px]">
+              Search:
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+              />
+            </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[700px] text-[13px]">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                  <th className="px-5 py-3 font-semibold">Product</th>
-                  <th className="px-5 py-3 font-semibold">Category</th>
-                  <th className="px-5 py-3 text-center font-semibold">Stock</th>
-                  <th className="px-5 py-3 text-center font-semibold">Status</th>
-                  <th className="px-5 py-3 text-right font-semibold">Price</th>
+                <tr className="bg-[#9e9e9e] text-left text-white">
+                  <th className="px-3 py-2 font-medium">SL</th>
+                  <th className="px-3 py-2 font-medium">Product</th>
+                  <th className="px-3 py-2 font-medium">Category</th>
+                  <th className="px-3 py-2 font-medium">Stock</th>
+                  <th className="px-3 py-2 font-medium">Status</th>
+                  <th className="px-3 py-2 font-medium">Price</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredProducts.map((product) => {
+              <tbody>
+                {paged.map((product, idx) => {
                   const status = getStockStatus(product);
                   return (
-                    <tr key={product.id} className="transition-colors hover:bg-slate-50">
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-3">
+                    <tr key={product.id} className="border-b border-[#dee2e6]">
+                      <td className="px-3 py-2">{start + idx}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
                           <img
                             src={product.image_url}
                             alt={product.name}
-                            className="h-10 w-10 rounded-md object-cover"
+                            className="h-9 w-9 rounded object-cover"
                           />
-                          <div className="min-w-0">
-                            <p className="truncate font-medium text-slate-800">
-                              {product.name}
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              SKU: {product.sku || '—'}
+                          <div>
+                            <p>{product.name}</p>
+                            <p className="text-[11px] text-[#6c757d]">
+                              SKU: {product.sku || '-'}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3">
-                        <Badge tone="neutral">{product.category}</Badge>
-                      </td>
-                      <td className="px-5 py-3 text-center font-semibold text-slate-800">
-                        {product.stock}
-                      </td>
-                      <td className="px-5 py-3 text-center">
+                      <td className="px-3 py-2">{product.category}</td>
+                      <td className="px-3 py-2">{product.stock}</td>
+                      <td className="px-3 py-2">
                         {status === 'good' && (
-                          <Badge tone="success" dot>
-                            In stock
-                          </Badge>
+                          <span className="rounded-[3px] bg-[#28a745] px-2 py-0.5 text-[12px] text-white">
+                            In Stock
+                          </span>
                         )}
                         {status === 'low' && (
-                          <Badge tone="warning" dot>
-                            Low stock
-                          </Badge>
+                          <span className="rounded-[3px] bg-[#fd7e14] px-2 py-0.5 text-[12px] text-white">
+                            Low Stock
+                          </span>
                         )}
                         {status === 'out' && (
-                          <Badge tone="danger" dot>
-                            Out of stock
-                          </Badge>
+                          <span className="rounded-[3px] bg-[#dc3545] px-2 py-0.5 text-[12px] text-white">
+                            Out of Stock
+                          </span>
                         )}
                       </td>
-                      <td className="px-5 py-3 text-right">
-                        <p className="font-semibold text-slate-900">
-                          {currency(product.selling_price)}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          Cost {currency(product.purchase_price)}
-                        </p>
-                      </td>
+                      <td className="px-3 py-2">{currency(product.selling_price)}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            {filteredProducts.length === 0 && (
-              <p className="py-10 text-center text-sm text-slate-500">
-                No products match your filters.
-              </p>
-            )}
           </div>
-        </Card>
 
-        {/* Logs */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+            <p>
+              Showing {start} to {end} of {filteredProducts.length} entries
+            </p>
+            <div className="flex overflow-hidden rounded-[4px] border border-[#dee2e6]">
+              <button
+                className="px-3 py-1.5 disabled:text-[#adb5bd]"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={
+                    n === currentPage
+                      ? 'bg-[#007bff] px-3 py-1.5 text-white'
+                      : 'border-l border-[#dee2e6] px-3 py-1.5'
+                  }
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                className="border-l border-[#dee2e6] px-3 py-1.5 disabled:text-[#adb5bd]"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+
         <Card>
-          <CardHeader
-            title={
-              <span className="flex items-center gap-2">
-                <History className="h-5 w-5 text-slate-400" />
-                Inventory Logs
-              </span>
-            }
-          />
-          <CardContent className="max-h-[28rem] space-y-2 overflow-y-auto">
+          <CardHeader title="Inventory Logs" />
+          <div className="max-h-[28rem] space-y-1 overflow-y-auto p-3">
             {inventoryLogs.slice(0, 15).map((log) => (
               <div
                 key={log.id}
-                className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-2.5"
+                className="flex items-center gap-2 border-b border-[#f1f3f5] py-2 text-[13px]"
               >
-                <div
-                  className={
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ' +
-                    (log.change_type === 'add'
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-red-50 text-red-600')
-                  }
-                >
-                  {log.change_type === 'add' ? (
-                    <TrendingUp className="h-4 w-4" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4" />
-                  )}
-                </div>
+                {log.change_type === 'add' ? (
+                  <TrendingUp className="h-4 w-4 text-[#28a745]" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-[#dc3545]" />
+                )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800">
-                    {log.product_name}
-                  </p>
-                  <p className="text-xs text-slate-400">{log.date}</p>
+                  <p className="truncate">{log.product_name}</p>
+                  <p className="text-[11px] text-[#6c757d]">{log.date}</p>
                 </div>
                 <span
                   className={
-                    'text-sm font-bold ' +
-                    (log.change_type === 'add'
-                      ? 'text-emerald-600'
-                      : 'text-red-600')
+                    log.change_type === 'add' ? 'text-[#28a745]' : 'text-[#dc3545]'
                   }
                 >
                   {log.change_type === 'add' ? '+' : '-'}
@@ -232,13 +235,7 @@ export function InventoryPage() {
                 </span>
               </div>
             ))}
-            {inventoryLogs.length === 0 && (
-              <div className="py-8 text-center text-sm text-slate-500">
-                <Package className="mx-auto mb-2 h-10 w-10 text-slate-300" />
-                No logs yet
-              </div>
-            )}
-          </CardContent>
+          </div>
         </Card>
       </div>
     </div>
