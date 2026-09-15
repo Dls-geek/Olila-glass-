@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ClipboardList,
   List,
@@ -14,6 +14,7 @@ import {
 import { useApp } from '../context/AppContext';
 import type { Chalan, Product } from '../types';
 import { formatMoney } from '../utils/money';
+import { cn } from '../utils/cn';
 import { Button, Input, Modal, Select, useToast } from './ui';
 
 type ChalanMode = 'list' | 'new' | 'paona';
@@ -122,11 +123,13 @@ function StepHint({
     <div className="flex flex-wrap gap-2">
       {steps.map((s) => {
         const tone = tones[s.tone ?? 'slate'];
-        const className = `rounded-lg border px-3 py-1.5 text-[12px] font-bold text-white transition-colors ${
-          tone.base
-        } ${s.active || s.done ? 'ring-2 ring-offset-1 ring-black/15' : 'opacity-90'} ${
+        const className = cn(
+          'rounded-lg border px-3.5 py-2 text-[13px] font-semibold tracking-wide text-white transition-colors',
+          '[font-family:"Segoe_UI",Roboto,system-ui,sans-serif]',
+          tone.base,
+          s.active || s.done ? 'ring-2 ring-offset-1 ring-black/15' : 'opacity-90',
           s.onClick ? `cursor-pointer ${tone.hover}` : ''
-        }`;
+        );
         if (s.onClick) {
           return (
             <button
@@ -584,7 +587,7 @@ export function ChalanPage({
               steps={[
                 {
                   n: 1,
-                  title: 'চালান তৈরি',
+                  title: 'Purchase Order',
                   tone: 'green',
                   active: mode === 'new',
                   onClick: () => onNavigate?.('chalanNew'),
@@ -992,97 +995,118 @@ export function ChalanPage({
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[920px] text-[13px]">
+                <table className="w-full min-w-[920px] text-[13px] text-[#212529]">
                   <thead>
-                    <tr className="bg-[#343a40] text-left text-white">
-                      <th className="px-3 py-2.5 font-medium">#</th>
-                      <th className="px-3 py-2.5 font-medium">চালান</th>
-                      <th className="px-3 py-2.5 font-medium">তারিখ</th>
-                      <th className="px-3 py-2.5 font-medium">কোম্পানি</th>
-                      <th className="px-3 py-2.5 font-medium">স্ট্যাটাস</th>
-                      <th className="px-3 py-2.5 font-medium">অর্ডার</th>
-                      <th className="px-3 py-2.5 font-medium">রিসিভ</th>
-                      <th className="px-3 py-2.5 font-medium">পাওনা</th>
-                      <th className="px-3 py-2.5 font-medium">পরিশোধ</th>
-                      <th className="px-3 py-2.5 font-medium">Action</th>
+                    <tr className="bg-[#1a365d] text-left text-white">
+                      <th className="px-3 py-2.5 font-semibold">#</th>
+                      <th className="px-3 py-2.5 font-semibold">তারিখ</th>
+                      <th className="px-3 py-2.5 font-semibold">চালান</th>
+                      <th className="px-3 py-2.5 font-semibold">কোম্পানি</th>
+                      <th className="px-3 py-2.5 font-semibold">স্ট্যাটাস</th>
+                      <th className="px-3 py-2.5 font-semibold">অর্ডার</th>
+                      <th className="px-3 py-2.5 font-semibold">রিসিভ</th>
+                      <th className="px-3 py-2.5 font-semibold">পাওনা</th>
+                      <th className="px-3 py-2.5 font-semibold">পরিশোধ</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {pagedChalans.map((c, idx) => (
-                      <tr
-                        key={c.id}
-                        className={`border-b border-[#eef1f4] hover:bg-[#f0f7fb] ${
-                          idx % 2 ? 'bg-[#f8f9fa]' : 'bg-white'
-                        } ${
-                          c.remaining_units > 0
-                            ? 'border-l-4 border-l-[#fd7e14]'
-                            : ''
-                        }`}
-                      >
-                        <td className="px-3 py-2.5 text-[#6c757d]">
-                          {listStart + idx}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <button
-                            type="button"
-                            title={c.id}
-                            className="font-semibold text-[#007bff] hover:underline"
-                            onClick={() => void openDetail(c.id)}
+                    {pagedChalans.map((c, idx) => {
+                      const rowBg = idx % 2 ? 'bg-[#e9eef3]' : 'bg-white';
+                      const accent =
+                        c.remaining_units > 0
+                          ? 'border-l-4 border-l-[#fd7e14]'
+                          : 'border-l-4 border-l-transparent';
+                      return (
+                        <Fragment key={c.id}>
+                          <tr
+                            className={`hover:bg-[#dceaf5] ${rowBg} ${accent}`}
                           >
-                            {shortId(c.id)}
-                          </button>
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <span className="inline-flex rounded border border-[#dee2e6] bg-white px-2 py-0.5 font-mono text-[12px]">
-                            {c.date}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5">{c.supplier || '—'}</td>
-                        <td className="px-3 py-2.5">
-                          <StatusPill status={c.status} />
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <span className="font-mono tabular-nums">
-                            {c.ordered_units}
-                          </span>
-                          <span className="text-[#6c757d]"> · </span>
-                          <span className="font-mono tabular-nums text-[#15803d]">
-                            {formatMoney(c.ordered_amount)}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5 font-mono tabular-nums">
-                          {c.received_units}
-                        </td>
-                        <td className="px-3 py-2.5 font-mono font-bold tabular-nums text-[#dc3545]">
-                          {c.remaining_units}
-                        </td>
-                        <td className="px-3 py-2.5 font-mono tabular-nums text-[#15803d]">
-                          {formatMoney(c.paid_amount)}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <div className="flex flex-wrap gap-1">
-                            <Button
-                              size="sm"
-                              variant="info"
-                              onClick={() => void openDetail(c.id)}
-                            >
-                              খুলুন
-                            </Button>
-                            {c.remaining_units > 0 && (
-                              <Button
-                                size="sm"
-                                variant="success"
-                                onClick={() =>
-                                  void openDetail(c.id, { recv: true })
-                                }
+                            <td className="px-3 pt-2.5 pb-1 font-semibold text-[#495057]">
+                              {listStart + idx}
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1">
+                              <span className="inline-flex rounded border border-[#1a365d]/25 bg-[#1a365d] px-2 py-0.5 font-mono text-[12px] font-semibold text-white">
+                                {c.date}
+                              </span>
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1">
+                              <button
+                                type="button"
+                                title={c.id}
+                                className="font-bold text-[#0056b3] hover:underline"
+                                onClick={() => void openDetail(c.id)}
                               >
-                                রিসিভ
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                                {shortId(c.id)}
+                              </button>
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1 font-medium text-[#212529]">
+                              {c.supplier || '—'}
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1">
+                              <StatusPill status={c.status} />
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1">
+                              <span className="font-mono font-semibold tabular-nums">
+                                {c.ordered_units}
+                              </span>
+                              <span className="text-[#6c757d]"> · </span>
+                              <span className="font-mono font-semibold tabular-nums text-[#0f5132]">
+                                {formatMoney(c.ordered_amount)}
+                              </span>
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1 font-mono font-semibold tabular-nums text-[#212529]">
+                              {c.received_units}
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1 font-mono font-bold tabular-nums text-[#b02a37]">
+                              {c.remaining_units}
+                            </td>
+                            <td className="px-3 pt-2.5 pb-1 font-mono font-semibold tabular-nums text-[#0f5132]">
+                              {formatMoney(c.paid_amount)}
+                            </td>
+                          </tr>
+                          <tr
+                            className={`border-b-2 border-[#ced4da] ${rowBg} ${accent}`}
+                          >
+                            <td
+                              colSpan={9}
+                              className="border-t border-[#ced4da]/70 px-3 pb-2.5 pt-1.5"
+                            >
+                              <div className="flex w-full gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="info"
+                                  fullWidth
+                                  onClick={() => void openDetail(c.id)}
+                                >
+                                  খুলুন
+                                </Button>
+                                {c.remaining_units > 0 ? (
+                                  <Button
+                                    size="sm"
+                                    variant="success"
+                                    fullWidth
+                                    onClick={() =>
+                                      void openDetail(c.id, { recv: true })
+                                    }
+                                  >
+                                    রিসিভ
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    fullWidth
+                                    disabled
+                                  >
+                                    রিসিভ হয়েছে
+                                  </Button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1277,44 +1301,35 @@ export function ChalanPage({
               </div>
             </div>
 
-            <StepHint
-              steps={[
-                {
-                  n: 1,
-                  title: 'চালান',
-                  tone: 'green',
-                  done: true,
-                  onClick: () => onNavigate?.('chalan'),
-                },
-                {
-                  n: 2,
-                  title: 'পেমেন্ট',
-                  tone: 'navy',
-                  done: detail.paid_amount > 0,
-                  active: showPay,
-                  onClick: () => {
-                    setShowRecv(false);
-                    setShowPay(true);
-                  },
-                },
-                {
-                  n: 3,
-                  title: 'রিসিভ',
-                  tone: 'amber',
-                  done:
-                    detail.received_units > 0 && detail.remaining_units === 0,
-                  active: showRecv,
-                  onClick: () => {
-                    if (detail.remaining_units <= 0) {
-                      toast.info('সব মাল রিসিভ হয়ে গেছে।');
-                      return;
-                    }
-                    setShowPay(false);
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  const due = Math.max(
+                    0,
+                    detail.ordered_amount - detail.paid_amount
+                  );
+                  setPayAmount(due > 0 ? String(Math.round(due)) : '');
+                  setShowPay(true);
+                  setShowRecv(false);
+                }}
+              >
+                <Wallet className="h-4 w-4" />
+                পেমেন্ট লিংক করুন
+              </Button>
+              {detail.remaining_units > 0 && (
+                <Button
+                  variant="success"
+                  onClick={() => {
                     setShowRecv(true);
-                  },
-                },
-              ]}
-            />
+                    setShowPay(false);
+                  }}
+                >
+                  <Truck className="h-4 w-4" />
+                  মাল রিসিভ করুন
+                </Button>
+              )}
+            </div>
 
             <div className="overflow-x-auto rounded-xl border border-[#dee2e6]">
               <table className="w-full text-[13px]">
@@ -1356,36 +1371,6 @@ export function ChalanPage({
                   ))}
                 </tbody>
               </table>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  const due = Math.max(
-                    0,
-                    detail.ordered_amount - detail.paid_amount
-                  );
-                  setPayAmount(due > 0 ? String(Math.round(due)) : '');
-                  setShowPay(true);
-                  setShowRecv(false);
-                }}
-              >
-                <Wallet className="h-4 w-4" />
-                ২) পেমেন্ট লিংক করুন
-              </Button>
-              {detail.remaining_units > 0 && (
-                <Button
-                  variant="success"
-                  onClick={() => {
-                    setShowRecv(true);
-                    setShowPay(false);
-                  }}
-                >
-                  <Truck className="h-4 w-4" />
-                  ৩) মাল রিসিভ করুন
-                </Button>
-              )}
             </div>
 
             <div className="rounded-xl border border-[#dee2e6] p-3">
