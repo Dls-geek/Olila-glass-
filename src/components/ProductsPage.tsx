@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Download, Plus } from 'lucide-react';
 import type { Product } from '../types';
@@ -8,7 +8,14 @@ import {
   ConfirmDialog,
   Input,
   Modal,
+  ModuleHeader,
+  SectionCard,
   Select,
+  StatTile,
+  TablePager,
+  TableToolbar,
+  darkThead,
+  zebraRow,
   useToast,
 } from './ui';
 
@@ -60,7 +67,6 @@ export function ProductsPage({
   const [customCategory, setCustomCategory] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
-  const [openAction, setOpenAction] = useState<string | null>(null);
 
   const categories = useMemo(
     () => ['all', ...Array.from(new Set(products.map((p) => p.category))).sort()],
@@ -149,7 +155,6 @@ export function ProductsPage({
       sku: product.sku || '',
     });
     setShowModal(true);
-    setOpenAction(null);
   };
 
   const confirmDelete = async () => {
@@ -162,17 +167,6 @@ export function ProductsPage({
 
   const setField = (key: keyof typeof emptyForm, value: string) =>
     setFormData((prev) => ({ ...prev, [key]: value }));
-
-  useEffect(() => {
-    if (!openAction) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      if (t.closest('[data-action-menu]')) return;
-      setOpenAction(null);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [openAction]);
 
   const exportCsv = () => {
     const header = [
@@ -211,6 +205,13 @@ export function ProductsPage({
 
   const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, filteredProducts.length);
+
+  const lowStockCount = products.filter(
+    (p) => p.stock > 0 && p.stock <= p.low_stock_alert
+  ).length;
+  const outCount = products.filter((p) => p.stock === 0).length;
+  const groupCount = new Set(products.map((p) => p.group).filter(Boolean)).size;
+
 
   const formFields = (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -311,229 +312,220 @@ export function ProductsPage({
 
   if (mode === 'form') {
     return (
-      <div className="as-card p-4">
-        <h1 className="mb-4 text-[18px] font-semibold">Add Product</h1>
-        {formFields}
-        <div className="mt-6 flex justify-center gap-3">
-          <Button onClick={handleSubmit}>Save</Button>
-          <Button variant="secondary" onClick={() => onList?.()}>
-            Back to list
-          </Button>
-        </div>
+      <div className="space-y-3">
+        <ModuleHeader
+          eyebrow="Products · Catalog"
+          title="Add Product · নতুন পণ্য"
+          subtitle="ক্যাটালগে নতুন SKU যোগ করুন।"
+          actions={
+            <Button size="sm" variant="secondary" onClick={() => onList?.()}>
+              তালিকায় ফিরুন
+            </Button>
+          }
+        />
+        <SectionCard title="পণ্য ফর্ম · Product form" accent="green">
+          <div className="p-4">
+            {formFields}
+            <div className="mt-6 flex justify-center gap-3">
+              <Button onClick={handleSubmit}>সেভ · Save</Button>
+              <Button variant="success" onClick={() => onList?.()}>
+                তালিকা
+              </Button>
+            </div>
+          </div>
+        </SectionCard>
       </div>
     );
   }
 
   return (
-    <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-[18px] font-semibold">Product List</h1>
-        <div className="flex gap-2">
-          <Button variant="info" size="sm" onClick={exportCsv}>
-            <Download className="h-3.5 w-3.5" />
-            Export CSV
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              resetForm();
-              if (onAdd) onAdd();
-              else setShowModal(true);
-            }}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            New Product
-          </Button>
-        </div>
+    <div className="space-y-3">
+      <ModuleHeader
+        eyebrow="Products · Catalog"
+        title="Product List · পণ্য তালিকা"
+        subtitle="গ্রুপ/ক্যাটাগরি ফিল্টার, CSV এক্সপোর্ট, নতুন পণ্য যোগ।"
+        actions={
+          <>
+            <Button variant="info" size="sm" onClick={exportCsv}>
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                resetForm();
+                if (onAdd) onAdd();
+                else setShowModal(true);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              নতুন পণ্য
+            </Button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <StatTile label="মোট SKU · Total" value={products.length} tone="navy" />
+        <StatTile label="গ্রুপ · Groups" value={groupCount} tone="blue" />
+        <StatTile label="কম স্টক · Low" value={lowStockCount} tone="amber" />
+        <StatTile label="শেল্ফ খালি · Out" value={outCount} tone="red" />
       </div>
 
-      <div className="mb-3 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
-        <Select
-          label="Group"
-          value={selectedGroup}
-          onChange={(e) => {
-            setSelectedGroup(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="all">All groups</option>
-          {groups
-            .filter((g) => g !== 'all')
-            .map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-        </Select>
-        <Select
-          label="Category"
-          value={selectedCategory}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="all">All categories</option>
-          {categories
-            .filter((c) => c !== 'all')
-            .map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-        </Select>
-      </div>
-
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-[13px]">
-          Show
-          <select
-            value={pageSize}
+      <SectionCard
+        title="ক্যাটালগ · All products"
+        subtitle="Search, filter, edit or delete."
+        accent="green"
+      >
+        <div className="grid grid-cols-1 gap-2 border-b border-[#eef1f4] px-4 py-2.5 sm:grid-cols-2">
+          <Select
+            label="Group"
+            value={selectedGroup}
             onChange={(e) => {
-              setPageSize(Number(e.target.value));
+              setSelectedGroup(e.target.value);
               setPage(1);
             }}
-            className="h-8 rounded-[4px] border border-[#ced4da] px-2"
           >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
-          entries
-        </div>
-        <div className="flex items-center gap-2 text-[13px]">
-          Search:
-          <input
-            value={searchTerm}
+            <option value="all">All groups</option>
+            {groups
+              .filter((g) => g !== 'all')
+              .map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+          </Select>
+          <Select
+            label="Category"
+            value={selectedCategory}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
+              setSelectedCategory(e.target.value);
               setPage(1);
             }}
-            placeholder="Name, SKU, group…"
-            className="h-8 w-52 rounded-[4px] border border-[#ced4da] px-2"
-          />
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] text-[13px]">
-          <thead>
-            <tr className="bg-[#9e9e9e] text-left text-white">
-              <th className="px-3 py-2 font-medium">#</th>
-              <th className="px-3 py-2 font-medium">Image</th>
-              <th className="px-3 py-2 font-medium">Name</th>
-              <th className="px-3 py-2 font-medium">Group</th>
-              <th className="px-3 py-2 font-medium">Category</th>
-              <th className="px-3 py-2 font-medium">SKU</th>
-              <th className="px-3 py-2 font-medium">Cost Price</th>
-              <th className="px-3 py-2 font-medium">Selling Price</th>
-              <th className="px-3 py-2 font-medium">Stock</th>
-              <th className="px-3 py-2 font-medium">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paged.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={10}
-                  className="px-3 py-10 text-center text-[13px] text-[#6c757d]"
-                >
-                  No products match. Clear filters or add a product.
-                </td>
-              </tr>
-            ) : null}
-            {paged.map((product, idx) => (
-              <tr key={product.id} className="border-b border-[#dee2e6] hover:bg-[#f8f9fa]">
-                <td className="px-3 py-2">{start + idx}</td>
-                <td className="px-3 py-2">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="h-10 w-10 rounded object-cover"
-                  />
-                </td>
-                <td className="px-3 py-2">{product.name}</td>
-                <td className="px-3 py-2">{product.group}</td>
-                <td className="px-3 py-2">{product.category}</td>
-                <td className="px-3 py-2">{product.sku || '-'}</td>
-                <td className="px-3 py-2">{formatMoney(product.purchase_price)}</td>
-                <td className="px-3 py-2">{formatMoney(product.selling_price)}</td>
-                <td className="px-3 py-2">{product.stock}</td>
-                <td className="relative px-3 py-2" data-action-menu>
-                  <Button
-                    variant="info"
-                    size="sm"
-                    onClick={() =>
-                      setOpenAction(openAction === product.id ? null : product.id)
-                    }
-                  >
-                    Action ▾
-                  </Button>
-                  {openAction === product.id && (
-                    <div className="absolute right-3 z-10 mt-1 w-28 rounded-[4px] border border-[#dee2e6] bg-white py-1 shadow-card">
-                      <button
-                        className="block w-full px-3 py-1.5 text-left text-[13px] hover:bg-[#f8f9fa]"
-                        onClick={() => openEditModal(product)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="block w-full px-3 py-1.5 text-left text-[13px] text-[#dc3545] hover:bg-[#f8f9fa]"
-                        onClick={() => {
-                          setDeleteTarget(product);
-                          setOpenAction(null);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
-        <p>
-          Showing {start} to {end} of {filteredProducts.length} entries
-        </p>
-        <div className="flex overflow-hidden rounded-[4px] border border-[#dee2e6]">
-          <button
-            className="px-3 py-1.5 disabled:text-[#adb5bd]"
-            disabled={currentPage === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .slice(
-              Math.max(0, Math.min(currentPage - 3, totalPages - 5)),
-              Math.max(0, Math.min(currentPage - 3, totalPages - 5)) + 5
-            )
-            .map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={
-                  n === currentPage
-                    ? 'bg-[#007bff] px-3 py-1.5 text-white'
-                    : 'border-l border-[#dee2e6] px-3 py-1.5'
-                }
-              >
-                {n}
-              </button>
-            ))}
-          <button
-            className="border-l border-[#dee2e6] px-3 py-1.5 disabled:text-[#adb5bd]"
-            disabled={currentPage === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Next
-          </button>
+            <option value="all">All categories</option>
+            {categories
+              .filter((c) => c !== 'all')
+              .map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+          </Select>
         </div>
-      </div>
+
+        <TableToolbar
+          pageSize={pageSize}
+          onPageSize={(n) => {
+            setPageSize(n);
+            setPage(1);
+          }}
+          search={searchTerm}
+          onSearch={(v) => {
+            setSearchTerm(v);
+            setPage(1);
+          }}
+          searchPlaceholder="Name, SKU, group…"
+        />
+
+        {paged.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <p className="text-sm font-semibold text-[#495057]">
+              কোনো পণ্য মিলছে না।
+            </p>
+            <Button
+              className="mt-3"
+              size="sm"
+              onClick={() => {
+                resetForm();
+                if (onAdd) onAdd();
+                else setShowModal(true);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              নতুন পণ্য যোগ করুন
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[980px] text-[13px]">
+                <thead>
+                  <tr className={darkThead}>
+                    <th>#</th>
+                    <th>Image</th>
+                    <th>নাম</th>
+                    <th>Group</th>
+                    <th>Category</th>
+                    <th>SKU</th>
+                    <th>Cost</th>
+                    <th>MRP</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paged.map((product, idx) => (
+                    <tr key={product.id} className={zebraRow(idx)}>
+                      <td className="px-3 py-2.5 text-[#6c757d]">
+                        {start + idx}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="h-10 w-10 rounded object-cover"
+                        />
+                      </td>
+                      <td className="px-3 py-2.5 font-medium text-[#1a365d]">
+                        {product.name}
+                      </td>
+                      <td className="px-3 py-2.5">{product.group}</td>
+                      <td className="px-3 py-2.5">{product.category}</td>
+                      <td className="px-3 py-2.5 font-mono text-[12px]">
+                        {product.sku || '-'}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono">
+                        {formatMoney(product.purchase_price)}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono">
+                        {formatMoney(product.selling_price)}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono">{product.stock}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex flex-wrap gap-1">
+                          <Button
+                            size="sm"
+                            variant="info"
+                            onClick={() => openEditModal(product)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => setDeleteTarget(product)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <TablePager
+              start={start}
+              end={end}
+              total={filteredProducts.length}
+              page={currentPage}
+              totalPages={totalPages}
+              onPage={setPage}
+            />
+          </>
+        )}
+      </SectionCard>
 
       <Modal
         open={showModal}

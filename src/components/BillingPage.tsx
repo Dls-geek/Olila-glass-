@@ -163,19 +163,19 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
           onClick={() => setPosTab('new')}
           className={tabClass('new', 'bg-[#28a745]')}
         >
-          New Sale
+          New Sale · নতুন
         </button>
         <button
           onClick={() => setPosTab('today')}
           className={tabClass('today', 'bg-[#17a2b8]')}
         >
-          Today ({todaySales.length})
+          Today · আজ ({todaySales.length})
         </button>
         <button
           onClick={() => setPosTab('all')}
           className={tabClass('all', 'bg-[#5bc0de]')}
         >
-          All Sales ({sales.length})
+          All · সব ({sales.length})
         </button>
       </div>
 

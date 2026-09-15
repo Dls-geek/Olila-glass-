@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-15 (chalan UI polish)
+Last updated: 2026-09-15 (DeshiVoj UI across modules)
 
 ---
 
@@ -124,13 +124,13 @@ Form helpers on Products page:
 | Screen | File | Behavior |
 |--------|------|----------|
 | Login | `LoginPage.tsx` | Supabase `signInWithPassword`; fill helper for shop admin |
-| Dashboard | `Dashboard.tsx` | Catalog count, sales count, OOS, today’s revenue; charts; Open POS |
-| Products | `ProductsPage.tsx` | Search/filter (group/category), CRUD → Supabase, CSV export |
-| POS | `BillingPage.tsx` | Cart, discount, payment UI (not stored on Sale), print receipt, F2 |
-| Inventory | `InventoryPage.tsx` | Status filters; single Restock; **Bulk restock** / **Import CSV** / **Purchase + receipt**; logs |
-| Chalan | `ChalanPage.tsx` | DeshiVoj-style bilingual UI: KPI tiles, list / new / পাওনা tabs, step hints, sticky create; SKU search (604 catalog); list search; linked payment (due prefills); partial receive |
-| Breakage | `BreakagePage.tsx` | `adjustStock(..., 'break')` |
-| Sales | `SalesPage.tsx` | History, invoice modal, print |
+| Dashboard | `Dashboard.tsx` | Bilingual header; catalog/sales/OOS/today tiles; charts; Open POS |
+| Products | `ProductsPage.tsx` | DeshiVoj list chrome (KPI, Show/Search/pager, dark thead); group/category filter; CRUD; CSV export |
+| POS | `BillingPage.tsx` | Cart, discount, payment UI (not stored on Sale), print receipt, F2; bilingual tabs |
+| Inventory | `InventoryPage.tsx` | DeshiVoj stock list + KPIs; Bulk / CSV / Purchase+receipt; logs |
+| Chalan | `ChalanPage.tsx` | DeshiVoj-style: KPI + tabs; create form (group chips, recipe table, Save/List); list (Show/Search/status filter/pagination); পাওনা + receive CTA; detail pay/receive with toasts |
+| Breakage | `BreakagePage.tsx` | Searchable SKU picker; KPIs; history table with Show/Search/pager |
+| Sales | `SalesPage.tsx` | DeshiVoj sale list (KPI, filters, pager); invoice modal + print |
 
 **Stock rules:** no add-to-cart when OOS; checkout blocked if qty > stock; breakage cannot exceed on-hand.
 
@@ -182,6 +182,7 @@ src/utils/parseStockCsv.ts
 src/utils/printReceipt.ts
 src/components/{LoginPage,Dashboard,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,ReceiptSlip}.tsx
 src/components/ui/
+src/components/ui/DeshiChrome.tsx
 .env.example
 ```
 
@@ -193,6 +194,8 @@ src/components/ui/
 |------|--------|
 | 2026-09-15 | Chalan & পাওনা: create order from catalog (DP rate), linked payments (separate), partial receive → stock, outstanding qty tab; RPCs `create_chalan` / `add_chalan_payment` / `receive_chalan`. |
 | 2026-09-15 | Chalan UI polish (DeshiVoj-inspired): bilingual header, KPI strip, numbered step hints, empty-state CTAs, product/list search, payment due prefill. |
+| 2026-09-15 | Chalan UI finished: Show/Search/pagination, status filter, group chips + recipe line table, Save/List CTAs, পাওনা receive actions, toast feedback, fill-all remaining receive. |
+| 2026-09-15 | DeshiVoj UI across modules: shared `DeshiChrome` (StatTile/ModuleHeader/SectionCard/TableToolbar/TablePager); polished Inventory, Sales, Products, Breakage, Dashboard; bilingual POS tabs. |
 | 2026-09-15 | Stock intake on Inventory: Bulk restock, CSV import, Purchase + receipt upload; Supabase `purchases`/`purchase_items`, Storage bucket `purchase-receipts`, RPC `record_purchase`. |
 | 2026-09-15 | Wired Supabase project Olila Glass: Auth, schema/RLS, `complete_sale` RPC, seeded 604 products; AppContext persists via Supabase; Vercel `VITE_SUPABASE_*` set. |
 | 2026-09-15 | Imported 604-SKU master catalog; added `group`; cleared demo sales/logs; group/SKU search on Products, Billing, Inventory. Created this context file + Cursor always-apply rule. |

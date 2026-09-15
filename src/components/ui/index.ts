@@ -7,3 +7,12 @@ export { Modal } from './Modal';
 export { StatCard } from './StatCard';
 export { ToastProvider, useToast } from './Toast';
 export { ConfirmDialog } from './ConfirmDialog';
+export {
+  StatTile,
+  ModuleHeader,
+  SectionCard,
+  TableToolbar,
+  TablePager,
+  darkThead,
+  zebraRow,
+} from './DeshiChrome';

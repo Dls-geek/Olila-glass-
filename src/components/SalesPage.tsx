@@ -1,11 +1,21 @@
 import { useMemo, useState } from 'react';
+import { Plus, Printer, Receipt } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatMoney } from '../utils/money';
 import { printReceipt } from '../utils/printReceipt';
-import { ReceiptSlip } from './ReceiptSlip';
-import { Plus, Printer } from 'lucide-react';
 import type { Sale } from '../types';
-import { Button, Modal } from './ui';
+import { ReceiptSlip } from './ReceiptSlip';
+import {
+  Button,
+  Modal,
+  ModuleHeader,
+  SectionCard,
+  StatTile,
+  TablePager,
+  TableToolbar,
+  darkThead,
+  zebraRow,
+} from './ui';
 
 interface SalesPageProps {
   onNewSale?: () => void;
@@ -20,9 +30,11 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
   const [page, setPage] = useState(1);
 
   const filteredSales = sales.filter((sale) => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch =
-      sale.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sale.id.toLowerCase().includes(searchTerm.toLowerCase());
+      sale.customer_name?.toLowerCase().includes(q) ||
+      sale.id.toLowerCase().includes(q) ||
+      (sale.customer_phone || '').includes(q);
     const matchesDate = !dateFilter || sale.date === dateFilter;
     return matchesSearch && matchesDate;
   });
@@ -45,179 +57,179 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {[
-          ['Total revenue', formatMoney(totalSales)],
-          ["Today's sales", formatMoney(todaySales)],
-          ['Invoices', String(sales.length)],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="rounded-[4px] border border-[#dee2e6] bg-white p-3"
-          >
-            <p className="text-[12px] text-[#6c757d]">{label}</p>
-            <p className="text-xl font-semibold">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-[18px] font-semibold">Sale List</h1>
-          <Button variant="info" size="sm" onClick={() => onNewSale?.()}>
+      <ModuleHeader
+        eyebrow="Sales · History"
+        title="Sale List · বিক্রয় তালিকা"
+        subtitle="ইনভয়েস দেখুন, প্রিন্ট করুন, অথবা নতুন সেল শুরু করুন।"
+        accent="navy"
+        actions={
+          <Button size="sm" variant="info" onClick={() => onNewSale?.()}>
             <Plus className="h-3.5 w-3.5" />
-            New sale
+            নতুন বিক্রয় · POS
           </Button>
-        </div>
+        }
+      />
 
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-[13px]">
-            Show
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setPage(1);
-              }}
-              className="h-8 rounded-[4px] border border-[#ced4da] px-2"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-            </select>
-            entries
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => {
-                setDateFilter(e.target.value);
-                setPage(1);
-              }}
-              className="h-8 rounded-[4px] border border-[#ced4da] px-2"
-              aria-label="Filter by date"
-            />
-            {dateFilter && (
-              <button
-                type="button"
-                className="text-[#007bff]"
-                onClick={() => setDateFilter('')}
-              >
-                Clear date
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-[13px]">
-            Search:
-            <input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
-              placeholder="Invoice or customer"
-              aria-label="Search sales"
-            />
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-[13px]">
-            <thead>
-              <tr className="bg-[#9e9e9e] text-left text-white">
-                <th className="px-3 py-2 font-medium">SL</th>
-                <th className="px-3 py-2 font-medium">Invoice</th>
-                <th className="px-3 py-2 font-medium">Date</th>
-                <th className="px-3 py-2 font-medium">Customer</th>
-                <th className="px-3 py-2 font-medium">Items</th>
-                <th className="px-3 py-2 font-medium">Total</th>
-                <th className="px-3 py-2 font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paged.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-3 py-10 text-center text-[#6c757d]"
-                  >
-                    No sales found.{' '}
-                    <button
-                      type="button"
-                      className="text-[#007bff] underline"
-                      onClick={() => onNewSale?.()}
-                    >
-                      Open POS
-                    </button>
-                  </td>
-                </tr>
-              ) : (
-                paged.map((sale, idx) => (
-                  <tr key={sale.id} className="border-b border-[#dee2e6]">
-                    <td className="px-3 py-2">{start + idx}</td>
-                    <td className="px-3 py-2">{sale.id}</td>
-                    <td className="px-3 py-2">{sale.date}</td>
-                    <td className="px-3 py-2">
-                      {sale.customer_name || 'Walk-in'}
-                      {sale.customer_phone ? (
-                        <div className="text-[11px] text-[#6c757d]">
-                          {sale.customer_phone}
-                        </div>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2">{sale.items.length}</td>
-                    <td className="px-3 py-2">
-                      {formatMoney(sale.total_amount)}
-                    </td>
-                    <td className="px-3 py-2">
-                      <button
-                        onClick={() => setSelectedSale(sale)}
-                        className="rounded-[3px] bg-[#007bff] px-2 py-0.5 text-[12px] text-white"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
-          <p>
-            Showing {start} to {end} of {filteredSales.length} entries
-          </p>
-          <div className="flex overflow-hidden rounded-[4px] border border-[#dee2e6]">
-            <button
-              className="px-3 py-1.5 disabled:text-[#adb5bd]"
-              disabled={currentPage === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={
-                  n === currentPage
-                    ? 'bg-[#007bff] px-3 py-1.5 text-white'
-                    : 'border-l border-[#dee2e6] px-3 py-1.5'
-                }
-              >
-                {n}
-              </button>
-            ))}
-            <button
-              className="border-l border-[#dee2e6] px-3 py-1.5 disabled:text-[#adb5bd]"
-              disabled={currentPage === totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <StatTile
+          label="মোট আয় · Revenue"
+          value={formatMoney(totalSales)}
+          tone="green"
+        />
+        <StatTile
+          label="আজকের বিক্রয় · Today"
+          value={formatMoney(todaySales)}
+          tone="navy"
+        />
+        <StatTile
+          label="ইনভয়েস · Invoices"
+          value={sales.length}
+          tone="blue"
+        />
       </div>
+
+      <SectionCard
+        title="বিক্রয় তালিকা · All sales"
+        subtitle="তারিখ ও কাস্টমার দিয়ে খুঁজুন।"
+        accent="navy"
+      >
+        <TableToolbar
+          pageSize={pageSize}
+          onPageSize={(n) => {
+            setPageSize(n);
+            setPage(1);
+          }}
+          pageSizeOptions={[10, 25]}
+          search={searchTerm}
+          onSearch={(v) => {
+            setSearchTerm(v);
+            setPage(1);
+          }}
+          searchPlaceholder="Invoice / কাস্টমার…"
+          filters={
+            <>
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
+                aria-label="Filter by date"
+              />
+              {dateFilter ? (
+                <button
+                  type="button"
+                  className="text-[13px] text-[#007bff]"
+                  onClick={() => setDateFilter('')}
+                >
+                  Clear date
+                </button>
+              ) : null}
+            </>
+          }
+        />
+
+        {sales.length === 0 ? (
+          <div className="px-6 py-14 text-center">
+            <Receipt className="mx-auto h-10 w-10 text-[#adb5bd]" />
+            <p className="mt-3 text-sm font-semibold text-[#495057]">
+              এখনও কোনো বিক্রয় নেই।
+            </p>
+            <p className="mt-1 text-[13px] text-[#6c757d]">
+              POS খুলে প্রথম সেল করুন।
+            </p>
+            <Button className="mt-4" onClick={() => onNewSale?.()}>
+              <Plus className="h-4 w-4" />
+              Open POS
+            </Button>
+          </div>
+        ) : filteredSales.length === 0 ? (
+          <div className="px-6 py-10 text-center">
+            <p className="text-sm font-semibold text-[#495057]">
+              খোঁজার সাথে মিলছে না।
+            </p>
+            <Button
+              className="mt-3"
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                setSearchTerm('');
+                setDateFilter('');
+              }}
+            >
+              ফিল্টার মুছুন
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px] text-[13px]">
+                <thead>
+                  <tr className={darkThead}>
+                    <th>#</th>
+                    <th>Invoice</th>
+                    <th>তারিখ</th>
+                    <th>কাস্টমার</th>
+                    <th>Items</th>
+                    <th>মোট</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paged.map((sale, idx) => (
+                    <tr key={sale.id} className={zebraRow(idx)}>
+                      <td className="px-3 py-2.5 text-[#6c757d]">
+                        {start + idx}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-[12px] font-semibold text-[#1a365d]">
+                        {sale.id}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="inline-flex rounded border border-[#dee2e6] bg-white px-2 py-0.5 font-mono text-[12px]">
+                          {sale.date}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        {sale.customer_name || 'Walk-in · ওয়াক-ইন'}
+                        {sale.customer_phone ? (
+                          <div className="text-[11px] text-[#6c757d]">
+                            {sale.customer_phone}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono">
+                        {sale.items.length}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono font-semibold text-[#15803d]">
+                        {formatMoney(sale.total_amount)}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <Button
+                          size="sm"
+                          variant="info"
+                          onClick={() => setSelectedSale(sale)}
+                        >
+                          দেখুন
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <TablePager
+              start={start}
+              end={end}
+              total={filteredSales.length}
+              page={currentPage}
+              totalPages={totalPages}
+              onPage={setPage}
+            />
+          </>
+        )}
+      </SectionCard>
 
       <Modal
         open={selectedSale !== null}
@@ -229,10 +241,7 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
         {selectedSale && (
           <>
             <div className="og-slip-canvas">
-              <ReceiptSlip
-                sale={selectedSale}
-                printedAt={selectedSale.date}
-              />
+              <ReceiptSlip sale={selectedSale} printedAt={selectedSale.date} />
             </div>
             <div className="flex justify-center gap-2 border-t border-[#dee2e6] bg-white p-3">
               <Button

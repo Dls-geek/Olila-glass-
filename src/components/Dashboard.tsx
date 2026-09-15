@@ -90,20 +90,27 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   }, [sales]);
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-[18px] font-semibold text-[#435966]">Dashboard</h1>
-          <p className="text-[13px] text-[#98a6ad]">
-            Olila Glass · ceramic tableware overview
-          </p>
+    <div className="space-y-3">
+      <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[#eef1f4] bg-gradient-to-r from-[#f4fbf7] to-white px-4 py-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#00a65a]">
+              Overview
+            </p>
+            <h1 className="mt-0.5 text-[20px] font-bold text-[#1a365d]">
+              Dashboard · ড্যাশবোর্ড
+            </h1>
+            <p className="mt-1 text-[13px] text-[#6c757d]">
+              Olila Glass · ceramic tableware overview · আজকের সারাংশ
+            </p>
+          </div>
+          <button
+            className="as-quick bg-[#00a65a]"
+            onClick={() => onNavigate('billing')}
+          >
+            Open POS · নতুন সেল
+          </button>
         </div>
-        <button
-          className="as-quick bg-[#00a65a]"
-          onClick={() => onNavigate('billing')}
-        >
-          Open POS
-        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -114,7 +121,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         >
           <div className="inner">
             <h4>{products.length}</h4>
-            <p>Catalog items</p>
+            <p>ক্যাটালগ · Catalog</p>
           </div>
           <Package className="icon" />
         </button>
@@ -125,7 +132,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         >
           <div className="inner">
             <h4>{sales.length}</h4>
-            <p>Total sales</p>
+            <p>বিক্রয় · Sales</p>
           </div>
           <ShoppingBag className="icon" />
         </button>
@@ -136,7 +143,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         >
           <div className="inner">
             <h4>{outOfStock}</h4>
-            <p>Out of stock</p>
+            <p>স্টক শেষ · Out of stock</p>
           </div>
           <AlertTriangle className="icon" />
         </button>
@@ -147,7 +154,10 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         >
           <div className="inner">
             <h4>{formatMoney(getDailySales())}</h4>
-            <p>Today · {todaySalesCount} bill{todaySalesCount === 1 ? '' : 's'}</p>
+            <p>
+              আজ · Today · {todaySalesCount} bill
+              {todaySalesCount === 1 ? '' : 's'}
+            </p>
           </div>
           <Banknote className="icon" />
         </button>
