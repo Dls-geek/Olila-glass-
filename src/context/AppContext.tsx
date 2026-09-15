@@ -5,7 +5,7 @@ import React, {
   useReducer,
   ReactNode,
 } from 'react';
-import { Product, Sale, SaleItem, InventoryLog, CartItem, User } from '../types';
+import { Product, Sale, SaleItem, InventoryLog, CartItem, User, PurchaseItemInput, PurchaseResult, PurchaseSource, Chalan, ChalanItem, ChalanPayment, ChalanStatus } from '../types';
 import { useToast } from '../components/ui';
 import { supabase } from '../lib/supabase';
 
@@ -131,6 +131,38 @@ interface AppContextType extends AppState {
     quantity: number,
     change_type: 'add' | 'break'
   ) => Promise<boolean>;
+  uploadPurchaseReceipt: (file: File) => Promise<string | null>;
+  recordPurchase: (input: {
+    items: PurchaseItemInput[];
+    supplier?: string;
+    notes?: string;
+    receiptUrl?: string;
+    source?: PurchaseSource;
+    date?: string;
+  }) => Promise<PurchaseResult | null>;
+  listChalans: () => Promise<Chalan[]>;
+  getChalan: (id: string) => Promise<Chalan | null>;
+  createChalan: (input: {
+    items: { product_id: string; quantity: number; unit_rate?: number }[];
+    supplier?: string;
+    notes?: string;
+    date?: string;
+  }) => Promise<{ id: string } | null>;
+  addChalanPayment: (input: {
+    chalanId: string;
+    amount: number;
+    method?: string;
+    receiptUrl?: string;
+    notes?: string;
+    paidAt?: string;
+  }) => Promise<boolean>;
+  receiveChalan: (input: {
+    chalanId: string;
+    items: { product_id: string; quantity: number }[];
+    notes?: string;
+    deliveryPhotoUrl?: string;
+    date?: string;
+  }) => Promise<boolean>;
   getCartTotal: () => number;
   getLowStockProducts: () => Product[];
   getDailySales: () => number;
@@ -245,6 +277,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         change_type: l.change_type as InventoryLog['change_type'],
         quantity: Number(l.quantity),
         date: String(l.date).slice(0, 10),
+        purchase_id: l.purchase_id ?? undefined,
       })),
     });
   };
@@ -570,6 +603,319 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const uploadPurchaseReceipt = async (file: File): Promise<string | null> => {
+    const allowed = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'application/pdf',
+    ];
+    if (!allowed.includes(file.type)) {
+      toast.warning('Upload a JPG, PNG, WebP, GIF, or PDF receipt.');
+      return null;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.warning('Receipt must be under 10 MB.');
+      return null;
+    }
+    const ext =
+      file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') ||
+      'bin';
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage
+      .from('purchase-receipts')
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    const { data } = supabase.storage.from('purchase-receipts').getPublicUrl(path);
+    return data.publicUrl;
+  };
+
+  const recordPurchase = async (input: {
+    items: PurchaseItemInput[];
+    supplier?: string;
+    notes?: string;
+    receiptUrl?: string;
+    source?: PurchaseSource;
+    date?: string;
+  }): Promise<PurchaseResult | null> => {
+    const items = input.items
+      .map((i) => ({
+        product_id: String(i.product_id).trim(),
+        quantity: Math.floor(Number(i.quantity)),
+      }))
+      .filter((i) => i.product_id && i.quantity > 0);
+
+    if (items.length === 0) {
+      toast.warning('Add at least one product with quantity.');
+      return null;
+    }
+
+    const { data, error } = await supabase.rpc('record_purchase', {
+      p_items: items,
+      p_supplier: input.supplier?.trim() || null,
+      p_notes: input.notes?.trim() || null,
+      p_receipt_url: input.receiptUrl?.trim() || null,
+      p_source: input.source || 'purchase',
+      p_date: input.date || new Date().toISOString().slice(0, 10),
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+
+    try {
+      await loadShopData();
+    } catch (err) {
+      console.error(err);
+      toast.warning('Stock saved, but refresh the page to reload lists.');
+    }
+
+    const result = data as PurchaseResult;
+    toast.success(
+      `Stock intake ${result.id}: +${result.unit_count} units across ${result.line_count} items.`
+    );
+    return result;
+  };
+
+  const mapChalanBundle = (
+    row: {
+      id: string;
+      date: string;
+      supplier?: string | null;
+      status: string;
+      notes?: string | null;
+    },
+    items: {
+      id: number;
+      chalan_id: string;
+      product_id: string;
+      product_name: string;
+      sku?: string | null;
+      ordered_qty: number;
+      unit_rate: number | string;
+      received_qty: number;
+    }[],
+    payments: {
+      id: string;
+      chalan_id: string;
+      amount: number | string;
+      paid_at: string;
+      method?: string | null;
+      receipt_url?: string | null;
+      notes?: string | null;
+    }[]
+  ): Chalan => {
+    const mappedItems: ChalanItem[] = items.map((i) => {
+      const ordered = Number(i.ordered_qty);
+      const received = Number(i.received_qty);
+      return {
+        id: Number(i.id),
+        chalan_id: i.chalan_id,
+        product_id: i.product_id,
+        product_name: i.product_name,
+        sku: i.sku ?? undefined,
+        ordered_qty: ordered,
+        unit_rate: Number(i.unit_rate),
+        received_qty: received,
+        remaining_qty: Math.max(0, ordered - received),
+      };
+    });
+    const mappedPayments: ChalanPayment[] = payments.map((p) => ({
+      id: p.id,
+      chalan_id: p.chalan_id,
+      amount: Number(p.amount),
+      paid_at: String(p.paid_at).slice(0, 10),
+      method: p.method ?? undefined,
+      receipt_url: p.receipt_url ?? undefined,
+      notes: p.notes ?? undefined,
+    }));
+    return {
+      id: row.id,
+      date: String(row.date).slice(0, 10),
+      supplier: row.supplier ?? undefined,
+      status: row.status as ChalanStatus,
+      notes: row.notes ?? undefined,
+      items: mappedItems,
+      payments: mappedPayments,
+      ordered_amount: mappedItems.reduce(
+        (s, i) => s + i.ordered_qty * i.unit_rate,
+        0
+      ),
+      paid_amount: mappedPayments.reduce((s, p) => s + p.amount, 0),
+      ordered_units: mappedItems.reduce((s, i) => s + i.ordered_qty, 0),
+      received_units: mappedItems.reduce((s, i) => s + i.received_qty, 0),
+      remaining_units: mappedItems.reduce((s, i) => s + i.remaining_qty, 0),
+    };
+  };
+
+  const listChalans = async (): Promise<Chalan[]> => {
+    const { data: chalans, error } = await supabase
+      .from('chalans')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      toast.error(error.message);
+      return [];
+    }
+    const ids = (chalans || []).map((c) => c.id);
+    if (ids.length === 0) return [];
+
+    const [itemsRes, payRes] = await Promise.all([
+      supabase.from('chalan_items').select('*').in('chalan_id', ids),
+      supabase.from('chalan_payments').select('*').in('chalan_id', ids),
+    ]);
+    if (itemsRes.error) toast.error(itemsRes.error.message);
+    if (payRes.error) toast.error(payRes.error.message);
+
+    const itemsBy = new Map<string, typeof itemsRes.data>();
+    for (const row of itemsRes.data || []) {
+      const list = itemsBy.get(row.chalan_id) || [];
+      list.push(row);
+      itemsBy.set(row.chalan_id, list);
+    }
+    const payBy = new Map<string, typeof payRes.data>();
+    for (const row of payRes.data || []) {
+      const list = payBy.get(row.chalan_id) || [];
+      list.push(row);
+      payBy.set(row.chalan_id, list);
+    }
+
+    return (chalans || []).map((c) =>
+      mapChalanBundle(c, itemsBy.get(c.id) || [], payBy.get(c.id) || [])
+    );
+  };
+
+  const getChalan = async (id: string): Promise<Chalan | null> => {
+    const { data, error } = await supabase
+      .from('chalans')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    if (!data) return null;
+    const [itemsRes, payRes] = await Promise.all([
+      supabase.from('chalan_items').select('*').eq('chalan_id', id),
+      supabase
+        .from('chalan_payments')
+        .select('*')
+        .eq('chalan_id', id)
+        .order('paid_at', { ascending: false }),
+    ]);
+    if (itemsRes.error || payRes.error) {
+      toast.error(itemsRes.error?.message || payRes.error?.message || 'Load failed');
+      return null;
+    }
+    return mapChalanBundle(data, itemsRes.data || [], payRes.data || []);
+  };
+
+  const createChalan = async (input: {
+    items: { product_id: string; quantity: number; unit_rate?: number }[];
+    supplier?: string;
+    notes?: string;
+    date?: string;
+  }): Promise<{ id: string } | null> => {
+    const items = input.items
+      .map((i) => ({
+        product_id: String(i.product_id).trim(),
+        quantity: Math.floor(Number(i.quantity)),
+        unit_rate:
+          i.unit_rate === undefined ? undefined : Number(i.unit_rate),
+      }))
+      .filter((i) => i.product_id && i.quantity > 0);
+    if (items.length === 0) {
+      toast.warning('Add at least one chalan line.');
+      return null;
+    }
+    const { data, error } = await supabase.rpc('create_chalan', {
+      p_items: items,
+      p_supplier: input.supplier?.trim() || null,
+      p_notes: input.notes?.trim() || null,
+      p_date: input.date || new Date().toISOString().slice(0, 10),
+    });
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    const id = (data as { id: string }).id;
+    toast.success(`Chalan ${id} created. Add payment when you pay the company.`);
+    return { id };
+  };
+
+  const addChalanPayment = async (input: {
+    chalanId: string;
+    amount: number;
+    method?: string;
+    receiptUrl?: string;
+    notes?: string;
+    paidAt?: string;
+  }): Promise<boolean> => {
+    const amount = Number(input.amount);
+    if (!(amount > 0)) {
+      toast.warning('Enter a payment amount.');
+      return false;
+    }
+    const { error } = await supabase.rpc('add_chalan_payment', {
+      p_chalan_id: input.chalanId,
+      p_amount: amount,
+      p_method: input.method || 'Cash',
+      p_receipt_url: input.receiptUrl || null,
+      p_notes: input.notes || null,
+      p_paid_at: input.paidAt || new Date().toISOString().slice(0, 10),
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    toast.success(`Payment ৳${amount.toLocaleString()} linked to ${input.chalanId}.`);
+    return true;
+  };
+
+  const receiveChalan = async (input: {
+    chalanId: string;
+    items: { product_id: string; quantity: number }[];
+    notes?: string;
+    deliveryPhotoUrl?: string;
+    date?: string;
+  }): Promise<boolean> => {
+    const items = input.items
+      .map((i) => ({
+        product_id: String(i.product_id).trim(),
+        quantity: Math.floor(Number(i.quantity)),
+      }))
+      .filter((i) => i.product_id && i.quantity > 0);
+    if (items.length === 0) {
+      toast.warning('Enter receive quantities.');
+      return false;
+    }
+    const { data, error } = await supabase.rpc('receive_chalan', {
+      p_chalan_id: input.chalanId,
+      p_items: items,
+      p_notes: input.notes || null,
+      p_delivery_photo_url: input.deliveryPhotoUrl || null,
+      p_date: input.date || new Date().toISOString().slice(0, 10),
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    try {
+      await loadShopData();
+    } catch (err) {
+      console.error(err);
+    }
+    const unitCount = (data as { unit_count?: number })?.unit_count ?? 0;
+    toast.success(`Received +${unitCount} units against ${input.chalanId}.`);
+    return true;
+  };
+
   const getCartTotal = (): number => {
     return state.cart.reduce(
       (sum, item) => sum + item.product.selling_price * item.quantity,
@@ -634,6 +980,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         clearCart,
         completeSale,
         adjustStock,
+        uploadPurchaseReceipt,
+        recordPurchase,
+        listChalans,
+        getChalan,
+        createChalan,
+        addChalanPayment,
+        receiveChalan,
         getCartTotal,
         getLowStockProducts,
         getDailySales,

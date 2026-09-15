@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-15
+Last updated: 2026-09-15 (chalan UI polish)
 
 ---
 
@@ -15,7 +15,7 @@ Last updated: 2026-09-15
 - Brand: “অলিলা গ্লাস” / Olila Glass — tableware (plates, cups, bowls, buckets, utensils, etc.).
 - Product brands/groups in catalog: **Supreme**, **Winner**, **Kleen**.
 
-**Backend:** Supabase Postgres + Auth (project **Olila Glass**, ref `ivnihtrkcboaaetaulin`, region `ap-southeast-1`). Cart stays in browser memory; products, sales, sale_items, and inventory_logs persist in DB.
+**Backend:** Supabase Postgres + Auth (project **Olila Glass**, ref `ivnihtrkcboaaetaulin`, region `ap-southeast-1`). Cart stays in browser memory; products, sales, sale_items, inventory_logs, purchases (+ receipt files in Storage) persist in DB.
 
 ---
 
@@ -58,8 +58,9 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 | `sales` | `#/sales` | Sale list |
 | `billing` | `#/billing` | POS (full screen, no sidebar) |
 | `breakage` | `#/breakage` | Breakage |
+| `chalan` | `#/chalan` | Company chalan, linked payments, receive, পাওনা |
 
-Sidebar parents: Dashboard · Products · Sales · Stock · Breakage · Reports.
+Sidebar parents: Dashboard · Products · Sales · Stock (Current Stock, Chalan & পাওনা) · Breakage · Reports.
 
 ### State
 
@@ -69,6 +70,8 @@ Sidebar parents: Dashboard · Products · Sales · Stock · Breakage · Reports.
 - Cart: client-only.
 - Checkout: RPC `complete_sale` (atomic stock decrement + sale + items + sell logs).
 - Restock / breakage: update `products.stock` + insert `inventory_logs`.
+- Stock intake (bulk / CSV / company purchase): RPC `record_purchase` + optional receipt in Storage bucket `purchase-receipts`; tables `purchases`, `purchase_items`.
+- **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
 
 ### Types ([`src/types/index.ts`](src/types/index.ts))
 
@@ -124,7 +127,8 @@ Form helpers on Products page:
 | Dashboard | `Dashboard.tsx` | Catalog count, sales count, OOS, today’s revenue; charts; Open POS |
 | Products | `ProductsPage.tsx` | Search/filter (group/category), CRUD → Supabase, CSV export |
 | POS | `BillingPage.tsx` | Cart, discount, payment UI (not stored on Sale), print receipt, F2 |
-| Inventory | `InventoryPage.tsx` | Status filters, restock → `adjustStock(..., 'add')`, logs |
+| Inventory | `InventoryPage.tsx` | Status filters; single Restock; **Bulk restock** / **Import CSV** / **Purchase + receipt**; logs |
+| Chalan | `ChalanPage.tsx` | DeshiVoj-style bilingual UI: KPI tiles, list / new / পাওনা tabs, step hints, sticky create; SKU search (604 catalog); list search; linked payment (due prefills); partial receive |
 | Breakage | `BreakagePage.tsx` | `adjustStock(..., 'break')` |
 | Sales | `SalesPage.tsx` | History, invoice modal, print |
 
@@ -150,7 +154,8 @@ Form helpers on Products page:
 
 ## 7. Known gaps / likely next work
 
-- [ ] All stock is 0 → POS unusable until Restock / stock import
+- [x] Stock intake: bulk restock (all/group), CSV import (SKU+qty), company purchase + receipt upload (`purchases` / `record_purchase` RPC / Storage `purchase-receipts`)
+- [x] Company chalan → linked payment (separate) → partial receive → পাওনা tracking
 - [ ] No real product images (one placeholder)
 - [ ] Categories still mostly `"Other"` (not classified from Excel)
 - [x] Persistence via Supabase (products/sales/logs)
@@ -173,8 +178,9 @@ src/lib/supabase.ts
 src/types/index.ts
 src/data/masterProducts.ts
 src/utils/money.ts
+src/utils/parseStockCsv.ts
 src/utils/printReceipt.ts
-src/components/{LoginPage,Dashboard,ProductsPage,BillingPage,InventoryPage,BreakagePage,SalesPage,ReceiptSlip}.tsx
+src/components/{LoginPage,Dashboard,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,ReceiptSlip}.tsx
 src/components/ui/
 .env.example
 ```
@@ -185,5 +191,8 @@ src/components/ui/
 
 | Date | Change |
 |------|--------|
+| 2026-09-15 | Chalan & পাওনা: create order from catalog (DP rate), linked payments (separate), partial receive → stock, outstanding qty tab; RPCs `create_chalan` / `add_chalan_payment` / `receive_chalan`. |
+| 2026-09-15 | Chalan UI polish (DeshiVoj-inspired): bilingual header, KPI strip, numbered step hints, empty-state CTAs, product/list search, payment due prefill. |
+| 2026-09-15 | Stock intake on Inventory: Bulk restock, CSV import, Purchase + receipt upload; Supabase `purchases`/`purchase_items`, Storage bucket `purchase-receipts`, RPC `record_purchase`. |
 | 2026-09-15 | Wired Supabase project Olila Glass: Auth, schema/RLS, `complete_sale` RPC, seeded 604 products; AppContext persists via Supabase; Vercel `VITE_SUPABASE_*` set. |
 | 2026-09-15 | Imported 604-SKU master catalog; added `group`; cleared demo sales/logs; group/SKU search on Products, Billing, Inventory. Created this context file + Cursor always-apply rule. |

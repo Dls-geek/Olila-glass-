@@ -44,9 +44,69 @@ export interface InventoryLog {
   change_type: 'add' | 'sell' | 'break';
   quantity: number;
   date: string;
+  purchase_id?: string;
 }
 
 export interface CartItem {
   product: Product;
   quantity: number;
+}
+
+/** Company stock intake (bulk / CSV / purchase with optional receipt). */
+export type PurchaseSource = 'manual' | 'bulk' | 'csv' | 'purchase';
+
+export interface PurchaseItemInput {
+  product_id: string;
+  quantity: number;
+}
+
+export interface PurchaseResult {
+  id: string;
+  date: string;
+  supplier?: string | null;
+  notes?: string | null;
+  receipt_url?: string | null;
+  source: PurchaseSource;
+  line_count: number;
+  unit_count: number;
+}
+
+/** Company chalan (order) — pay separately (linked), receive partially, track paona. */
+export type ChalanStatus = 'open' | 'partial' | 'closed' | 'cancelled';
+
+export interface ChalanItem {
+  id: number;
+  chalan_id: string;
+  product_id: string;
+  product_name: string;
+  sku?: string;
+  ordered_qty: number;
+  unit_rate: number;
+  received_qty: number;
+  remaining_qty: number;
+}
+
+export interface ChalanPayment {
+  id: string;
+  chalan_id: string;
+  amount: number;
+  paid_at: string;
+  method?: string;
+  receipt_url?: string;
+  notes?: string;
+}
+
+export interface Chalan {
+  id: string;
+  date: string;
+  supplier?: string;
+  status: ChalanStatus;
+  notes?: string;
+  items: ChalanItem[];
+  payments: ChalanPayment[];
+  ordered_amount: number;
+  paid_amount: number;
+  ordered_units: number;
+  received_units: number;
+  remaining_units: number;
 }

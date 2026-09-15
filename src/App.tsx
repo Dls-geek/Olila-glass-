@@ -8,6 +8,7 @@ import { ProductsPage } from './components/ProductsPage';
 import { InventoryPage } from './components/InventoryPage';
 import { SalesPage } from './components/SalesPage';
 import { BreakagePage } from './components/BreakagePage';
+import { ChalanPage } from './components/ChalanPage';
 import { cn } from './utils/cn';
 import {
   LayoutDashboard,
@@ -29,7 +30,8 @@ type Page =
   | 'inventory'
   | 'sales'
   | 'billing'
-  | 'breakage';
+  | 'breakage'
+  | 'chalan';
 
 const HASH_PAGES: Page[] = [
   'dashboard',
@@ -39,6 +41,7 @@ const HASH_PAGES: Page[] = [
   'sales',
   'billing',
   'breakage',
+  'chalan',
 ];
 
 function pageFromHash(): Page {
@@ -79,7 +82,10 @@ const parents: NavItem[] = [
     id: 'stock',
     label: 'Stock',
     icon: BarChart3,
-    children: [{ label: 'Current Stock', page: 'inventory' }],
+    children: [
+      { label: 'Current Stock', page: 'inventory' },
+      { label: 'Chalan & পাওনা', page: 'chalan' },
+    ],
   },
   { id: 'breakage', label: 'Breakage', icon: Trash2, page: 'breakage' },
   {
@@ -344,6 +350,7 @@ function MainApp() {
             <ProductsPage mode="form" onList={() => go('products')} />
           )}
           {page === 'inventory' && <InventoryPage />}
+          {page === 'chalan' && <ChalanPage />}
           {page === 'breakage' && (
             <BreakagePage onViewStock={() => go('inventory')} />
           )}
