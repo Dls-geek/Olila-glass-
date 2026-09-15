@@ -1,245 +1,325 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import {
-  Package,
-  Search,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  TrendingUp,
-  TrendingDown,
-  History,
-  Filter,
-} from 'lucide-react';
+import { TrendingDown, TrendingUp } from 'lucide-react';
+import type { Product } from '../types';
+import { Button, Card, CardHeader, Input, Modal } from './ui';
+
+const currency = (n: number) => `৳${n.toLocaleString()}`;
+
+type Status = 'good' | 'low' | 'out';
+
+const getStockStatus = (product: Product): Status => {
+  if (product.stock === 0) return 'out';
+  if (product.stock <= product.low_stock_alert) return 'low';
+  return 'good';
+};
 
 export function InventoryPage() {
-  const { products, inventoryLogs } = useApp();
+  const { products, inventoryLogs, adjustStock } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const [restockTarget, setRestockTarget] = useState<Product | null>(null);
+  const [restockQty, setRestockQty] = useState('10');
 
   const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const matchesStatus =
+      filterStatus === 'all' || getStockStatus(p) === filterStatus;
+    return matchesSearch && matchesStatus;
   });
 
-  const getStockStatus = (product: any) => {
-    if (product.stock === 0) return 'out';
-    if (product.stock <= product.low_stock_alert) return 'low';
-    return 'good';
-  };
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, currentPage, pageSize]);
 
-  const lowStockProducts = products.filter(p => p.stock <= p.low_stock_alert && p.stock > 0);
-  const outOfStockProducts = products.filter(p => p.stock === 0);
+  const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, filteredProducts.length);
+
+  const lowStock = products.filter(
+    (p) => p.stock <= p.low_stock_alert && p.stock > 0
+  ).length;
+  const outOfStock = products.filter((p) => p.stock === 0).length;
+  const inStock = products.filter((p) => p.stock > 0).length;
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Package className="w-8 h-8 text-orange-500" />
-          Inventory Management
-        </h1>
-        <p className="text-gray-500">Track and manage your inventory levels</p>
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          ['Total Products', products.length, '#007bff'],
+          ['In Stock', inStock, '#28a745'],
+          ['Low Stock', lowStock, '#fd7e14'],
+          ['Out of Stock', outOfStock, '#dc3545'],
+        ].map(([label, value, color]) => (
+          <div
+            key={String(label)}
+            className="rounded-[4px] border border-[#dee2e6] bg-white p-3"
+          >
+            <p className="text-[12px] text-[#6c757d]">{label}</p>
+            <p className="text-2xl font-semibold" style={{ color: String(color) }}>
+              {value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm">Total Products</p>
-              <p className="text-3xl font-bold mt-1">{products.length}</p>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4 lg:col-span-2">
+          <h1 className="mb-1 text-[18px] font-semibold">Stock</h1>
+          <p className="mb-3 text-[13px] text-[#6c757d]">
+            Track plates, cups, and bowls. Use Restock to add qty, or Breakage for chips.
+          </p>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[13px]">
+              Show
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+              </select>
+              entries
+              <select
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+              >
+                <option value="all">All</option>
+                <option value="good">In Stock</option>
+                <option value="low">Low Stock</option>
+                <option value="out">Out of Stock</option>
+              </select>
             </div>
-            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-              <Package className="w-7 h-7" />
+            <div className="flex items-center gap-2 text-[13px]">
+              Search:
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+              />
             </div>
           </div>
-        </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">In Stock</p>
-              <p className="text-3xl font-bold mt-1">{products.filter(p => p.stock > 0).length}</p>
-            </div>
-            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-              <CheckCircle className="w-7 h-7" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-yellow-100 text-sm">Low Stock</p>
-              <p className="text-3xl font-bold mt-1">{lowStockProducts.length}</p>
-            </div>
-            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-7 h-7" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-red-100 text-sm">Out of Stock</p>
-              <p className="text-3xl font-bold mt-1">{outOfStockProducts.length}</p>
-            </div>
-            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-              <XCircle className="w-7 h-7" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Inventory List */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b border-gray-100">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-gray-400" />
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="good">In Stock</option>
-                    <option value="low">Low Stock</option>
-                    <option value="out">Out of Stock</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px] text-[13px]">
+              <thead>
+                <tr className="bg-[#9e9e9e] text-left text-white">
+                  <th className="px-3 py-2 font-medium">SL</th>
+                  <th className="px-3 py-2 font-medium">Product</th>
+                  <th className="px-3 py-2 font-medium">Category</th>
+                  <th className="px-3 py-2 font-medium">Stock</th>
+                  <th className="px-3 py-2 font-medium">Status</th>
+                  <th className="px-3 py-2 font-medium">Price</th>
+                  <th className="px-3 py-2 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paged.length === 0 ? (
                   <tr>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-600 text-sm">Product</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-600 text-sm">Category</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-600 text-sm">Stock</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-600 text-sm">Status</th>
-                    <th className="text-right py-4 px-6 font-semibold text-gray-600 text-sm">Price</th>
+                    <td
+                      colSpan={7}
+                      className="px-3 py-10 text-center text-[#6c757d]"
+                    >
+                      No stock rows match this filter.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredProducts
-                    .filter(p => filterStatus === 'all' || getStockStatus(p) === filterStatus)
-                    .map((product) => {
-                      const status = getStockStatus(product);
-                      return (
-                        <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-3">
-                              <img
-                                src={product.image_url}
-                                alt={product.name}
-                                className="w-12 h-12 rounded-lg object-cover"
-                              />
-                              <div>
-                                <p className="font-semibold text-gray-800">{product.name}</p>
-                                <p className="text-xs text-gray-500">SKU: {product.sku || '-'}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
-                              {product.category}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <span className="text-2xl font-bold text-gray-800">{product.stock}</span>
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            {status === 'good' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm font-medium">
-                                <CheckCircle className="w-4 h-4" />
-                                In Stock
-                              </span>
-                            )}
-                            {status === 'low' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-sm font-medium">
-                                <AlertTriangle className="w-4 h-4" />
-                                Low Stock
-                              </span>
-                            )}
-                            {status === 'out' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm font-medium">
-                                <XCircle className="w-4 h-4" />
-                                Out of Stock
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <p className="font-bold text-gray-800">৳{product.selling_price}</p>
-                            <p className="text-xs text-gray-500">Cost: ৳{product.purchase_price}</p>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
+                ) : null}
+                {paged.map((product, idx) => {
+                  const status = getStockStatus(product);
+                  return (
+                    <tr key={product.id} className="border-b border-[#dee2e6]">
+                      <td className="px-3 py-2">{start + idx}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={product.image_url}
+                            alt=""
+                            className="h-9 w-9 rounded object-cover"
+                          />
+                          <div>
+                            <p>{product.name}</p>
+                            <p className="text-[11px] text-[#6c757d]">
+                              SKU: {product.sku || '-'}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2">{product.category}</td>
+                      <td className="px-3 py-2">{product.stock}</td>
+                      <td className="px-3 py-2">
+                        {status === 'good' && (
+                          <span className="rounded-[3px] bg-[#28a745] px-2 py-0.5 text-[12px] text-white">
+                            In Stock
+                          </span>
+                        )}
+                        {status === 'low' && (
+                          <span className="rounded-[3px] bg-[#fd7e14] px-2 py-0.5 text-[12px] text-white">
+                            Low Stock
+                          </span>
+                        )}
+                        {status === 'out' && (
+                          <span className="rounded-[3px] bg-[#dc3545] px-2 py-0.5 text-[12px] text-white">
+                            Out of Stock
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">{currency(product.selling_price)}</td>
+                      <td className="px-3 py-2">
+                        <button
+                          type="button"
+                          className="text-[12px] text-[#007bff]"
+                          onClick={() => {
+                            setRestockTarget(product);
+                            setRestockQty(
+                              String(Math.max(product.low_stock_alert, 5))
+                            );
+                          }}
+                        >
+                          Restock
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+            <p>
+              Showing {start} to {end} of {filteredProducts.length} entries
+            </p>
+            <div className="flex overflow-hidden rounded-[4px] border border-[#dee2e6]">
+              <button
+                className="px-3 py-1.5 disabled:text-[#adb5bd]"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={
+                    n === currentPage
+                      ? 'bg-[#007bff] px-3 py-1.5 text-white'
+                      : 'border-l border-[#dee2e6] px-3 py-1.5'
+                  }
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                className="border-l border-[#dee2e6] px-3 py-1.5 disabled:text-[#adb5bd]"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Inventory Logs */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div className="p-4 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <History className="w-5 h-5 text-orange-500" />
-              Inventory Logs
-            </h3>
-          </div>
-          <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
-            {inventoryLogs.slice(0, 15).map((log) => (
+        <Card>
+          <CardHeader title="Inventory Logs" />
+          <div className="max-h-[28rem] space-y-1 overflow-y-auto p-3">
+            {inventoryLogs.length === 0 ? (
+              <p className="py-6 text-center text-[13px] text-[#6c757d]">
+                No inventory activity yet.
+              </p>
+            ) : (
+              inventoryLogs.slice(0, 15).map((log) => (
               <div
                 key={log.id}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl"
+                className="flex items-center gap-2 border-b border-[#f1f3f5] py-2 text-[13px]"
               >
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  log.change_type === 'add' ? 'bg-green-100' : 'bg-red-100'
-                }`}>
-                  {log.change_type === 'add' ? (
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <TrendingDown className="w-5 h-5 text-red-600" />
-                  )}
+                {log.change_type === 'add' ? (
+                  <TrendingUp className="h-4 w-4 text-[#28a745]" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-[#dc3545]" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate">{log.product_name}</p>
+                  <p className="text-[11px] text-[#6c757d]">
+                    {log.date} ·{' '}
+                    {log.change_type === 'add'
+                      ? 'Restock'
+                      : log.change_type === 'break'
+                        ? 'Breakage'
+                        : 'Sale'}
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-800 text-sm truncate">{log.product_name}</p>
-                  <p className="text-xs text-gray-500">{log.date}</p>
-                </div>
-                <span className={`font-bold text-sm ${
-                  log.change_type === 'add' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {log.change_type === 'add' ? '+' : '-'}{log.quantity}
+                <span
+                  className={
+                    log.change_type === 'add' ? 'text-[#28a745]' : 'text-[#dc3545]'
+                  }
+                >
+                  {log.change_type === 'add' ? '+' : '-'}
+                  {log.quantity}
                 </span>
               </div>
-            ))}
-            {inventoryLogs.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <History className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <p>No logs yet</p>
-              </div>
+            ))
             )}
           </div>
-        </div>
+        </Card>
       </div>
+
+      <Modal
+        open={restockTarget !== null}
+        onClose={() => setRestockTarget(null)}
+        title={restockTarget ? `Restock ${restockTarget.name}` : 'Restock'}
+        size="sm"
+      >
+        <div className="space-y-3 p-4">
+          <p className="text-[13px] text-[#6c757d]">
+            On hand now: {restockTarget?.stock ?? 0}
+          </p>
+          <Input
+            label="Quantity to add"
+            type="number"
+            min={1}
+            value={restockQty}
+            onChange={(e) => setRestockQty(e.target.value)}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setRestockTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="success"
+              onClick={() => {
+                if (!restockTarget) return;
+                const ok = adjustStock(
+                  restockTarget.id,
+                  Number(restockQty),
+                  'add'
+                );
+                if (ok) setRestockTarget(null);
+              }}
+            >
+              Add to stock
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
