@@ -5,6 +5,31 @@ export interface User {
   role: 'admin' | 'staff';
 }
 
+export interface StaffProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'staff';
+  created_at: string;
+}
+
+export type ExpenseType =
+  | 'Rent'
+  | 'Salary'
+  | 'Transport'
+  | 'Utilities'
+  | 'Packaging'
+  | 'Misc';
+
+export interface Expense {
+  id: string;
+  date: string;
+  type: ExpenseType;
+  amount: number;
+  notes?: string;
+  created_at: string;
+}
+
 export interface Product {
   id: string;
   name: string;

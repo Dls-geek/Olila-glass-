@@ -5,7 +5,7 @@ import React, {
   useReducer,
   ReactNode,
 } from 'react';
-import { Product, Sale, SaleItem, InventoryLog, CartItem, User, PurchaseItemInput, PurchaseResult, PurchaseSource, Chalan, ChalanItem, ChalanPayment, ChalanStatus } from '../types';
+import { Product, Sale, SaleItem, InventoryLog, CartItem, User, StaffProfile, Expense, ExpenseType, PurchaseItemInput, PurchaseResult, PurchaseSource, Chalan, ChalanItem, ChalanPayment, ChalanStatus } from '../types';
 import { useToast } from '../components/ui';
 import { supabase } from '../lib/supabase';
 
@@ -167,6 +167,22 @@ interface AppContextType extends AppState {
     deliveryPhotoUrl?: string;
     date?: string;
   }) => Promise<boolean>;
+  listStaff: () => Promise<StaffProfile[]>;
+  inviteStaff: (input: {
+    name: string;
+    email: string;
+    password: string;
+    role: 'admin' | 'staff';
+  }) => Promise<StaffProfile | null>;
+  updateStaffRole: (id: string, role: 'admin' | 'staff') => Promise<boolean>;
+  listExpenses: (range?: { from?: string; to?: string }) => Promise<Expense[]>;
+  addExpense: (input: {
+    date: string;
+    type: ExpenseType;
+    amount: number;
+    notes?: string;
+  }) => Promise<boolean>;
+  deleteExpense: (id: string) => Promise<boolean>;
   getCartTotal: () => number;
   getLowStockProducts: () => Product[];
   getDailySales: () => number;
@@ -984,6 +1000,137 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .slice(0, 5);
   };
 
+  const listStaff = async (): Promise<StaffProfile[]> => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, role, created_at')
+      .order('created_at', { ascending: true });
+    if (error) {
+      toast.error(error.message);
+      return [];
+    }
+    return (data || []).map((row) => ({
+      id: row.id as string,
+      name: (row.name as string) || 'Staff',
+      email: (row.email as string) || '',
+      role: (row.role as StaffProfile['role']) || 'staff',
+      created_at: String(row.created_at),
+    }));
+  };
+
+  const inviteStaff = async (input: {
+    name: string;
+    email: string;
+    password: string;
+    role: 'admin' | 'staff';
+  }): Promise<StaffProfile | null> => {
+    const { data, error } = await supabase.functions.invoke('invite-staff', {
+      body: {
+        name: input.name.trim(),
+        email: input.email.trim().toLowerCase(),
+        password: input.password,
+        role: input.role,
+      },
+    });
+    if (error) {
+      toast.error(error.message || 'Invite failed.');
+      return null;
+    }
+    const payload = data as {
+      error?: string;
+      user?: { id: string; email: string; name: string; role: string };
+    };
+    if (payload?.error) {
+      toast.error(payload.error);
+      return null;
+    }
+    if (!payload?.user) {
+      toast.error('Invite failed.');
+      return null;
+    }
+    return {
+      id: payload.user.id,
+      name: payload.user.name,
+      email: payload.user.email,
+      role: payload.user.role === 'admin' ? 'admin' : 'staff',
+      created_at: new Date().toISOString(),
+    };
+  };
+
+  const updateStaffRole = async (
+    id: string,
+    role: 'admin' | 'staff'
+  ): Promise<boolean> => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ role })
+      .eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const listExpenses = async (range?: {
+    from?: string;
+    to?: string;
+  }): Promise<Expense[]> => {
+    let q = supabase
+      .from('expenses')
+      .select('id, date, type, amount, notes, created_at')
+      .order('date', { ascending: false });
+    if (range?.from) q = q.gte('date', range.from);
+    if (range?.to) q = q.lte('date', range.to);
+    const { data, error } = await q;
+    if (error) {
+      toast.error(error.message);
+      return [];
+    }
+    return (data || []).map((row) => ({
+      id: row.id as string,
+      date: String(row.date).slice(0, 10),
+      type: row.type as ExpenseType,
+      amount: Number(row.amount),
+      notes: (row.notes as string | null) || undefined,
+      created_at: String(row.created_at),
+    }));
+  };
+
+  const addExpense = async (input: {
+    date: string;
+    type: ExpenseType;
+    amount: number;
+    notes?: string;
+  }): Promise<boolean> => {
+    const id = `E${Date.now()}`;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const { error } = await supabase.from('expenses').insert({
+      id,
+      date: input.date,
+      type: input.type,
+      amount: input.amount,
+      notes: input.notes || null,
+      created_by: user?.id ?? null,
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const deleteExpense = async (id: string): Promise<boolean> => {
+    const { error } = await supabase.from('expenses').delete().eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1007,6 +1154,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createChalan,
         addChalanPayment,
         receiveChalan,
+        listStaff,
+        inviteStaff,
+        updateStaffRole,
+        listExpenses,
+        addExpense,
+        deleteExpense,
         getCartTotal,
         getLowStockProducts,
         getDailySales,

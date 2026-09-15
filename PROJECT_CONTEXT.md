@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-15 (add-product bulk import)
+Last updated: 2026-09-15 (module hubs + staff + reports + expense)
 
 ---
 
@@ -39,7 +39,7 @@ Path alias: `@` → `src/`
 Env (Vite + Vercel Production/Preview): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`  
 Client: [`src/lib/supabase.ts`](src/lib/supabase.ts) · example: [`.env.example`](.env.example)
 
-**Not used in app code today:** `html2canvas`, `jspdf`. No React Router.
+**Not used in app code today:** (removed `html2canvas`, `jspdf`). No React Router. Catalog Excel import uses `xlsx`.
 
 ---
 
@@ -51,21 +51,28 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 
 | Page id | Hash | Screen |
 |---------|------|--------|
-| `dashboard` | `#/dashboard` | Dashboard |
+| `dashboard` | `#/dashboard` | Shop dashboard |
+| `salesHome` | `#/salesHome` | Sales module hub |
+| `catalogHome` | `#/catalogHome` | Catalog module hub |
+| `inventoryHome` | `#/inventoryHome` | Inventory module hub |
+| `purchaseHome` | `#/purchaseHome` | Purchase module hub |
+| `reportsHome` | `#/reportsHome` | Reports module hub |
+| `expenseHome` | `#/expenseHome` | Expense module hub |
+| `settingsHome` | `#/settingsHome` | Settings module hub |
 | `products` | `#/products` | Product list |
-| `addProduct` | `#/addProduct` | Add product form |
+| `addProduct` | `#/addProduct` | Add product + bulk CSV/Excel |
 | `inventory` | `#/inventory` | Current stock |
-| `stockBulk` | `#/stockBulk` | Inventory + bulk restock modal |
-| `stockCsv` | `#/stockCsv` | Inventory + CSV import modal |
-| `stockPurchase` | `#/stockPurchase` | Inventory + purchase+receipt modal |
+| `stockBulk` / `stockCsv` / `stockPurchase` | matching hashes | Inventory + intake modal |
 | `sales` | `#/sales` | Sale list |
-| `billing` | `#/billing` | POS (full screen, no sidebar) |
+| `billing` | `#/billing` | POS (full screen) |
 | `breakage` | `#/breakage` | Breakage |
-| `chalan` | `#/chalan` | Chalan list |
-| `chalanNew` | `#/chalanNew` | New chalan |
-| `chalanPaona` | `#/chalanPaona` | পাওনা (outstanding qty) |
+| `chalan` / `chalanNew` / `chalanPaona` | matching hashes | Chalan list / PO / পাওনা |
+| `topSelling` | `#/topSelling` | Top selling report |
+| `profitLoss` | `#/profitLoss` | Profit & loss |
+| `expenses` | `#/expenses` | Expense list |
+| `staff` | `#/staff` | Staff invite / roles |
 
-Sidebar (domain parents): Dashboard · **Sales** (POS, Sale List) · **Catalog** (Product List, Add) · **Inventory** (Current Stock, Breakage) · **Purchase** (Chalan List/New/পাওনা, Bulk, CSV, Purchase+Receipt) · **Reports** (Overview, Sale Report, Top Selling/P&L coming soon) · **Expense** (coming soon).
+Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children are deep links. Domains: Dashboard · Sales · Catalog · Inventory · Purchase · Reports · Expense · Settings.
 
 ### State
 
@@ -77,6 +84,8 @@ Sidebar (domain parents): Dashboard · **Sales** (POS, Sale List) · **Catalog**
 - Restock / breakage: update `products.stock` + insert `inventory_logs`.
 - Stock intake (bulk / CSV / company purchase): RPC `record_purchase` + optional receipt in Storage bucket `purchase-receipts`; tables `purchases`, `purchase_items`.
 - **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
+- **Staff:** Edge Function `invite-staff` (admin JWT + service role); `profiles.email`; `is_admin()` helper.
+- **Expenses:** table `expenses` (type/amount/date/notes); feeds P&L net profit.
 
 ### Types ([`src/types/index.ts`](src/types/index.ts))
 
@@ -95,9 +104,11 @@ SaleItem { product_id, product_name, quantity, price, subtotal }
 InventoryLog { id, product_id, product_name, change_type: 'add'|'sell'|'break', quantity, date }
 CartItem { product, quantity }
 User { id, name, email, role: 'admin'|'staff' }
+StaffProfile { id, name, email, role, created_at }
+Expense { id, date, type, amount, notes?, created_at }
 ```
 
-DB also has `profiles` (id → auth.users, name, role).
+DB also has `profiles` (id → auth.users, name, role, email) and `expenses`.
 
 ---
 
@@ -129,13 +140,18 @@ Form helpers on Products page:
 | Screen | File | Behavior |
 |--------|------|----------|
 | Login | `LoginPage.tsx` | Supabase `signInWithPassword`; fill helper for shop admin |
-| Dashboard | `Dashboard.tsx` | Bilingual header; catalog/sales/OOS/today tiles; charts; Open POS |
-| Products | `ProductsPage.tsx` | DeshiVoj list chrome (KPI, Show/Search/pager, dark thead); group/category filter; CRUD; CSV export; Add page bulk CSV/Excel import (PDF tip only) |
-| POS | `BillingPage.tsx` | Cart, discount, payment method + amount received (stored), customer phone, print receipt, F2; bilingual tabs |
-| Inventory | `InventoryPage.tsx` | Current stock list; intake modes via hash (`stockBulk` / `stockCsv` / `stockPurchase`) open modals; logs |
-| Chalan | `ChalanPage.tsx` | Modes via hash (`chalan` / `chalanNew` / `chalanPaona`); StepHint buttons navigate / open pay·receive; create / list / পাওনা; pay + receive in detail |
-| Breakage | `BreakagePage.tsx` | Searchable SKU picker; KPIs; history table with Show/Search/pager |
-| Sales | `SalesPage.tsx` | DeshiVoj sale list (KPI, payment column, filters, pager); invoice modal + print |
+| Dashboard | `Dashboard.tsx` | Shop-wide overview charts/tiles |
+| Module hubs | `ModuleHubs.tsx` | Per-domain hub (KPIs + `HubActionCard` links); parents open hubs |
+| Products | `ProductsPage.tsx` | List + Add; CSV/Excel catalog import; CRUD |
+| POS | `BillingPage.tsx` | Cart, payment, phone, print |
+| Inventory | `InventoryPage.tsx` | Stock + intake modals via hash |
+| Chalan | `ChalanPage.tsx` | List / PO / পাওনা; pay + receive |
+| Breakage | `BreakagePage.tsx` | Damage logging |
+| Sales | `SalesPage.tsx` | Sale list From/To (default today) |
+| Top Selling | `TopSellingPage.tsx` | Ranked SKUs + chart by date range |
+| P&L | `ProfitLossPage.tsx` | Revenue − COGS − expenses |
+| Expense | `ExpensePage.tsx` | Add/list/delete shop expenses |
+| Staff | `StaffPage.tsx` | Admin invite + role change |
 
 **Stock rules:** no add-to-cart when OOS; checkout blocked if qty > stock; breakage cannot exceed on-hand.
 
@@ -159,18 +175,22 @@ Form helpers on Products page:
 
 ## 7. Known gaps / likely next work
 
-- [x] Stock intake: bulk restock (all/group), CSV import (SKU+qty), company purchase + receipt upload (`purchases` / `record_purchase` RPC / Storage `purchase-receipts`)
-- [x] Company chalan → linked payment (separate) → partial receive → পাওনা tracking
-- [x] Product images: 25 local pattern-art PNGs in `public/product-patterns/`; assigned by SKU hash across all 604 products (placeholders until real photos)
-- [x] Categories derived from product names (`categorizeProductName`)
-- [x] Persistence via Supabase (products/sales/logs)
-- [x] Real Auth (email/password); roles still unused for ACL
-- [x] Payment type / paid amount stored on `Sale` (`payment_method`, `paid_amount`; `complete_sale` RPC)
-- [x] `customer_phone` collected on POS and saved on `Sale`
-- [ ] Staff invite UI (create users in Supabase dashboard for now)
-- [ ] README / SETUP_GUIDE may still mention outdated ShopEase/Firebase wording
-- [ ] Unused deps: `html2canvas`, `jspdf`
-- [ ] Enable leaked-password protection in Supabase Auth (advisor warning)
+- [x] Stock intake: bulk / CSV / purchase+receipt
+- [x] Company chalan → payment → receive → পাওনা
+- [x] Product pattern images + categories
+- [x] Persistence via Supabase + Auth
+- [x] Sale payment fields + customer phone
+- [x] Staff invite UI (`invite-staff` Edge Function + Settings → Staff)
+- [x] Module hubs per domain (Sales/Catalog/Inventory/Purchase/Reports/Expense/Settings)
+- [x] Reports: Top Selling + Profit & Loss (expenses included in net)
+- [x] Expense module (list + types)
+- [x] README / SETUP_GUIDE rewritten for Olila + Supabase (no ShopEase/Firebase)
+- [x] Removed unused deps `html2canvas`, `jspdf`
+- [x] Revoked `anon` EXECUTE on shop SECURITY DEFINER RPCs (authenticated only)
+- [ ] Enable **leaked-password protection** in Supabase Auth Dashboard (HaveIBeenPwned) — cannot toggle via MCP
+- [ ] Role ACL on screens (admin-only destructive actions beyond staff invite)
+- [ ] Real product photos (replace pattern placeholders)
+- [ ] Confirm Vercel production deploy for latest `main` (API scope 403 from this environment)
 
 ---
 
@@ -188,7 +208,7 @@ src/utils/productPattern.ts
 src/utils/categorizeProduct.ts
 src/utils/printReceipt.ts
 public/product-patterns/   # 25 pattern-art PNG placeholders
-src/components/{LoginPage,Dashboard,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,ReceiptSlip}.tsx
+src/components/{LoginPage,Dashboard,ModuleHubs,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,TopSellingPage,ProfitLossPage,ExpensePage,StaffPage,ReceiptSlip}.tsx
 src/components/ui/
 src/components/ui/DeshiChrome.tsx
 .env.example
@@ -200,6 +220,7 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-15 | Module hubs per domain; Staff invite (Edge Function); Top Selling + P&L; Expenses table/UI; README/SETUP rewrite; remove html2canvas/jspdf; revoke anon RPC execute. |
 | 2026-09-15 | Add Product: bulk catalog upload (CSV + Excel via `xlsx`, PDF tip); template download + preview/import; `parseProductCatalog`. |
 | 2026-09-15 | Chalan StepHint buttons clickable: navigate New/List/পাওনা; detail steps open pay/receive panels. |
 | 2026-09-15 | Derived product categories from names (`categorizeProductName`); updated `masterProducts`, Supabase, and Products filters (18 categories). |

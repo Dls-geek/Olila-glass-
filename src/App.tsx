@@ -9,6 +9,19 @@ import { InventoryPage } from './components/InventoryPage';
 import { SalesPage } from './components/SalesPage';
 import { BreakagePage } from './components/BreakagePage';
 import { ChalanPage } from './components/ChalanPage';
+import { StaffPage } from './components/StaffPage';
+import { TopSellingPage } from './components/TopSellingPage';
+import { ProfitLossPage } from './components/ProfitLossPage';
+import { ExpensePage } from './components/ExpensePage';
+import {
+  SalesHub,
+  CatalogHub,
+  InventoryHub,
+  PurchaseHub,
+  ReportsHub,
+  ExpenseHub,
+  SettingsHub,
+} from './components/ModuleHubs';
 import { cn } from './utils/cn';
 import {
   LayoutDashboard,
@@ -18,6 +31,7 @@ import {
   Truck,
   PieChart,
   Wallet,
+  Settings,
   ChevronRight,
   LogOut,
   Menu,
@@ -26,6 +40,13 @@ import {
 
 type Page =
   | 'dashboard'
+  | 'salesHome'
+  | 'catalogHome'
+  | 'inventoryHome'
+  | 'purchaseHome'
+  | 'reportsHome'
+  | 'expenseHome'
+  | 'settingsHome'
   | 'products'
   | 'addProduct'
   | 'inventory'
@@ -37,10 +58,21 @@ type Page =
   | 'chalanPaona'
   | 'stockBulk'
   | 'stockCsv'
-  | 'stockPurchase';
+  | 'stockPurchase'
+  | 'staff'
+  | 'topSelling'
+  | 'profitLoss'
+  | 'expenses';
 
 const HASH_PAGES: Page[] = [
   'dashboard',
+  'salesHome',
+  'catalogHome',
+  'inventoryHome',
+  'purchaseHome',
+  'reportsHome',
+  'expenseHome',
+  'settingsHome',
   'products',
   'addProduct',
   'inventory',
@@ -53,6 +85,10 @@ const HASH_PAGES: Page[] = [
   'stockBulk',
   'stockCsv',
   'stockPurchase',
+  'staff',
+  'topSelling',
+  'profitLoss',
+  'expenses',
 ];
 
 function pageFromHash(): Page {
@@ -75,7 +111,9 @@ const parents: NavItem[] = [
     id: 'sales',
     label: 'Sales',
     icon: ShoppingCart,
+    page: 'salesHome',
     children: [
+      { label: 'Overview', page: 'salesHome' },
       { label: 'New Sale (POS)', page: 'billing' },
       { label: 'Sale List', page: 'sales' },
     ],
@@ -84,7 +122,9 @@ const parents: NavItem[] = [
     id: 'catalog',
     label: 'Catalog',
     icon: Package,
+    page: 'catalogHome',
     children: [
+      { label: 'Overview', page: 'catalogHome' },
       { label: 'Product List', page: 'products' },
       { label: 'Add Product', page: 'addProduct' },
     ],
@@ -93,7 +133,9 @@ const parents: NavItem[] = [
     id: 'inventory',
     label: 'Inventory',
     icon: Warehouse,
+    page: 'inventoryHome',
     children: [
+      { label: 'Overview', page: 'inventoryHome' },
       { label: 'Current Stock', page: 'inventory' },
       { label: 'Breakage', page: 'breakage' },
     ],
@@ -102,9 +144,11 @@ const parents: NavItem[] = [
     id: 'purchase',
     label: 'Purchase',
     icon: Truck,
+    page: 'purchaseHome',
     children: [
+      { label: 'Overview', page: 'purchaseHome' },
       { label: 'Chalan List', page: 'chalan' },
-      { label: 'New Chalan', page: 'chalanNew' },
+      { label: 'Purchase Order', page: 'chalanNew' },
       { label: 'পাওনা', page: 'chalanPaona' },
       { label: 'Bulk Restock', page: 'stockBulk' },
       { label: 'Import CSV', page: 'stockCsv' },
@@ -115,18 +159,34 @@ const parents: NavItem[] = [
     id: 'report',
     label: 'Reports',
     icon: PieChart,
+    page: 'reportsHome',
     children: [
+      { label: 'Overview', page: 'reportsHome' },
       { label: 'Sales Overview', page: 'dashboard' },
       { label: 'Sale Report', page: 'sales' },
-      { label: 'Top Selling', page: null },
-      { label: 'Profit & Loss', page: null },
+      { label: 'Top Selling', page: 'topSelling' },
+      { label: 'Profit & Loss', page: 'profitLoss' },
     ],
   },
   {
     id: 'expense',
     label: 'Expense',
     icon: Wallet,
-    children: [{ label: 'Expense List', page: null }],
+    page: 'expenseHome',
+    children: [
+      { label: 'Overview', page: 'expenseHome' },
+      { label: 'Expense List', page: 'expenses' },
+    ],
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings,
+    page: 'settingsHome',
+    children: [
+      { label: 'Overview', page: 'settingsHome' },
+      { label: 'Staff', page: 'staff' },
+    ],
   },
 ];
 
@@ -148,25 +208,37 @@ function Logo() {
   );
 }
 
+function parentIdForPage(page: Page): string | null {
+  for (const item of parents) {
+    if (item.page === page) return item.id;
+    if (item.children?.some((c) => c.page === page)) return item.id;
+  }
+  return null;
+}
+
 function MainApp() {
   const { user, logout, isLoading } = useApp();
   const toast = useToast();
   const [page, setPage] = useState<Page>(() =>
     typeof window === 'undefined' ? 'dashboard' : pageFromHash()
   );
-  const [openMenus, setOpenMenus] = useState<string[]>([
-    'sales',
-    'catalog',
-    'inventory',
-    'purchase',
-  ]);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(() =>
+    parentIdForPage(
+      typeof window === 'undefined' ? 'dashboard' : pageFromHash()
+    )
+  );
   const [mobileNav, setMobileNav] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
   const [posReturn, setPosReturn] = useState<Page>('dashboard');
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onHash = () => setPage(pageFromHash());
+    const onHash = () => {
+      const next = pageFromHash();
+      setPage(next);
+      const parent = parentIdForPage(next);
+      if (parent) setOpenMenuId(parent);
+    };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
@@ -202,6 +274,13 @@ function MainApp() {
     window.location.hash = '/' + next;
     setMobileNav(false);
     setUserMenu(false);
+    const parent = parentIdForPage(next);
+    if (parent) setOpenMenuId(parent);
+    else setOpenMenuId(null);
+  };
+
+  const openParentOnly = (id: string) => {
+    setOpenMenuId(id);
   };
 
   if (isLoading && !user) {
@@ -222,12 +301,6 @@ function MainApp() {
       />
     );
   }
-
-  const toggle = (id: string) => {
-    setOpenMenus((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
 
   const handleLogout = async () => {
     setUserMenu(false);
@@ -346,23 +419,28 @@ function MainApp() {
           <nav className="pb-8" id="sidebar-menu" aria-label="Main">
             {parents.map((item) => {
               const Icon = item.icon;
-              const opened = openMenus.includes(item.id);
+              const opened = openMenuId === item.id;
               const isLeaf = Boolean(item.page) && !item.children;
               const activeParent =
                 item.page === page ||
-                item.children?.some((c) => c.page === page);
+                Boolean(item.children?.some((c) => c.page === page));
               return (
                 <div key={item.id}>
                   <button
+                    type="button"
+                    aria-expanded={item.children ? opened : undefined}
                     className={cn(
                       'as-nav',
-                      activeParent && (isLeaf || item.id === 'dashboard') && 'active',
-                      opened && !isLeaf && item.id !== 'dashboard' && 'subdrop'
+                      activeParent && 'active',
+                      opened && !isLeaf && 'subdrop'
                     )}
                     onClick={() => {
-                      if (item.page && !item.children) go(item.page);
-                      else if (item.id === 'dashboard') go('dashboard');
-                      else toggle(item.id);
+                      if (item.children?.length) {
+                        openParentOnly(item.id);
+                        if (item.page) go(item.page);
+                      } else if (item.page) {
+                        go(item.page);
+                      }
                     }}
                   >
                     <Icon className="mr-[15px] ml-[3px] h-4 w-5" />
@@ -381,9 +459,8 @@ function MainApp() {
                       {item.children.map((child) => (
                         <button
                           key={`${item.id}-${child.label}`}
-                          className={cn(
-                            child.page === page && activeParent && 'active'
-                          )}
+                          type="button"
+                          className={cn(child.page === page && 'active')}
                           onClick={() => go(child.page)}
                         >
                           {child.label}
@@ -400,6 +477,27 @@ function MainApp() {
         <main className="as-content">
           {page === 'dashboard' && (
             <Dashboard onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'salesHome' && (
+            <SalesHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'catalogHome' && (
+            <CatalogHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'inventoryHome' && (
+            <InventoryHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'purchaseHome' && (
+            <PurchaseHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'reportsHome' && (
+            <ReportsHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'expenseHome' && (
+            <ExpenseHub onNavigate={(p) => go(p as Page)} />
+          )}
+          {page === 'settingsHome' && (
+            <SettingsHub onNavigate={(p) => go(p as Page)} />
           )}
           {page === 'products' && (
             <ProductsPage mode="list" onAdd={() => go('addProduct')} />
@@ -425,6 +523,10 @@ function MainApp() {
           {page === 'sales' && (
             <SalesPage onNewSale={() => go('billing')} />
           )}
+          {page === 'topSelling' && <TopSellingPage />}
+          {page === 'profitLoss' && <ProfitLossPage />}
+          {page === 'expenses' && <ExpensePage />}
+          {page === 'staff' && <StaffPage />}
         </main>
       </div>
     </div>

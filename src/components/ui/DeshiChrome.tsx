@@ -266,3 +266,63 @@ export function zebraRow(idx: number, extra = '') {
     extra
   );
 }
+
+/** Clickable destination card for module hub pages. */
+export function HubActionCard({
+  title,
+  description,
+  onClick,
+  tone = 'navy',
+  icon,
+}: {
+  title: string;
+  description: string;
+  onClick: () => void;
+  tone?: 'navy' | 'green' | 'amber' | 'red' | 'blue';
+  icon?: ReactNode;
+}) {
+  const tones = {
+    navy: 'border-[#1a365d]/25 hover:border-[#1a365d] hover:bg-[#f0f7fb]',
+    green: 'border-[#00a65a]/30 hover:border-[#00a65a] hover:bg-[#f4fbf7]',
+    amber: 'border-[#fd7e14]/35 hover:border-[#fd7e14] hover:bg-[#fff7ed]',
+    red: 'border-[#dc3545]/30 hover:border-[#dc3545] hover:bg-[#fdecee]',
+    blue: 'border-[#007bff]/30 hover:border-[#007bff] hover:bg-[#eef6ff]',
+  };
+  const iconTone = {
+    navy: 'bg-[#1a365d] text-white',
+    green: 'bg-[#00a65a] text-white',
+    amber: 'bg-[#fd7e14] text-white',
+    red: 'bg-[#dc3545] text-white',
+    blue: 'bg-[#007bff] text-white',
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex w-full items-start gap-3 rounded-xl border-2 bg-white px-4 py-3.5 text-left shadow-sm transition-colors',
+        tones[tone]
+      )}
+    >
+      {icon ? (
+        <span
+          className={cn(
+            'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+            iconTone[tone]
+          )}
+        >
+          {icon}
+        </span>
+      ) : null}
+      <span className="min-w-0">
+        <span className="block text-[14px] font-bold text-[#1a365d]">
+          {title}
+        </span>
+        <span className="mt-0.5 block text-[12px] leading-snug text-[#6c757d]">
+          {description}
+        </span>
+      </span>
+    </button>
+  );
+}
+

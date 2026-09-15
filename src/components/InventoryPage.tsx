@@ -301,165 +301,163 @@ export function InventoryPage({
         <StatTile label="শেল্ফ খালি · Out" value={outOfStock} tone="red" />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <SectionCard
-            title="স্টক তালিকা · Stock list"
-            subtitle="স্ট্যাটাস ফিল্টার ও সার্চ দিয়ে খুঁজুন।"
-            accent="green"
-          >
-            <TableToolbar
-              pageSize={pageSize}
-              onPageSize={(n) => {
-                setPageSize(n);
-                setPage(1);
-              }}
-              pageSizeOptions={[10, 25]}
-              search={searchTerm}
-              onSearch={(v) => {
-                setSearchTerm(v);
-                setPage(1);
-              }}
-              searchPlaceholder="Name, SKU, group…"
-              suggestProducts={products}
-              filters={
-                <select
-                  value={filterStatus}
-                  onChange={(e) => {
-                    setFilterStatus(e.target.value);
-                    setPage(1);
-                  }}
-                  className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
-                >
-                  <option value="all">সব স্ট্যাটাস</option>
-                  <option value="good">In Stock</option>
-                  <option value="low">Low Stock</option>
-                  <option value="out">Out of Stock</option>
-                </select>
-              }
-            />
+      <div className="space-y-3">
+        <SectionCard
+          title="স্টক তালিকা · Stock list"
+          subtitle="স্ট্যাটাস ফিল্টার ও সার্চ দিয়ে খুঁজুন।"
+          accent="green"
+        >
+          <TableToolbar
+            pageSize={pageSize}
+            onPageSize={(n) => {
+              setPageSize(n);
+              setPage(1);
+            }}
+            pageSizeOptions={[10, 25]}
+            search={searchTerm}
+            onSearch={(v) => {
+              setSearchTerm(v);
+              setPage(1);
+            }}
+            searchPlaceholder="Name, SKU, group…"
+            suggestProducts={products}
+            filters={
+              <select
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
+              >
+                <option value="all">সব স্ট্যাটাস</option>
+                <option value="good">In Stock</option>
+                <option value="low">Low Stock</option>
+                <option value="out">Out of Stock</option>
+              </select>
+            }
+          />
 
-            {paged.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <Package className="mx-auto h-9 w-9 text-[#adb5bd]" />
-                <p className="mt-3 text-sm font-semibold text-[#495057]">
-                  কোনো স্টক মিলছে না।
-                </p>
-                <Button
-                  className="mt-3"
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterStatus('all');
-                  }}
-                >
-                  ফিল্টার মুছুন
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px] text-[13px]">
-                    <thead>
-                      <tr className={darkThead}>
-                        <th>#</th>
-                        <th>পণ্য</th>
-                        <th>Group</th>
-                        <th>Category</th>
-                        <th>Stock</th>
-                        <th>Status</th>
-                        <th>Price</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paged.map((product, idx) => {
-                        const status = getStockStatus(product);
-                        return (
-                          <tr key={product.id} className={zebraRow(idx)}>
-                            <td className="px-3 py-2.5 text-[#6c757d]">
-                              {start + idx}
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <div className="flex items-center gap-2">
-                                <img
-                                  src={product.image_url}
-                                  alt=""
-                                  className="h-9 w-9 rounded object-cover"
-                                />
-                                <div>
-                                  <p className="font-medium text-[#1a365d]">
-                                    {product.name}
-                                  </p>
-                                  <p className="text-[11px] text-[#6c757d]">
-                                    SKU: {product.sku || '-'}
-                                  </p>
-                                </div>
+          {paged.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <Package className="mx-auto h-9 w-9 text-[#adb5bd]" />
+              <p className="mt-3 text-sm font-semibold text-[#495057]">
+                কোনো স্টক মিলছে না।
+              </p>
+              <Button
+                className="mt-3"
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterStatus('all');
+                }}
+              >
+                ফিল্টার মুছুন
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px] text-[13px]">
+                  <thead>
+                    <tr className={darkThead}>
+                      <th>#</th>
+                      <th>পণ্য</th>
+                      <th>Group</th>
+                      <th>Category</th>
+                      <th>Stock</th>
+                      <th>Status</th>
+                      <th>Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paged.map((product, idx) => {
+                      const status = getStockStatus(product);
+                      return (
+                        <tr key={product.id} className={zebraRow(idx)}>
+                          <td className="px-3 py-2.5 text-[#6c757d]">
+                            {start + idx}
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={product.image_url}
+                                alt=""
+                                className="h-9 w-9 rounded object-cover"
+                              />
+                              <div>
+                                <p className="font-medium text-[#1a365d]">
+                                  {product.name}
+                                </p>
+                                <p className="text-[11px] text-[#6c757d]">
+                                  SKU: {product.sku || '-'}
+                                </p>
                               </div>
-                            </td>
-                            <td className="px-3 py-2.5">{product.group}</td>
-                            <td className="px-3 py-2.5">{product.category}</td>
-                            <td className="px-3 py-2.5 font-mono">{product.stock}</td>
-                            <td className="px-3 py-2.5">
-                              {status === 'good' && (
-                                <span className="rounded-[3px] bg-[#28a745] px-2 py-0.5 text-[12px] text-white">
-                                  In Stock
-                                </span>
-                              )}
-                              {status === 'low' && (
-                                <span className="rounded-[3px] bg-[#fd7e14] px-2 py-0.5 text-[12px] text-white">
-                                  Low Stock
-                                </span>
-                              )}
-                              {status === 'out' && (
-                                <span className="rounded-[3px] bg-[#dc3545] px-2 py-0.5 text-[12px] text-white">
-                                  Out of Stock
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-3 py-2.5 font-mono">
-                              {formatMoney(product.selling_price)}
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <Button
-                                size="sm"
-                                variant="info"
-                                onClick={() => {
-                                  setRestockTarget(product);
-                                  setRestockQty(
-                                    String(Math.max(product.low_stock_alert, 5))
-                                  );
-                                }}
-                              >
-                                Restock
-                              </Button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <TablePager
-                  start={start}
-                  end={end}
-                  total={filteredProducts.length}
-                  page={currentPage}
-                  totalPages={totalPages}
-                  onPage={setPage}
-                />
-              </>
-            )}
-          </SectionCard>
-        </div>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5">{product.group}</td>
+                          <td className="px-3 py-2.5">{product.category}</td>
+                          <td className="px-3 py-2.5 font-mono">{product.stock}</td>
+                          <td className="px-3 py-2.5">
+                            {status === 'good' && (
+                              <span className="rounded-[3px] bg-[#28a745] px-2 py-0.5 text-[12px] text-white">
+                                In Stock
+                              </span>
+                            )}
+                            {status === 'low' && (
+                              <span className="rounded-[3px] bg-[#fd7e14] px-2 py-0.5 text-[12px] text-white">
+                                Low Stock
+                              </span>
+                            )}
+                            {status === 'out' && (
+                              <span className="rounded-[3px] bg-[#dc3545] px-2 py-0.5 text-[12px] text-white">
+                                Out of Stock
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2.5 font-mono">
+                            {formatMoney(product.selling_price)}
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <Button
+                              size="sm"
+                              variant="info"
+                              onClick={() => {
+                                setRestockTarget(product);
+                                setRestockQty(
+                                  String(Math.max(product.low_stock_alert, 5))
+                                );
+                              }}
+                            >
+                              Restock
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <TablePager
+                start={start}
+                end={end}
+                total={filteredProducts.length}
+                page={currentPage}
+                totalPages={totalPages}
+                onPage={setPage}
+              />
+            </>
+          )}
+        </SectionCard>
 
         <SectionCard
           title="লগ · Inventory logs"
           subtitle="সাম্প্রতিক স্টক মুভমেন্ট।"
           accent="navy"
         >
-          <div className="max-h-[28rem] space-y-1 overflow-y-auto p-3">
+          <div className="max-h-[22rem] space-y-1 overflow-y-auto p-3">
             {inventoryLogs.length === 0 ? (
               <p className="py-6 text-center text-[13px] text-[#6c757d]">
                 এখনও কোনো লগ নেই।

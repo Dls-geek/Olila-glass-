@@ -14,6 +14,7 @@ export {
   SectionCard,
   TableToolbar,
   TablePager,
+  HubActionCard,
   darkThead,
   zebraRow,
 } from './DeshiChrome';
