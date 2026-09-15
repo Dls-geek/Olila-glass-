@@ -105,7 +105,7 @@ Generated from `olila master product list.xlsx` — **do not hand-edit row-by-ro
 |------|--------|
 | Count | **604** unique SKUs |
 | Groups | Supreme **300**, Winner **212**, Kleen **92** |
-| Category (import) | all `"Other"` |
+| Category | Derived from product **names** via [`categorizeProductName`](src/utils/categorizeProduct.ts) (18 buckets; 1× Other) |
 | Stock (import) | all **0** |
 | `low_stock_alert` | **5** |
 | `id` / `sku` | Excel `Item_Code` |
@@ -115,7 +115,7 @@ Generated from `olila master product list.xlsx` — **do not hand-edit row-by-ro
 Form helpers on Products page:
 
 - `GROUP_OPTIONS`: Supreme, Winner, Kleen, Other  
-- `CATEGORY_OPTIONS`: Plates, Cups, Bowls, Glassware, Serving, Sets, Other (+ custom)
+- `CATEGORY_OPTIONS`: from `PRODUCT_CATEGORIES` (Tiffin & Lunch, Bottles & Flasks, Cleaning & Bathroom, Bowls, …, Other)
 
 ---
 
@@ -157,7 +157,7 @@ Form helpers on Products page:
 - [x] Stock intake: bulk restock (all/group), CSV import (SKU+qty), company purchase + receipt upload (`purchases` / `record_purchase` RPC / Storage `purchase-receipts`)
 - [x] Company chalan → linked payment (separate) → partial receive → পাওনা tracking
 - [x] Product images: 25 local pattern-art PNGs in `public/product-patterns/`; assigned by SKU hash across all 604 products (placeholders until real photos)
-- [ ] Categories still mostly `"Other"` (not classified from Excel)
+- [x] Categories derived from product names (`categorizeProductName`)
 - [x] Persistence via Supabase (products/sales/logs)
 - [x] Real Auth (email/password); roles still unused for ACL
 - [x] Payment type / paid amount stored on `Sale` (`payment_method`, `paid_amount`; `complete_sale` RPC)
@@ -180,6 +180,7 @@ src/data/masterProducts.ts
 src/utils/money.ts
 src/utils/parseStockCsv.ts
 src/utils/productPattern.ts
+src/utils/categorizeProduct.ts
 src/utils/printReceipt.ts
 public/product-patterns/   # 25 pattern-art PNG placeholders
 src/components/{LoginPage,Dashboard,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,ReceiptSlip}.tsx
@@ -194,6 +195,7 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-15 | Derived product categories from names (`categorizeProductName`); updated `masterProducts`, Supabase, and Products filters (18 categories). |
 | 2026-09-15 | Chalan & পাওনা: create order from catalog (DP rate), linked payments (separate), partial receive → stock, outstanding qty tab; RPCs `create_chalan` / `add_chalan_payment` / `receive_chalan`. |
 | 2026-09-15 | Chalan UI polish (DeshiVoj-inspired): bilingual header, KPI strip, numbered step hints, empty-state CTAs, product/list search, payment due prefill. |
 | 2026-09-15 | Chalan UI finished: Show/Search/pagination, status filter, group chips + recipe line table, Save/List CTAs, পাওনা receive actions, toast feedback, fill-all remaining receive. |

@@ -4,6 +4,7 @@ import { Download, Plus } from 'lucide-react';
 import type { Product } from '../types';
 import { formatMoney } from '../utils/money';
 import { productPatternUrl } from '../utils/productPattern';
+import { PRODUCT_CATEGORIES } from '../utils/categorizeProduct';
 import {
   Button,
   ConfirmDialog,
@@ -22,15 +23,7 @@ import {
 
 const DEFAULT_IMAGE = productPatternUrl('new');
 
-const CATEGORY_OPTIONS = [
-  'Plates',
-  'Cups',
-  'Bowls',
-  'Glassware',
-  'Serving',
-  'Sets',
-  'Other',
-];
+const CATEGORY_OPTIONS = [...PRODUCT_CATEGORIES];
 
 const GROUP_OPTIONS = ['Supreme', 'Winner', 'Kleen', 'Other'];
 

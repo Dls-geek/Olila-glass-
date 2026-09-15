@@ -1,11 +1,11 @@
 import type { Product } from '../types';
 
-/** Generated from Olila master product list.xlsx — do not edit by hand. */
+/** Generated from Olila master product list.xlsx — categories derived from names via categorizeProductName. */
 export const masterProducts: Product[] = [
   {
     id: "12703",
     name: "127 Micky Mouse Baby Chair Red",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 188,
     selling_price: 310,
@@ -18,7 +18,7 @@ export const masterProducts: Product[] = [
   {
     id: "12801",
     name: "128 Tweety Bird Baby Chair Red",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 188,
     selling_price: 310,
@@ -31,7 +31,7 @@ export const masterProducts: Product[] = [
   {
     id: "12901",
     name: "129 Baby Chair Nokshi Red",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 188,
     selling_price: 310,
@@ -44,7 +44,7 @@ export const masterProducts: Product[] = [
   {
     id: "13101",
     name: "131 Baby Rocker Baby Pink",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 540,
     selling_price: 720,
@@ -57,7 +57,7 @@ export const masterProducts: Product[] = [
   {
     id: "30601",
     name: "306 Without Extra Top Long Leg Stool B.Blue",
-    category: "Other",
+    category: "Stools & Chairs",
     group: "Supreme",
     purchase_price: 225,
     selling_price: 350,
@@ -70,7 +70,7 @@ export const masterProducts: Product[] = [
   {
     id: "31101",
     name: "311 Kitchen Stool Short Leg PPG",
-    category: "Other",
+    category: "Stools & Chairs",
     group: "Supreme",
     purchase_price: 85,
     selling_price: 170,
@@ -83,7 +83,7 @@ export const masterProducts: Product[] = [
   {
     id: "31901",
     name: "319 Oval Short Stool FL Pink",
-    category: "Other",
+    category: "Stools & Chairs",
     group: "Supreme",
     purchase_price: 90,
     selling_price: 170,
@@ -96,7 +96,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110122",
     name: "71101 Super Bucket PH 4 Lt SMB",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 52,
     selling_price: 105,
@@ -109,7 +109,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110223",
     name: "71102 Super Bucket PH 8 lt Black",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 47,
     selling_price: 100,
@@ -122,7 +122,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110323",
     name: "71103 Super Bucket PH 12 lt Natural",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 126,
     selling_price: 195,
@@ -135,7 +135,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110404",
     name: "71104 Super Bucket PH 15 Lt Red",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 161,
     selling_price: 225,
@@ -148,7 +148,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110503",
     name: "71105 Super Bucket PH 22 lt Crate Green",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 224,
     selling_price: 340,
@@ -161,7 +161,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110605",
     name: "71106 Super Bucket PH 25 Lt SMB",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 256,
     selling_price: 365,
@@ -174,7 +174,7 @@ export const masterProducts: Product[] = [
   {
     id: "7110701",
     name: "71107 Super Bucket PH 30 Lt Black",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 142,
     selling_price: 230,
@@ -187,7 +187,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130701",
     name: "71307 Smart Bucket PH 5 Lt Off White",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 83,
     selling_price: 130,
@@ -200,7 +200,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130723",
     name: "71307-02 Lid Smart Bucket 5L White",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 27,
     selling_price: 50,
@@ -213,7 +213,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130803",
     name: "71308 Smart Bucket PH 8 Lt Tr",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 102,
     selling_price: 180,
@@ -226,7 +226,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130825",
     name: "71308-02 Lid Smart Bucket 8L White",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 28,
     selling_price: 60,
@@ -239,7 +239,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130902",
     name: "71309 Smart Bucket PH 16 Lt Baby Pink",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 202,
     selling_price: 310,
@@ -252,7 +252,7 @@ export const masterProducts: Product[] = [
   {
     id: "7130925",
     name: "71309-02 Lid Smart Bucket 16L White",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 51,
     selling_price: 100,
@@ -265,7 +265,7 @@ export const masterProducts: Product[] = [
   {
     id: "7131002",
     name: "71310 Smart Bucket PH 20 Lt Baby Pink",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 266,
     selling_price: 390,
@@ -278,7 +278,7 @@ export const masterProducts: Product[] = [
   {
     id: "7131021",
     name: "71310-02 Lid Smart Bucket 20L Off White",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 57,
     selling_price: 110,
@@ -291,7 +291,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133304",
     name: "71333 Spout Bucket 5 Lt Blue",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 120,
@@ -304,7 +304,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133402",
     name: "71334 Spout Bucket 8 Lt SMB",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 95,
     selling_price: 170,
@@ -317,7 +317,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133504",
     name: "71335 Spout Bucket 15 Lt Blue",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 171,
     selling_price: 260,
@@ -330,7 +330,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133604",
     name: "71336 Spout Bucket 10 Lt Marble Beige",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 118,
     selling_price: 200,
@@ -343,7 +343,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133705",
     name: "71337 Spout Bucket 20 Lt Peach",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 228,
     selling_price: 320,
@@ -356,7 +356,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133803",
     name: "71338 Spout Bucket 25 Lt Marble Beige",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 270,
     selling_price: 400,
@@ -369,7 +369,7 @@ export const masterProducts: Product[] = [
   {
     id: "7133901",
     name: "71339 Spout Bucket 30 Lt Red",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 288,
     selling_price: 420,
@@ -382,7 +382,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150109",
     name: "71501 Flower Tub With Tray 8 Inch Pigment Green",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 100,
@@ -395,7 +395,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150203",
     name: "71502 Flower Tub With Tray 10 Inch Black",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 78,
     selling_price: 140,
@@ -408,7 +408,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150303",
     name: "71503 Flower Tub With Tray 12 Inch Black",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 116,
     selling_price: 200,
@@ -421,7 +421,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150404",
     name: "71504 Flower Tub With Tray 14 Inch Dark Brown",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 145,
     selling_price: 230,
@@ -434,7 +434,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150503",
     name: "71505 Flower Tub With Tray 16 Inch Black",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 225,
     selling_price: 350,
@@ -447,7 +447,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150601",
     name: "71506 Flower Tub With Tray 18 Inch Terracotta",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 285,
     selling_price: 420,
@@ -460,7 +460,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150702",
     name: "71507 Flower Tub With Tray 4 Inch Black",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 19,
     selling_price: 40,
@@ -473,7 +473,7 @@ export const masterProducts: Product[] = [
   {
     id: "7150801",
     name: "71508 Flower Tub With Tray 6 Inch Terracotta",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 35,
     selling_price: 70,
@@ -486,7 +486,7 @@ export const masterProducts: Product[] = [
   {
     id: "7170113",
     name: "71701 Standard Bucket 5 Lt. Without LID Peach",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 46,
     selling_price: 90,
@@ -499,7 +499,7 @@ export const masterProducts: Product[] = [
   {
     id: "7170130",
     name: "71701-1 Standard Bucket 5 Lt Lid Pig. Green",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 20,
     selling_price: 40,
@@ -512,7 +512,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210104",
     name: "72101 Design Bowl 5 Lt Beige",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 120,
@@ -525,7 +525,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210208",
     name: "72102 Design Bowl 10 Lt Marble Beige",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 105,
     selling_price: 200,
@@ -538,7 +538,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210301",
     name: "72103 Design Bowl 15 Lt Red",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 154,
     selling_price: 240,
@@ -551,7 +551,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210405",
     name: "72104 Design Bowl 18 Lt Marble Beige",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 170,
     selling_price: 260,
@@ -564,7 +564,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210502",
     name: "72105 Design Bowl 21 Lt SMB",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 190,
     selling_price: 300,
@@ -577,7 +577,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210603",
     name: "72106 Design Bowl 25 Lt Beige",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 280,
     selling_price: 390,
@@ -590,7 +590,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210705",
     name: "72107 Design Bowl 28 Lt Marble Beige",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 290,
     selling_price: 430,
@@ -603,7 +603,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210802",
     name: "72108 Design Bowl 35 Lt SMB",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 360,
     selling_price: 510,
@@ -616,7 +616,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210902",
     name: "72109 Crystal Bowl 1.9 Lt Cl. Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 41,
     selling_price: 80,
@@ -629,7 +629,7 @@ export const masterProducts: Product[] = [
   {
     id: "7210911",
     name: "72109-1 Popular Bowl 1.9 Lt SMB",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 35,
     selling_price: 70,
@@ -642,7 +642,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211003",
     name: "72110 Crystal Bowl 2.6 Lt Cl.Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 70,
     selling_price: 125,
@@ -655,7 +655,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211011",
     name: "72110-1 Popular Bowl 2.6 Lt SMB",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 61,
     selling_price: 110,
@@ -668,7 +668,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211102",
     name: "72111 Crystal Bowl 5.5 Lt Light Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 87,
     selling_price: 160,
@@ -681,7 +681,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211109",
     name: "72111-1 Popular Bowl 5.5 Lt Turk Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 76,
     selling_price: 140,
@@ -694,7 +694,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211202",
     name: "72112 Crystal Bowl 11.8 Lt Cl. Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 155,
     selling_price: 265,
@@ -707,7 +707,7 @@ export const masterProducts: Product[] = [
   {
     id: "7211214",
     name: "72112-1 Popular Bowl 11.8 Lt Light Blue",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 135,
     selling_price: 230,
@@ -720,7 +720,7 @@ export const masterProducts: Product[] = [
   {
     id: "7220705",
     name: "72207 Net Bowl Mega Synpack Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 117,
     selling_price: 200,
@@ -733,7 +733,7 @@ export const masterProducts: Product[] = [
   {
     id: "7220801",
     name: "72208 Twin Color Net Bowl Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 67,
     selling_price: 120,
@@ -746,7 +746,7 @@ export const masterProducts: Product[] = [
   {
     id: "7220904",
     name: "72209 Mixing Bowl Large Orange",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 50,
     selling_price: 80,
@@ -759,7 +759,7 @@ export const masterProducts: Product[] = [
   {
     id: "7221002",
     name: "72210 Mixing Bowl Medium Crate Orange",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 50,
     selling_price: 80,
@@ -772,7 +772,7 @@ export const masterProducts: Product[] = [
   {
     id: "7221102",
     name: "72211 Net Bowl Oval Dalda Yellow",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 33,
     selling_price: 70,
@@ -785,7 +785,7 @@ export const masterProducts: Product[] = [
   {
     id: "7230103",
     name: "72301 Round  Bowl 3.7 Lt Crate Green",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 110,
@@ -798,7 +798,7 @@ export const masterProducts: Product[] = [
   {
     id: "7230203",
     name: "72302 Round  Bowl 5.5 Lt Light Blue",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 72,
     selling_price: 130,
@@ -811,7 +811,7 @@ export const masterProducts: Product[] = [
   {
     id: "7230306",
     name: "72303 Round  Bowl 8.4 Lt Red",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 110,
     selling_price: 200,
@@ -824,7 +824,7 @@ export const masterProducts: Product[] = [
   {
     id: "7230402",
     name: "72304 Round  Bowl 12.5 Lt SMB",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 123,
     selling_price: 190,
@@ -837,7 +837,7 @@ export const masterProducts: Product[] = [
   {
     id: "7230501",
     name: "72305 Round  Bowl 17.6 Lt Pigment Pink",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 171,
     selling_price: 260,
@@ -850,7 +850,7 @@ export const masterProducts: Product[] = [
   {
     id: "7250113",
     name: "72501 Stainers Small Pigment Green",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 80,
@@ -863,7 +863,7 @@ export const masterProducts: Product[] = [
   {
     id: "7250215",
     name: "72502 Strainers Medium Light Blue",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 55,
     selling_price: 100,
@@ -876,7 +876,7 @@ export const masterProducts: Product[] = [
   {
     id: "7250310",
     name: "72503 Stainers Large Yellow",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 72,
     selling_price: 120,
@@ -889,7 +889,7 @@ export const masterProducts: Product[] = [
   {
     id: "7250407",
     name: "72504 Stainers Long Handle Maroon",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 58,
     selling_price: 100,
@@ -902,7 +902,7 @@ export const masterProducts: Product[] = [
   {
     id: "7260104",
     name: "72601 Dal Spoon Sandal Yellow",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 26,
     selling_price: 60,
@@ -915,7 +915,7 @@ export const masterProducts: Product[] = [
   {
     id: "7260203",
     name: "72602 Dal Ghutni Pigment Pink",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 33,
     selling_price: 70,
@@ -928,7 +928,7 @@ export const masterProducts: Product[] = [
   {
     id: "7280412",
     name: "72804 Curry Bowl Small 300ml Multicolor",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 38,
     selling_price: 80,
@@ -941,7 +941,7 @@ export const masterProducts: Product[] = [
   {
     id: "7280443",
     name: "72804-1 Curry Bowl Set Orange",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 210,
     selling_price: 300,
@@ -954,7 +954,7 @@ export const masterProducts: Product[] = [
   {
     id: "7280509",
     name: "72805 Curry Bowl Medium 950ml Red",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 66,
     selling_price: 115,
@@ -967,7 +967,7 @@ export const masterProducts: Product[] = [
   {
     id: "7280608",
     name: "72806 Curry Bowl Large 2000ml Multicolor",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 106,
     selling_price: 175,
@@ -980,7 +980,7 @@ export const masterProducts: Product[] = [
   {
     id: "7280701",
     name: "72807 Fruits Bowl TR",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 35,
     selling_price: 70,
@@ -993,7 +993,7 @@ export const masterProducts: Product[] = [
   {
     id: "7281001",
     name: "72810 Popular Round Food Box 550 ml TR",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 80,
@@ -1006,7 +1006,7 @@ export const masterProducts: Product[] = [
   {
     id: "7281103",
     name: "72811 Popular Round Food Box 1025 ml Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 52,
     selling_price: 105,
@@ -1019,7 +1019,7 @@ export const masterProducts: Product[] = [
   {
     id: "7281201",
     name: "72812 Popular Round Food Box 1700 ml Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 77,
     selling_price: 140,
@@ -1032,7 +1032,7 @@ export const masterProducts: Product[] = [
   {
     id: "7281251",
     name: "72812-1 Popular Round Food Box - 3 Set Multicolor",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 160,
     selling_price: 300,
@@ -1045,7 +1045,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310101",
     name: "73101 Water Jug 2 Lt Light Blue",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 100,
@@ -1058,7 +1058,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310213",
     name: "73102 Flora Water Jug 3L Tr Paste",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 86,
     selling_price: 160,
@@ -1071,7 +1071,7 @@ export const masterProducts: Product[] = [
   {
     id: "73102-103",
     name: "73102-1 Flora Design Jug 3L FL. Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 90,
     selling_price: 170,
@@ -1084,7 +1084,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310402",
     name: "73104 Oval Jug 2.5Lt Turk Green",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 89,
     selling_price: 150,
@@ -1097,7 +1097,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310506",
     name: "73106 Queen Jug Tr Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 377,
     selling_price: 510,
@@ -1110,7 +1110,7 @@ export const masterProducts: Product[] = [
   {
     id: "73106103",
     name: "73106-1 Popular Queen Jug Tr Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 247,
     selling_price: 370,
@@ -1123,7 +1123,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310701",
     name: "73107 Opal Jug Tr",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 251,
     selling_price: 360,
@@ -1136,7 +1136,7 @@ export const masterProducts: Product[] = [
   {
     id: "73107102",
     name: "73107-1 Popular Opal Jug Tr Green",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 170,
     selling_price: 290,
@@ -1149,7 +1149,7 @@ export const masterProducts: Product[] = [
   {
     id: "7310901",
     name: "73109 Picnic Jug Tr",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 105,
     selling_price: 190,
@@ -1162,7 +1162,7 @@ export const masterProducts: Product[] = [
   {
     id: "73109-11",
     name: "73109-11 Picnic Jug With Tea Cup 4 pcs Set",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 127,
     selling_price: 220,
@@ -1175,7 +1175,7 @@ export const masterProducts: Product[] = [
   {
     id: "7311102",
     name: "73111 Habibi Jug Tr Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 382,
     selling_price: 530,
@@ -1188,7 +1188,7 @@ export const masterProducts: Product[] = [
   {
     id: "73111102",
     name: "73111-1 Popular Habibi Jug Tr Green",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 270,
     selling_price: 530,
@@ -1201,7 +1201,7 @@ export const masterProducts: Product[] = [
   {
     id: "7311202",
     name: "73112 Cute Jug 2 Lt Tr FL Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 70,
     selling_price: 125,
@@ -1214,7 +1214,7 @@ export const masterProducts: Product[] = [
   {
     id: "7311302",
     name: "73113 Cute Jug 3L Tr FL.Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 95,
     selling_price: 175,
@@ -1227,7 +1227,7 @@ export const masterProducts: Product[] = [
   {
     id: "7320211",
     name: "73202 Water Jug 2.5 Lt Tr Yellow",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 71,
     selling_price: 120,
@@ -1240,7 +1240,7 @@ export const masterProducts: Product[] = [
   {
     id: "7330103",
     name: "73301 PC Jug Suprime Tr Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 319,
     selling_price: 330,
@@ -1253,7 +1253,7 @@ export const masterProducts: Product[] = [
   {
     id: "73301102",
     name: "73301-1 Popular PC Jug Tr Green",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 230,
     selling_price: 350,
@@ -1266,7 +1266,7 @@ export const masterProducts: Product[] = [
   {
     id: "7330201",
     name: "73302 PC Jug Suprime Set Tr.",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 550,
     selling_price: 720,
@@ -1279,7 +1279,7 @@ export const masterProducts: Product[] = [
   {
     id: "7340111",
     name: "73401 Juicer Jug 2 Lt Dalda Yellow",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 73,
     selling_price: 130,
@@ -1292,7 +1292,7 @@ export const masterProducts: Product[] = [
   {
     id: "7350202",
     name: "73502 Smart Jug Tr",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 248,
     selling_price: 350,
@@ -1305,7 +1305,7 @@ export const masterProducts: Product[] = [
   {
     id: "73502-102",
     name: "73502-1 Popular Smart Jug Tr Pink",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 170,
     selling_price: 280,
@@ -1318,7 +1318,7 @@ export const masterProducts: Product[] = [
   {
     id: "73502-201",
     name: "73502-2 Premium Smart Jug Red",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 142,
     selling_price: 230,
@@ -1331,7 +1331,7 @@ export const masterProducts: Product[] = [
   {
     id: "7350301",
     name: "73503 Conical Jug Off White",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 69,
     selling_price: 130,
@@ -1344,7 +1344,7 @@ export const masterProducts: Product[] = [
   {
     id: "73504-106",
     name: "73504-1 Classic Heater Jug Off White",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 197,
     selling_price: 310,
@@ -1357,7 +1357,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410112",
     name: "74101 Design Mug 1.5 Lt Tr",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 24,
     selling_price: 50,
@@ -1370,7 +1370,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410203",
     name: "74102 Design Mug 2 Lt Pigment Green",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 33,
     selling_price: 70,
@@ -1383,7 +1383,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410319",
     name: "74103 Oval Mug 2 Lt.SMB",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 80,
@@ -1396,7 +1396,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410417",
     name: "74104 Coffee Mug White",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 29,
     selling_price: 60,
@@ -1409,7 +1409,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410441",
     name: "74104-1 Coffee Mug CN CHARACTER",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 29,
     selling_price: 60,
@@ -1422,7 +1422,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410504",
     name: "74105 Oval Mug 1.5 Lt Pigment Green",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 29,
     selling_price: 60,
@@ -1435,7 +1435,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410602",
     name: "74106 Glass 4.5 Inch Pigment Blue",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 10,
     selling_price: 20,
@@ -1448,7 +1448,7 @@ export const masterProducts: Product[] = [
   {
     id: "7410711",
     name: "74107 4.25 inch Glass Orange",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 47,
     selling_price: 70,
@@ -1461,7 +1461,7 @@ export const masterProducts: Product[] = [
   {
     id: "74107-101",
     name: "74107-1 4.25 inch  DG Glass 6 pcs Set",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 47,
     selling_price: 70,
@@ -1474,7 +1474,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411002",
     name: "74110 Food Cover Tr",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 66,
     selling_price: 110,
@@ -1487,7 +1487,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411103",
     name: "74111 Chopping Board Light Blue",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 181,
     selling_price: 290,
@@ -1500,7 +1500,7 @@ export const masterProducts: Product[] = [
   {
     id: "74111-102",
     name: "74111-1 Popular Chopping Board Light Blue",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 167,
     selling_price: 250,
@@ -1513,7 +1513,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411204",
     name: "74112 Mug 1 Lt Tr",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 20,
     selling_price: 40,
@@ -1526,7 +1526,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411708",
     name: "74117 Super Glass Beige",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 15,
     selling_price: 30,
@@ -1539,7 +1539,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411809",
     name: "74118 Conical Glass Multicolor",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 17,
     selling_price: 30,
@@ -1552,7 +1552,7 @@ export const masterProducts: Product[] = [
   {
     id: "7411901",
     name: "74119 Straw Glass Small Light Blue",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 12,
     selling_price: 20,
@@ -1565,7 +1565,7 @@ export const masterProducts: Product[] = [
   {
     id: "7413351",
     name: "74133-1 Juicer Light Blue",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Supreme",
     purchase_price: 51,
     selling_price: 100,
@@ -1578,7 +1578,7 @@ export const masterProducts: Product[] = [
   {
     id: "7413710",
     name: "74137 Jumboo Glass Blue",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 29,
     selling_price: 60,
@@ -1591,7 +1591,7 @@ export const masterProducts: Product[] = [
   {
     id: "7414208",
     name: "74142 Popular Mug 1.5 Lt Light Green",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 34,
     selling_price: 70,
@@ -1604,7 +1604,7 @@ export const masterProducts: Product[] = [
   {
     id: "7414504",
     name: "74145 Hand Fan Smb",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 34,
     selling_price: 70,
@@ -1617,7 +1617,7 @@ export const masterProducts: Product[] = [
   {
     id: "7414810",
     name: "74148 Kool Ice Tray Pigment Green",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 58,
     selling_price: 110,
@@ -1630,7 +1630,7 @@ export const masterProducts: Product[] = [
   {
     id: "7414901",
     name: "74149 Helmet Safe met Off White",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 205,
     selling_price: 390,
@@ -1643,7 +1643,7 @@ export const masterProducts: Product[] = [
   {
     id: "7415601",
     name: "74156 Prayer Stand Std Blue",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 120,
@@ -1656,7 +1656,7 @@ export const masterProducts: Product[] = [
   {
     id: "7420401",
     name: "74204 Popular Coffee Mug Tr",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 48,
     selling_price: 90,
@@ -1669,7 +1669,7 @@ export const masterProducts: Product[] = [
   {
     id: "7420507",
     name: "74205 Coffee Mug With Bottom Part Sample",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 80,
@@ -1682,7 +1682,7 @@ export const masterProducts: Product[] = [
   {
     id: "7420531",
     name: "74205-1 Coffee Mug With Bottom Part CN CHARACTER",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 80,
@@ -1695,7 +1695,7 @@ export const masterProducts: Product[] = [
   {
     id: "7920612",
     name: "74206 Double Injection Mug Fl Pink",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 55,
     selling_price: 110,
@@ -1708,7 +1708,7 @@ export const masterProducts: Product[] = [
   {
     id: "7420631",
     name: "74206-1 Double Injection Mug CN CHARACTER",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 55,
     selling_price: 110,
@@ -1721,7 +1721,7 @@ export const masterProducts: Product[] = [
   {
     id: "7421402",
     name: "74214 Twinkle Coffee Mug TR Pink",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Supreme",
     purchase_price: 105,
     selling_price: 180,
@@ -1734,7 +1734,7 @@ export const masterProducts: Product[] = [
   {
     id: "7430102",
     name: "74301 Service Tray Small Light Green",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 65,
     selling_price: 130,
@@ -1747,7 +1747,7 @@ export const masterProducts: Product[] = [
   {
     id: "7430209",
     name: "74302 Bengal Tray Medium Dark Brown",
-    category: "Other",
+    category: "Trays",
     group: "Supreme",
     purchase_price: 105,
     selling_price: 180,
@@ -1760,7 +1760,7 @@ export const masterProducts: Product[] = [
   {
     id: "7430306",
     name: "74303 Service Tray Large Dark Brown",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 151,
     selling_price: 230,
@@ -1773,7 +1773,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440104",
     name: "74401 Tiffin Box Heart Shape Fl.Pink",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 43,
     selling_price: 80,
@@ -1786,7 +1786,7 @@ export const masterProducts: Product[] = [
   {
     id: "74401-104",
     name: "74401-1 Tiffin Box Heart Shape Justice Lg.Foil Red",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 43,
     selling_price: 80,
@@ -1799,7 +1799,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440307",
     name: "74403 Tiffin Box LDPE Lid Fl.Pink",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 70,
@@ -1812,7 +1812,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440351",
     name: "74403-1 Tiffin Box LDPE Lid CN CHARACTER FL. PINK",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 70,
@@ -1825,7 +1825,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440405",
     name: "74404 Tiffin Box With Lock Multicolor",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 74,
     selling_price: 120,
@@ -1838,7 +1838,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440708",
     name: "74407 Mini Organizer Box Tr",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 52,
     selling_price: 100,
@@ -1851,7 +1851,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440763",
     name: "74407-1 Lunch Box Rectangular Baby Pink",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 72,
     selling_price: 125,
@@ -1864,7 +1864,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440807",
     name: "74408 Square Tiffin Box Paste",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 59,
     selling_price: 100,
@@ -1877,7 +1877,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440842",
     name: "74408-1 Multi Chamber Box Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 92,
     selling_price: 160,
@@ -1890,7 +1890,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440861",
     name: "74408-2 Square Tiffin Box CN Character",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 54,
     selling_price: 90,
@@ -1903,7 +1903,7 @@ export const masterProducts: Product[] = [
   {
     id: "7440910",
     name: "74409 Tiffin Box Round Shape Red",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 67,
     selling_price: 110,
@@ -1916,7 +1916,7 @@ export const masterProducts: Product[] = [
   {
     id: "7441204",
     name: "74412 Everyday Lunch Box Square Peach",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 63,
     selling_price: 115,
@@ -1929,7 +1929,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450101",
     name: "74501 Tea Spoon Tr",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 6,
     selling_price: 12,
@@ -1942,7 +1942,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450136",
     name: "74501-1 Spoon ( Tiffin Box ) Yellow",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 6,
     selling_price: 12,
@@ -1955,7 +1955,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450151",
     name: "74501-2 Spoon ( Tiffin Box ) Tr",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 6,
     selling_price: 12,
@@ -1968,7 +1968,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450201",
     name: "74502 Rice Spoon Tr",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 5,
     selling_price: 12,
@@ -1981,7 +1981,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450404",
     name: "74504 Knife Tr Grey",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 6,
     selling_price: 12,
@@ -1994,7 +1994,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450806",
     name: "74508 Flower Basket Brown",
-    category: "Other",
+    category: "Flower Tubs & Planters",
     group: "Supreme",
     purchase_price: 75,
     selling_price: 130,
@@ -2007,7 +2007,7 @@ export const masterProducts: Product[] = [
   {
     id: "7450908",
     name: "74509 Crown Fruits Bowl Light Blue",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 73,
     selling_price: 130,
@@ -2020,7 +2020,7 @@ export const masterProducts: Product[] = [
   {
     id: "7451002",
     name: "74510 Filter Stand Single 2 Step Dark Brown",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 600,
     selling_price: 830,
@@ -2033,7 +2033,7 @@ export const masterProducts: Product[] = [
   {
     id: "7451403",
     name: "74514 Smart Rice Spoon Blue",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 18,
     selling_price: 30,
@@ -2046,7 +2046,7 @@ export const masterProducts: Product[] = [
   {
     id: "7461971",
     name: "74619-2 Funnel Light Yellow",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 90,
@@ -2059,7 +2059,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462105",
     name: "74621 Trendy Water Bottle Black",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 61,
     selling_price: 115,
@@ -2072,7 +2072,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462203",
     name: "74622 Sporty Water Bottle Sample",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 46,
     selling_price: 90,
@@ -2085,7 +2085,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462603",
     name: "74626 Aqua Water Bottle TR",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 105,
@@ -2098,7 +2098,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462802",
     name: "74628 Captain Water Bottle Pigment Green",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 69,
     selling_price: 120,
@@ -2111,7 +2111,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462851",
     name: "74628-1 Captain Bottle CN CHARACTER Multicolor",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 69,
     selling_price: 120,
@@ -2124,7 +2124,7 @@ export const masterProducts: Product[] = [
   {
     id: "7462902",
     name: "74629 Cool Water Bottle Tr",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 96,
     selling_price: 165,
@@ -2137,7 +2137,7 @@ export const masterProducts: Product[] = [
   {
     id: "7463301",
     name: "74633 Polo water bottle Large TR",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 83,
     selling_price: 150,
@@ -2150,7 +2150,7 @@ export const masterProducts: Product[] = [
   {
     id: "74634-103",
     name: "74634-1 Crystal Bottle Small Tr Blue",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 30,
     selling_price: 60,
@@ -2163,7 +2163,7 @@ export const masterProducts: Product[] = [
   {
     id: "74635-102",
     name: "74635-1 Crystal Bottle Medium Tr Pink",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 38,
     selling_price: 70,
@@ -2176,7 +2176,7 @@ export const masterProducts: Product[] = [
   {
     id: "7464001",
     name: "74640 Smart Jerry Can 3 Lt",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 61,
     selling_price: 110,
@@ -2189,7 +2189,7 @@ export const masterProducts: Product[] = [
   {
     id: "7464101",
     name: "74641 Smart Jerry Can 4 Lt",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 71,
     selling_price: 130,
@@ -2202,7 +2202,7 @@ export const masterProducts: Product[] = [
   {
     id: "7464201",
     name: "74642 Smart Jerry Can 5 Lt",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Supreme",
     purchase_price: 93,
     selling_price: 170,
@@ -2215,7 +2215,7 @@ export const masterProducts: Product[] = [
   {
     id: "7510105",
     name: "75101 Car Potty SMB",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 160,
     selling_price: 240,
@@ -2228,7 +2228,7 @@ export const masterProducts: Product[] = [
   {
     id: "7510201",
     name: "75102 Horse Potty Light Blue",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Supreme",
     purchase_price: 270,
     selling_price: 420,
@@ -2241,7 +2241,7 @@ export const masterProducts: Product[] = [
   {
     id: "7520202",
     name: "75202 Hexagonal Tub 20 Lt Baby Pink",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 264,
     selling_price: 410,
@@ -2254,7 +2254,7 @@ export const masterProducts: Product[] = [
   {
     id: "7530501",
     name: "75305 Classic Paddle Bin 20 Lt Silver",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 585,
     selling_price: 760,
@@ -2267,7 +2267,7 @@ export const masterProducts: Product[] = [
   {
     id: "7530801",
     name: "75308 Rattan Paddle Bin Dark Brown",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 500,
     selling_price: 680,
@@ -2280,7 +2280,7 @@ export const masterProducts: Product[] = [
   {
     id: "7540305",
     name: "75403 Bodna 2.5 Lt SMB",
-    category: "Other",
+    category: "Buckets",
     group: "Supreme",
     purchase_price: 54,
     selling_price: 100,
@@ -2293,7 +2293,7 @@ export const masterProducts: Product[] = [
   {
     id: "7550103",
     name: "75501 Soap Case medium Fl Pink",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 39,
     selling_price: 70,
@@ -2306,7 +2306,7 @@ export const masterProducts: Product[] = [
   {
     id: "7550301",
     name: "75503 Soap Case Small Purple",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 32,
     selling_price: 70,
@@ -2319,7 +2319,7 @@ export const masterProducts: Product[] = [
   {
     id: "7610208",
     name: "76102 Waste Paper Busket Curve Red",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 65,
     selling_price: 110,
@@ -2332,7 +2332,7 @@ export const masterProducts: Product[] = [
   {
     id: "7610312",
     name: "76103 Dust Bin With Head Std Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 175,
     selling_price: 280,
@@ -2345,7 +2345,7 @@ export const masterProducts: Product[] = [
   {
     id: "7610501",
     name: "76105 Star Bin Light Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 146,
     selling_price: 200,
@@ -2358,7 +2358,7 @@ export const masterProducts: Product[] = [
   {
     id: "7610532",
     name: "76105-1 Star Bin with Foil Fl Pink",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 114,
     selling_price: 170,
@@ -2371,7 +2371,7 @@ export const masterProducts: Product[] = [
   {
     id: "7620205",
     name: "76202 Net Bowl Fruits Peach",
-    category: "Other",
+    category: "Bowls",
     group: "Supreme",
     purchase_price: 58,
     selling_price: 100,
@@ -2384,7 +2384,7 @@ export const masterProducts: Product[] = [
   {
     id: "7620303",
     name: "76203 Rattan Laundry Busket Dark Brown",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 660,
     selling_price: 940,
@@ -2397,7 +2397,7 @@ export const masterProducts: Product[] = [
   {
     id: "7620506",
     name: "76205 Bean Laundry Basket Black",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 314,
     selling_price: 420,
@@ -2410,7 +2410,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650006",
     name: "76500 Fancy Storage Basket Small Pearl Gold",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 940,
     selling_price: 1210,
@@ -2423,7 +2423,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650102",
     name: "76501 Fancy Storage Basket Large Baby Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 1130,
     selling_price: 1490,
@@ -2436,7 +2436,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650208",
     name: "76502 Low Height Rattan Basket Mini Ivory",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 105,
     selling_price: 180,
@@ -2449,7 +2449,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650304",
     name: "76503 Low Height Rattan Basket Small Dark Brown",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 148,
     selling_price: 230,
@@ -2462,7 +2462,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650406",
     name: "76504 Low Height Rattan Basket Medium Beige",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 221,
     selling_price: 350,
@@ -2475,7 +2475,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650505",
     name: "76505 Low Height Rattan Basket Large Gray",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 325,
     selling_price: 460,
@@ -2488,7 +2488,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650601",
     name: "76506 Ratton Busket Mini Light Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 124,
     selling_price: 210,
@@ -2501,7 +2501,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650702",
     name: "76507 Ratton Busket Small Dark Brown",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 160,
     selling_price: 250,
@@ -2514,7 +2514,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650806",
     name: "76508 Ratton Busket Medium White",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 280,
     selling_price: 410,
@@ -2527,7 +2527,7 @@ export const masterProducts: Product[] = [
   {
     id: "7650909",
     name: "76509 Ratton Busket Large Ivory",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 413,
     selling_price: 570,
@@ -2540,7 +2540,7 @@ export const masterProducts: Product[] = [
   {
     id: "7651004",
     name: "76510 Rattan Basket Tiny Gray",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 88,
     selling_price: 140,
@@ -2553,7 +2553,7 @@ export const masterProducts: Product[] = [
   {
     id: "7710442",
     name: "77104-1 Nokshi Rack-2 Fence Gray",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 550,
     selling_price: 770,
@@ -2566,7 +2566,7 @@ export const masterProducts: Product[] = [
   {
     id: "77104201",
     name: "77104-2 Light Rack 3 step Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 427,
     selling_price: 640,
@@ -2579,7 +2579,7 @@ export const masterProducts: Product[] = [
   {
     id: "77104-301",
     name: "77104-3 Popular Nokshi Rack Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 550,
     selling_price: 750,
@@ -2592,7 +2592,7 @@ export const masterProducts: Product[] = [
   {
     id: "7710505",
     name: "77105 Roman Organizer Baby Pink",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 210,
     selling_price: 310,
@@ -2605,7 +2605,7 @@ export const masterProducts: Product[] = [
   {
     id: "77105-101",
     name: "77105-1 Roman Organizer 3 Stakes",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 255,
     selling_price: 390,
@@ -2618,7 +2618,7 @@ export const masterProducts: Product[] = [
   {
     id: "7710603",
     name: "77106 Mini Rack 4 Step White",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 242,
     selling_price: 360,
@@ -2631,7 +2631,7 @@ export const masterProducts: Product[] = [
   {
     id: "77106-103",
     name: "77106-1 Mini Rack 3 Step Purple",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 204,
     selling_price: 310,
@@ -2644,7 +2644,7 @@ export const masterProducts: Product[] = [
   {
     id: "7710704",
     name: "77107 Crown Rack Leo Gold",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 730,
     selling_price: 1080,
@@ -2657,7 +2657,7 @@ export const masterProducts: Product[] = [
   {
     id: "77107-101",
     name: "77107-1 Crown Rack 5-Step SMB",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 915,
     selling_price: 1320,
@@ -2670,7 +2670,7 @@ export const masterProducts: Product[] = [
   {
     id: "7720105",
     name: "77201 Oval Rack Net Off White",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 555,
     selling_price: 730,
@@ -2683,7 +2683,7 @@ export const masterProducts: Product[] = [
   {
     id: "7720204",
     name: "77202 Oval Rack Solid Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 555,
     selling_price: 730,
@@ -2696,7 +2696,7 @@ export const masterProducts: Product[] = [
   {
     id: "7730106",
     name: "77301 Dish Rack Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 385,
     selling_price: 520,
@@ -2709,7 +2709,7 @@ export const masterProducts: Product[] = [
   {
     id: "7730306",
     name: "77303 Smart Dish Rack Drainer Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 312,
     selling_price: 430,
@@ -2722,7 +2722,7 @@ export const masterProducts: Product[] = [
   {
     id: "7730402",
     name: "77304 Queen Kitchen Rack with Plate tray White",
-    category: "Other",
+    category: "Trays",
     group: "Supreme",
     purchase_price: 1220,
     selling_price: 1710,
@@ -2735,7 +2735,7 @@ export const masterProducts: Product[] = [
   {
     id: "7730463",
     name: "77304-2 Queen Kitchen Rack-W.O Plate Tray Purple",
-    category: "Other",
+    category: "Trays",
     group: "Supreme",
     purchase_price: 1232,
     selling_price: 1710,
@@ -2748,7 +2748,7 @@ export const masterProducts: Product[] = [
   {
     id: "7730606",
     name: "77306 Trendy Dish Drainer FL pink",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 215,
     selling_price: 310,
@@ -2761,7 +2761,7 @@ export const masterProducts: Product[] = [
   {
     id: "7740111",
     name: "77401 Dust Pan SMB",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 37,
     selling_price: 80,
@@ -2774,7 +2774,7 @@ export const masterProducts: Product[] = [
   {
     id: "7740301",
     name: "77403 Double Hockey Toilet Brush Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 70,
     selling_price: 0,
@@ -2787,7 +2787,7 @@ export const masterProducts: Product[] = [
   {
     id: "7740802",
     name: "77408 Single Hockey Toilet Brush Green",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 50,
     selling_price: 100,
@@ -2800,7 +2800,7 @@ export const masterProducts: Product[] = [
   {
     id: "7740902",
     name: "77409 Round Toilet Brush Green",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 90,
     selling_price: 170,
@@ -2813,7 +2813,7 @@ export const masterProducts: Product[] = [
   {
     id: "7741001",
     name: "77410 Multipurpose Cleaning Brush Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 0,
@@ -2826,7 +2826,7 @@ export const masterProducts: Product[] = [
   {
     id: "7741101",
     name: "77411 Utility Cleaning Brush Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 45,
     selling_price: 0,
@@ -2839,7 +2839,7 @@ export const masterProducts: Product[] = [
   {
     id: "7741201",
     name: "77412 Floor Cleaning Brush Small Blue",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 35,
     selling_price: 70,
@@ -2852,7 +2852,7 @@ export const masterProducts: Product[] = [
   {
     id: "7741302",
     name: "77413 Floor Cleaning Brush Medium Green",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Supreme",
     purchase_price: 45,
     selling_price: 90,
@@ -2865,7 +2865,7 @@ export const masterProducts: Product[] = [
   {
     id: "7740210",
     name: "77501 Shoe Rack Premium Red",
-    category: "Other",
+    category: "Racks & Stands",
     group: "Supreme",
     purchase_price: 1265,
     selling_price: 1630,
@@ -2878,7 +2878,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840102",
     name: "78401 Flapper Food Box 610 ml Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 41,
     selling_price: 80,
@@ -2891,7 +2891,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840202",
     name: "78402 Flapper Food Box 940 ml Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 54,
     selling_price: 105,
@@ -2904,7 +2904,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840301",
     name: "78403 Flapper Food Box 1150 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 81,
     selling_price: 140,
@@ -2917,7 +2917,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840401",
     name: "78404 Ping Pong Food Jar- 1200 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 90,
     selling_price: 160,
@@ -2930,7 +2930,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840501",
     name: "78405 Ping Pong Food Jar- 1700 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 110,
     selling_price: 185,
@@ -2943,7 +2943,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840601",
     name: "78406 Ping Pong Food Jar- 2400 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 127,
     selling_price: 220,
@@ -2956,7 +2956,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840701",
     name: "78407 Ping Pong Clip Jar 1200ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 85,
     selling_price: 150,
@@ -2969,7 +2969,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840801",
     name: "78408 Ping Pong Clip Jar 2600ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 137,
     selling_price: 240,
@@ -2982,7 +2982,7 @@ export const masterProducts: Product[] = [
   {
     id: "7840901",
     name: "78409 Ping Pong Clip Jar 2100ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 127,
     selling_price: 230,
@@ -2995,7 +2995,7 @@ export const masterProducts: Product[] = [
   {
     id: "7850102",
     name: "78501 Air Tight Food Box 930ml Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 51,
     selling_price: 115,
@@ -3008,7 +3008,7 @@ export const masterProducts: Product[] = [
   {
     id: "7850202",
     name: "78502 Air Tight Food Box 1880ml Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 78,
     selling_price: 140,
@@ -3021,7 +3021,7 @@ export const masterProducts: Product[] = [
   {
     id: "7850302",
     name: "78503 Air Tight Food Box 3000ml Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 115,
     selling_price: 205,
@@ -3034,7 +3034,7 @@ export const masterProducts: Product[] = [
   {
     id: "7850671",
     name: "78506-11 Rainbow Food Box Rectangular-4Pcs Set",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 140,
     selling_price: 240,
@@ -3047,7 +3047,7 @@ export const masterProducts: Product[] = [
   {
     id: "7860104",
     name: "78601 Round Spice Box Large Dalda Yellow",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Supreme",
     purchase_price: 179,
     selling_price: 275,
@@ -3060,7 +3060,7 @@ export const masterProducts: Product[] = [
   {
     id: "7860206",
     name: "78602 Round Spice Box Small Turk Green",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Supreme",
     purchase_price: 99,
     selling_price: 175,
@@ -3073,7 +3073,7 @@ export const masterProducts: Product[] = [
   {
     id: "7860302",
     name: "78603 Daily Spice Box Red",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Supreme",
     purchase_price: 110,
     selling_price: 200,
@@ -3086,7 +3086,7 @@ export const masterProducts: Product[] = [
   {
     id: "7860402",
     name: "78604 Classic Roti Box Light Blue",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 79,
     selling_price: 130,
@@ -3099,7 +3099,7 @@ export const masterProducts: Product[] = [
   {
     id: "7870401",
     name: "78704 Beauty Box Large Glory Foil-4 Dr.Baby Pink",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 528,
     selling_price: 730,
@@ -3112,7 +3112,7 @@ export const masterProducts: Product[] = [
   {
     id: "7870502",
     name: "78705 Beauty Box Small Sun Flo.Foil-4 Dr. Pig.Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 275,
     selling_price: 390,
@@ -3125,7 +3125,7 @@ export const masterProducts: Product[] = [
   {
     id: "78705-102",
     name: "78705-1 Beauty Box Small Sun Flo.Fo-5 Dr. Pig.Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 335,
     selling_price: 450,
@@ -3138,7 +3138,7 @@ export const masterProducts: Product[] = [
   {
     id: "7870601",
     name: "78706 Poco Storage Box",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 1214,
     selling_price: 1585,
@@ -3151,7 +3151,7 @@ export const masterProducts: Product[] = [
   {
     id: "7880108",
     name: "78801 Square Food Box 1 Lt. Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 54,
     selling_price: 95,
@@ -3164,7 +3164,7 @@ export const masterProducts: Product[] = [
   {
     id: "7880151",
     name: "78801-3 Square Food Box Set-3 Pcs Red",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 196,
     selling_price: 325,
@@ -3177,7 +3177,7 @@ export const masterProducts: Product[] = [
   {
     id: "7880401",
     name: "78804 Mini Food Box Small Light Blue",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 14,
     selling_price: 25,
@@ -3190,7 +3190,7 @@ export const masterProducts: Product[] = [
   {
     id: "7880511",
     name: "78805 Mini Food Box Medium Sample",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 21,
     selling_price: 35,
@@ -3203,7 +3203,7 @@ export const masterProducts: Product[] = [
   {
     id: "7880610",
     name: "78806 Mini Food Box Large White",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 31,
     selling_price: 70,
@@ -3216,7 +3216,7 @@ export const masterProducts: Product[] = [
   {
     id: "78807-104",
     name: "78807-1 Rainbow Food Box Square 1150 ml TR",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 177,
     selling_price: 265,
@@ -3229,7 +3229,7 @@ export const masterProducts: Product[] = [
   {
     id: "7881102",
     name: "78811 Mini Food Box Set Multicolor",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 127,
     selling_price: 200,
@@ -3242,7 +3242,7 @@ export const masterProducts: Product[] = [
   {
     id: "7881401",
     name: "78814 Air Tight Food Box 600 ml Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 63,
     selling_price: 95,
@@ -3255,7 +3255,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890208",
     name: "78902 Round Storage Jar 5 Ltr Peach",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 103,
     selling_price: 175,
@@ -3268,7 +3268,7 @@ export const masterProducts: Product[] = [
   {
     id: "78902-101",
     name: "78902-1 Round Storage Jar 5 Lt w/o Foil",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 95,
     selling_price: 160,
@@ -3281,7 +3281,7 @@ export const masterProducts: Product[] = [
   {
     id: "78902-503",
     name: "78902-5 Round Storage Jar Set 5-15 Ltr Red",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 630,
     selling_price: 970,
@@ -3294,7 +3294,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890307",
     name: "78903 Round Storage Jar 7 Ltr Pigment Pink",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 133,
     selling_price: 235,
@@ -3307,7 +3307,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890402",
     name: "78904 Round Storage Jar 10 Ltr Pigment Green",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 175,
     selling_price: 250,
@@ -3320,7 +3320,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890504",
     name: "78905 Round Storage Jar 15 Ltr Tr Green",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 263,
     selling_price: 365,
@@ -3333,7 +3333,7 @@ export const masterProducts: Product[] = [
   {
     id: "78905-101",
     name: "78905-1 Round Storage Jar 15 Ltr -6pcs Set P.Green",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 1593,
     selling_price: 2150,
@@ -3346,7 +3346,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890601",
     name: "78906 Short Spice Jar 400ml TR",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 25,
     selling_price: 45,
@@ -3359,7 +3359,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890701",
     name: "78907 Short Spice Jar 800ml TR",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 35,
     selling_price: 70,
@@ -3372,7 +3372,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890801",
     name: "78908 Short Spice Jar 1300ml TR",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 43,
     selling_price: 80,
@@ -3385,7 +3385,7 @@ export const masterProducts: Product[] = [
   {
     id: "7890851",
     name: "78908-1 Short Spice Jar - 3 Set Multicolor",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 95,
     selling_price: 175,
@@ -3398,7 +3398,7 @@ export const masterProducts: Product[] = [
   {
     id: "7891604",
     name: "78916 Handy Oil Jar 1000 ml Tr Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 112,
     selling_price: 200,
@@ -3411,7 +3411,7 @@ export const masterProducts: Product[] = [
   {
     id: "7891702",
     name: "78917 Handy Oil Jar 750 ml Tr Blue",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 101,
     selling_price: 180,
@@ -3424,7 +3424,7 @@ export const masterProducts: Product[] = [
   {
     id: "7892009",
     name: "78920 Family Jar Tr Amber",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 85,
     selling_price: 145,
@@ -3437,7 +3437,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910104",
     name: "79101 Pen Stand Red",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 90,
@@ -3450,7 +3450,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910208",
     name: "79102 Pencil Box Pigment Pink",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 46,
     selling_price: 90,
@@ -3463,7 +3463,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910231",
     name: "79102-1 Pencil Box CN Character",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 46,
     selling_price: 90,
@@ -3476,7 +3476,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910253",
     name: "79102-2 Pen Holder Dark Brown",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 50,
     selling_price: 90,
@@ -3489,7 +3489,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910301",
     name: "79103 Smart Pencil Box Baby Pink",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 90,
@@ -3502,7 +3502,7 @@ export const masterProducts: Product[] = [
   {
     id: "7910313",
     name: "79103-1 Smart Pencil Box CN Character",
-    category: "Other",
+    category: "Stationery",
     group: "Supreme",
     purchase_price: 50,
     selling_price: 90,
@@ -3515,7 +3515,7 @@ export const masterProducts: Product[] = [
   {
     id: "79202-102",
     name: "79202-1 Cloth Clip 12 Pcs Set Light Blue",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 43,
     selling_price: 90,
@@ -3528,7 +3528,7 @@ export const masterProducts: Product[] = [
   {
     id: "79202-204",
     name: "79202-2 Cloth Clip 30 Pcs Set Orange",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 88,
     selling_price: 170,
@@ -3541,7 +3541,7 @@ export const masterProducts: Product[] = [
   {
     id: "7920454",
     name: "79204-1 Moving Hanger - 6 Pcs Set FL Pink",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 150,
     selling_price: 280,
@@ -3554,7 +3554,7 @@ export const masterProducts: Product[] = [
   {
     id: "7920506",
     name: "79205 Light Hanger Light Blue",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 0,
     selling_price: 0,
@@ -3567,7 +3567,7 @@ export const masterProducts: Product[] = [
   {
     id: "7920553",
     name: "79205-1 Light Hanger - 6 Pcs Set Black",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 102,
     selling_price: 180,
@@ -3580,7 +3580,7 @@ export const masterProducts: Product[] = [
   {
     id: "7920581",
     name: "79205-2 Light Hanger - 5 Pcs Smb",
-    category: "Other",
+    category: "Hangers & Clips",
     group: "Supreme",
     purchase_price: 102,
     selling_price: 200,
@@ -3593,7 +3593,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930101",
     name: "79301 Foodie Rectangular Box 3000ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 99,
     selling_price: 170,
@@ -3606,7 +3606,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930201",
     name: "79302 Foodie Rectangular Box 4800ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 124,
     selling_price: 210,
@@ -3619,7 +3619,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930401",
     name: "79304 Foodie Slim Box 680 ml Tr",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 40,
     selling_price: 80,
@@ -3632,7 +3632,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930501",
     name: "79305 Foodie Rectangular Box 750ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 59,
     selling_price: 115,
@@ -3645,7 +3645,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930601",
     name: "79306 Foodie Rectangular Box 1000ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 66,
     selling_price: 125,
@@ -3658,7 +3658,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930701",
     name: "79307 Foodie Rectangular Box 550ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 49,
     selling_price: 90,
@@ -3671,7 +3671,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930801",
     name: "79308 Foodie Rectangular Box 750ml (Tall)",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 60,
     selling_price: 115,
@@ -3684,7 +3684,7 @@ export const masterProducts: Product[] = [
   {
     id: "7930901",
     name: "79309 Foodie Rectangular Box 270 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 46,
     selling_price: 90,
@@ -3697,7 +3697,7 @@ export const masterProducts: Product[] = [
   {
     id: "7931101",
     name: "79311 Foodie Square Box 3L",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 104,
     selling_price: 185,
@@ -3710,7 +3710,7 @@ export const masterProducts: Product[] = [
   {
     id: "7921201",
     name: "79312 Foodie Square Box 750ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 48,
     selling_price: 90,
@@ -3723,7 +3723,7 @@ export const masterProducts: Product[] = [
   {
     id: "7921301",
     name: "79313 Foodie Square Box 960ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 55,
     selling_price: 105,
@@ -3736,7 +3736,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933102",
     name: "79331 iSafe First Aid Box Dalda Yellow",
-    category: "Other",
+    category: "Storage & Baskets",
     group: "Supreme",
     purchase_price: 98,
     selling_price: 170,
@@ -3749,7 +3749,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933201",
     name: "79332 Freezer Box 500 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 32,
     selling_price: 45,
@@ -3762,7 +3762,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933301",
     name: "79333 Freezer Box 1000 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 51,
     selling_price: 80,
@@ -3775,7 +3775,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933401",
     name: "79334 Freezer Box 1900 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 72,
     selling_price: 105,
@@ -3788,7 +3788,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933501",
     name: "79335 Freezer Box 2700 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 115,
     selling_price: 175,
@@ -3801,7 +3801,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933601",
     name: "79336 Freezer Box 700 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 38,
     selling_price: 70,
@@ -3814,7 +3814,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933701",
     name: "79337 Elegent Freezer Box 500 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 32,
     selling_price: 45,
@@ -3827,7 +3827,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933801",
     name: "79338 Elegent Freezer Box 1000",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 48,
     selling_price: 80,
@@ -3840,7 +3840,7 @@ export const masterProducts: Product[] = [
   {
     id: "7933901",
     name: "79339 Elegent Freezer Box 2000 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 86,
     selling_price: 140,
@@ -3853,7 +3853,7 @@ export const masterProducts: Product[] = [
   {
     id: "7934001",
     name: "79340 Elegent Freezer Box 2500 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 101,
     selling_price: 160,
@@ -3866,7 +3866,7 @@ export const masterProducts: Product[] = [
   {
     id: "7934401",
     name: "79344 Elegant Freezer Box 7000 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 173,
     selling_price: 265,
@@ -3879,7 +3879,7 @@ export const masterProducts: Product[] = [
   {
     id: "7934501",
     name: "79345 Elegant Freezer Box Square 2000 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 83,
     selling_price: 140,
@@ -3892,7 +3892,7 @@ export const masterProducts: Product[] = [
   {
     id: "7934601",
     name: "79346 Elegant Freezer Box 700 ml",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Supreme",
     purchase_price: 31,
     selling_price: 60,
@@ -3905,7 +3905,7 @@ export const masterProducts: Product[] = [
   {
     id: "81001",
     name: "Moon Full Steel 1400ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 420,
     selling_price: 540,
@@ -3918,7 +3918,7 @@ export const masterProducts: Product[] = [
   {
     id: "889568",
     name: "SMART-SS ROUND TIFFIN BOX-220 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 240,
     selling_price: 325,
@@ -3931,7 +3931,7 @@ export const masterProducts: Product[] = [
   {
     id: "81003",
     name: "Moon Full Steel 3100ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 670,
     selling_price: 860,
@@ -3944,7 +3944,7 @@ export const masterProducts: Product[] = [
   {
     id: "81004",
     name: "Moon  Full Steel 3500ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 730,
     selling_price: 940,
@@ -3957,7 +3957,7 @@ export const masterProducts: Product[] = [
   {
     id: "921348",
     name: "Leisure Tiffin Box Stelo -One Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 230,
     selling_price: 300,
@@ -3970,7 +3970,7 @@ export const masterProducts: Product[] = [
   {
     id: "851526",
     name: "Omega Lunch Box Stelo- 1500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 560,
     selling_price: 710,
@@ -3983,7 +3983,7 @@ export const masterProducts: Product[] = [
   {
     id: "851527",
     name: "Omega Lunch Box Stelo- 2500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 660,
     selling_price: 850,
@@ -3996,7 +3996,7 @@ export const masterProducts: Product[] = [
   {
     id: "889565",
     name: "SMART-SS DOUBLE DECKER TIFFIN BOX-1000 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 580,
     selling_price: 750,
@@ -4009,7 +4009,7 @@ export const masterProducts: Product[] = [
   {
     id: "889579",
     name: "Smart Single layer Rect. Tiffin Box 900 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 180,
     selling_price: 280,
@@ -4022,7 +4022,7 @@ export const masterProducts: Product[] = [
   {
     id: "889582",
     name: "SMART SS INSULATED R.T.G TIFFIN BOX – 470 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 250,
     selling_price: 350,
@@ -4035,7 +4035,7 @@ export const masterProducts: Product[] = [
   {
     id: "889575",
     name: "SMART SS FOOD CARRIER 3 LAYER",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 810,
     selling_price: 1020,
@@ -4048,7 +4048,7 @@ export const masterProducts: Product[] = [
   {
     id: "889576",
     name: "LEISURE TIFFIN BOX STELO - 1 Ltr.",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 280,
     selling_price: 365,
@@ -4061,7 +4061,7 @@ export const masterProducts: Product[] = [
   {
     id: "851528",
     name: "Omega Lunch Box Stelo- 3600 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 780,
     selling_price: 990,
@@ -4074,7 +4074,7 @@ export const masterProducts: Product[] = [
   {
     id: "851476",
     name: "Raymond Tiffin Box Stelo-400 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 140,
     selling_price: 180,
@@ -4087,7 +4087,7 @@ export const masterProducts: Product[] = [
   {
     id: "851428",
     name: "Luxury Tiffin Box Stelo -One Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 205,
     selling_price: 270,
@@ -4100,7 +4100,7 @@ export const masterProducts: Product[] = [
   {
     id: "889573",
     name: "SMART SS FOOD CARRIER- 1 LAYER",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 390,
     selling_price: 500,
@@ -4113,7 +4113,7 @@ export const masterProducts: Product[] = [
   {
     id: "889570",
     name: "SMART -SS ROUND TIFFIN BOX - 730 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 320,
     selling_price: 450,
@@ -4126,7 +4126,7 @@ export const masterProducts: Product[] = [
   {
     id: "889569",
     name: "SMART-SS ROUND TIFFIN BOX - 460 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 280,
     selling_price: 395,
@@ -4139,7 +4139,7 @@ export const masterProducts: Product[] = [
   {
     id: "81002",
     name: "Moon  Full Steel 2000ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 520,
     selling_price: 670,
@@ -4152,7 +4152,7 @@ export const masterProducts: Product[] = [
   {
     id: "889058",
     name: "Holiday Lunch box 4 Start-Stelo",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 980,
     selling_price: 1220,
@@ -4165,7 +4165,7 @@ export const masterProducts: Product[] = [
   {
     id: "889692",
     name: "Omega Lunch Box Stelo- 2000 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 590,
     selling_price: 750,
@@ -4178,7 +4178,7 @@ export const masterProducts: Product[] = [
   {
     id: "889693",
     name: "Omega Lunch Box Stelo- 3000 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 720,
     selling_price: 920,
@@ -4191,7 +4191,7 @@ export const masterProducts: Product[] = [
   {
     id: "889566",
     name: "Smart-SS Round Tiffin Box- 250 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 150,
     selling_price: 220,
@@ -4204,7 +4204,7 @@ export const masterProducts: Product[] = [
   {
     id: "889567",
     name: "Smart -SS Rectangular Tiffin Box- 680 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 300,
     selling_price: 425,
@@ -4217,7 +4217,7 @@ export const masterProducts: Product[] = [
   {
     id: "851607",
     name: "Galaxy Stelo Premium - 1300 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 335,
     selling_price: 420,
@@ -4230,7 +4230,7 @@ export const masterProducts: Product[] = [
   {
     id: "889691",
     name: "Omega Lunch Box Stelo- 1200 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 490,
     selling_price: 600,
@@ -4243,7 +4243,7 @@ export const masterProducts: Product[] = [
   {
     id: "81043",
     name: "Aroma Stelo 2000 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 540,
     selling_price: 680,
@@ -4256,7 +4256,7 @@ export const masterProducts: Product[] = [
   {
     id: "81044",
     name: "Aroma Stelo 2500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 650,
     selling_price: 820,
@@ -4269,7 +4269,7 @@ export const masterProducts: Product[] = [
   {
     id: "81041",
     name: "Aroma Stelo 1000 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 320,
     selling_price: 410,
@@ -4282,7 +4282,7 @@ export const masterProducts: Product[] = [
   {
     id: "81042",
     name: "Aroma Stelo 1500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 430,
     selling_price: 550,
@@ -4295,7 +4295,7 @@ export const masterProducts: Product[] = [
   {
     id: "920366",
     name: "Jupiter Stelo 1200ML-Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 480,
     selling_price: 610,
@@ -4308,7 +4308,7 @@ export const masterProducts: Product[] = [
   {
     id: "920367",
     name: "Jupiter Stelo 1800ML-Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 560,
     selling_price: 750,
@@ -4321,7 +4321,7 @@ export const masterProducts: Product[] = [
   {
     id: "920368",
     name: "Jupiter Stelo 2500ML-Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 690,
     selling_price: 920,
@@ -4334,7 +4334,7 @@ export const masterProducts: Product[] = [
   {
     id: "889695",
     name: "Jupiter Stelo 1800ML Marble -Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 600,
     selling_price: 780,
@@ -4347,7 +4347,7 @@ export const masterProducts: Product[] = [
   {
     id: "889694",
     name: "Jupiter Stelo 1200ML Marble-Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 500,
     selling_price: 650,
@@ -4360,7 +4360,7 @@ export const masterProducts: Product[] = [
   {
     id: "889696",
     name: "Jupiter Stelo 2500ML Marble-Glass Lid",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 700,
     selling_price: 900,
@@ -4373,7 +4373,7 @@ export const masterProducts: Product[] = [
   {
     id: "81005",
     name: "Holiday Lunch Box- 5 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 1520,
     selling_price: 1880,
@@ -4386,7 +4386,7 @@ export const masterProducts: Product[] = [
   {
     id: "81099",
     name: "Leisure Tiffin Box Plastico -One Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 170,
     selling_price: 250,
@@ -4399,7 +4399,7 @@ export const masterProducts: Product[] = [
   {
     id: "889583",
     name: "SS 3 Layer Cosmo Food Carrier-1000 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 390,
     selling_price: 500,
@@ -4412,7 +4412,7 @@ export const masterProducts: Product[] = [
   {
     id: "851580",
     name: "Carrier  Stelo 4 Bati -Premium With Belt",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 610,
     selling_price: 800,
@@ -4425,7 +4425,7 @@ export const masterProducts: Product[] = [
   {
     id: "851581",
     name: "Carrier  Stelo 3 Bati -Premium With Belt",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 560,
     selling_price: 750,
@@ -4438,7 +4438,7 @@ export const masterProducts: Product[] = [
   {
     id: "81094",
     name: "Cosmo Multi Carrier Stelo- 4 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 390,
     selling_price: 510,
@@ -4451,7 +4451,7 @@ export const masterProducts: Product[] = [
   {
     id: "81122",
     name: "Cosmo Multi Carrier Stelo- 3 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 340,
     selling_price: 450,
@@ -4464,7 +4464,7 @@ export const masterProducts: Product[] = [
   {
     id: "920383",
     name: "Dora Tiffin Box - Winner",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 75,
     selling_price: 110,
@@ -4477,7 +4477,7 @@ export const masterProducts: Product[] = [
   {
     id: "799126",
     name: "Mother Touch Feeding Bottle 3 in 1",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 75,
     selling_price: 120,
@@ -4490,7 +4490,7 @@ export const masterProducts: Product[] = [
   {
     id: "921962",
     name: "Marino Gradient Water Bottle 900 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 210,
     selling_price: 320,
@@ -4503,7 +4503,7 @@ export const masterProducts: Product[] = [
   {
     id: "921961",
     name: "Marino Gradient Water Bottle 700 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 200,
     selling_price: 300,
@@ -4516,7 +4516,7 @@ export const masterProducts: Product[] = [
   {
     id: "921960",
     name: "Marino Gradient Water Bottle 600 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 200,
     selling_price: 300,
@@ -4529,7 +4529,7 @@ export const masterProducts: Product[] = [
   {
     id: "851635",
     name: "Marino Water Bottle 600 ML -M01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 170,
@@ -4542,7 +4542,7 @@ export const masterProducts: Product[] = [
   {
     id: "851636",
     name: "Marino Water Bottle 700 ML -E01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 120,
     selling_price: 210,
@@ -4555,7 +4555,7 @@ export const masterProducts: Product[] = [
   {
     id: "851637",
     name: "Marino Water Bottle 700 ML -F01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 120,
     selling_price: 210,
@@ -4568,7 +4568,7 @@ export const masterProducts: Product[] = [
   {
     id: "851638",
     name: "Marino Water Bottle - 900 ML -A01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 130,
     selling_price: 220,
@@ -4581,7 +4581,7 @@ export const masterProducts: Product[] = [
   {
     id: "851639",
     name: "Marino Water Bottle 550 ML -N02",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 170,
@@ -4594,7 +4594,7 @@ export const masterProducts: Product[] = [
   {
     id: "851640",
     name: "Marino Water Bottle 550 ML -N03",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 170,
@@ -4607,7 +4607,7 @@ export const masterProducts: Product[] = [
   {
     id: "851641",
     name: "Marino Water Bottle 600 ML -M02",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 170,
@@ -4620,7 +4620,7 @@ export const masterProducts: Product[] = [
   {
     id: "851642",
     name: "Marino Water Bottle 600 ML -M03",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 170,
@@ -4633,7 +4633,7 @@ export const masterProducts: Product[] = [
   {
     id: "851643",
     name: "Marino Water Bottle 700 ML -E03",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 120,
     selling_price: 200,
@@ -4646,7 +4646,7 @@ export const masterProducts: Product[] = [
   {
     id: "851644",
     name: "Marino Water Bottle 700 ML -F03",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 120,
     selling_price: 200,
@@ -4659,7 +4659,7 @@ export const masterProducts: Product[] = [
   {
     id: "920282",
     name: "Slim School Tiffin Box-Winner",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 50,
     selling_price: 80,
@@ -4672,7 +4672,7 @@ export const masterProducts: Product[] = [
   {
     id: "81120",
     name: "School Tiffin Box-3 Comp-Winner",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 40,
     selling_price: 80,
@@ -4685,7 +4685,7 @@ export const masterProducts: Product[] = [
   {
     id: "920285",
     name: "Smart Rectangular Tiffin Box",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 75,
     selling_price: 120,
@@ -4698,7 +4698,7 @@ export const masterProducts: Product[] = [
   {
     id: "920281",
     name: "Racer Tiffin Box-Winner",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 45,
     selling_price: 70,
@@ -4711,7 +4711,7 @@ export const masterProducts: Product[] = [
   {
     id: "889053",
     name: "Thermal Ice Box -5 L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 600,
     selling_price: 750,
@@ -4724,7 +4724,7 @@ export const masterProducts: Product[] = [
   {
     id: "889085",
     name: "Heater Jug -1.5L-Winner",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Winner",
     purchase_price: 210,
     selling_price: 290,
@@ -4737,7 +4737,7 @@ export const masterProducts: Product[] = [
   {
     id: "889595",
     name: "Heater Jug -2L-Winner",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Winner",
     purchase_price: 225,
     selling_price: 300,
@@ -4750,7 +4750,7 @@ export const masterProducts: Product[] = [
   {
     id: "81293",
     name: "Elegant Vacuum Flask -0.5L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 300,
     selling_price: 420,
@@ -4763,7 +4763,7 @@ export const masterProducts: Product[] = [
   {
     id: "81292",
     name: "1.8L Vacuum flask-Green",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 540,
     selling_price: 690,
@@ -4776,7 +4776,7 @@ export const masterProducts: Product[] = [
   {
     id: "78689",
     name: "Angel Vacuum Flask - 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 550,
     selling_price: 760,
@@ -4789,7 +4789,7 @@ export const masterProducts: Product[] = [
   {
     id: "851445",
     name: "0.5L Marvel Vacuum Flask",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 300,
     selling_price: 430,
@@ -4802,7 +4802,7 @@ export const masterProducts: Product[] = [
   {
     id: "851674",
     name: "Victoria Vacuum Flask-3L - PP",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1295,
     selling_price: 1700,
@@ -4815,7 +4815,7 @@ export const masterProducts: Product[] = [
   {
     id: "851675",
     name: "Victoria Vacuum Flask-3L - SS",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1370,
     selling_price: 1820,
@@ -4828,7 +4828,7 @@ export const masterProducts: Product[] = [
   {
     id: "851676",
     name: "Ranger Vacuum Flask-1L - SS",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 600,
     selling_price: 800,
@@ -4841,7 +4841,7 @@ export const masterProducts: Product[] = [
   {
     id: "921551",
     name: "Marigold Vacuum flask 500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 295,
     selling_price: 420,
@@ -4854,7 +4854,7 @@ export const masterProducts: Product[] = [
   {
     id: "81290",
     name: "0.5L Vacuum flask-Green",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 290,
     selling_price: 410,
@@ -4867,7 +4867,7 @@ export const masterProducts: Product[] = [
   {
     id: "78466",
     name: "Delta  Vacuum Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 550,
     selling_price: 740,
@@ -4880,7 +4880,7 @@ export const masterProducts: Product[] = [
   {
     id: "78465",
     name: "Ranger Vacuum Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 585,
     selling_price: 780,
@@ -4893,7 +4893,7 @@ export const masterProducts: Product[] = [
   {
     id: "78463",
     name: "Victoria Vacuum Flask-3L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1320,
     selling_price: 1760,
@@ -4906,7 +4906,7 @@ export const masterProducts: Product[] = [
   {
     id: "78464",
     name: "Elite Vacuum Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 535,
     selling_price: 720,
@@ -4919,7 +4919,7 @@ export const masterProducts: Product[] = [
   {
     id: "889677",
     name: "Winner EK-012 (1.5L)",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 900,
     selling_price: 900,
@@ -4932,7 +4932,7 @@ export const masterProducts: Product[] = [
   {
     id: "889676",
     name: "Winner EK-010 (1.8L)",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1000,
     selling_price: 1000,
@@ -4945,7 +4945,7 @@ export const masterProducts: Product[] = [
   {
     id: "889278",
     name: "Mission Water Bottle 900 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 175,
     selling_price: 230,
@@ -4958,7 +4958,7 @@ export const masterProducts: Product[] = [
   {
     id: "889275",
     name: "Kiddi Glass Feeding Bottle 240 ML",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 360,
     selling_price: 600,
@@ -4971,7 +4971,7 @@ export const masterProducts: Product[] = [
   {
     id: "889274",
     name: "Kiddi Glass Feeding Bottle 120 ML",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 300,
     selling_price: 500,
@@ -4984,7 +4984,7 @@ export const masterProducts: Product[] = [
   {
     id: "889277",
     name: "Deluxe Insulated Tiffin Box- SS- 500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 290,
     selling_price: 400,
@@ -4997,7 +4997,7 @@ export const masterProducts: Product[] = [
   {
     id: "851586",
     name: "Simon Water Bottle-400 ML With Racer Tiffin Box-Wi",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 110,
     selling_price: 180,
@@ -5010,7 +5010,7 @@ export const masterProducts: Product[] = [
   {
     id: "851584",
     name: "Babo Water Bottle-400 ML With Slim Tiffin Box-Winn",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 130,
     selling_price: 220,
@@ -5023,7 +5023,7 @@ export const masterProducts: Product[] = [
   {
     id: "851583",
     name: "Babo Water Bottle-400 ML With Racer Tiffin Box-Win",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 120,
     selling_price: 200,
@@ -5036,7 +5036,7 @@ export const masterProducts: Product[] = [
   {
     id: "851469",
     name: "Heater Jug -1L-Winner",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Winner",
     purchase_price: 170,
     selling_price: 240,
@@ -5049,7 +5049,7 @@ export const masterProducts: Product[] = [
   {
     id: "81283",
     name: "Elite Vacuum Flask Super-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 520,
     selling_price: 720,
@@ -5062,7 +5062,7 @@ export const masterProducts: Product[] = [
   {
     id: "889291",
     name: "SS Lunch Carrier 3 Layer- 1300 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 700,
     selling_price: 950,
@@ -5075,7 +5075,7 @@ export const masterProducts: Product[] = [
   {
     id: "889292",
     name: "SS Lunch Carrier 4 Layer - 1600 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 900,
     selling_price: 1200,
@@ -5088,7 +5088,7 @@ export const masterProducts: Product[] = [
   {
     id: "851582",
     name: "Babo Water Bottle-400 ML With Kids Tiffin Box-Winn",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 115,
     selling_price: 200,
@@ -5101,7 +5101,7 @@ export const masterProducts: Product[] = [
   {
     id: "851631",
     name: "RTG - Tiffin Box-900 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 50,
     selling_price: 75,
@@ -5114,7 +5114,7 @@ export const masterProducts: Product[] = [
   {
     id: "851633",
     name: "Square Tiffin Box-600 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 45,
     selling_price: 65,
@@ -5127,7 +5127,7 @@ export const masterProducts: Product[] = [
   {
     id: "920374",
     name: "Ice Box -8 L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 740,
     selling_price: 950,
@@ -5140,7 +5140,7 @@ export const masterProducts: Product[] = [
   {
     id: "889054",
     name: "Thermal Ice Box -15 L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 1000,
     selling_price: 1260,
@@ -5153,7 +5153,7 @@ export const masterProducts: Product[] = [
   {
     id: "889055",
     name: "Thermal Ice Box -25 L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 1500,
     selling_price: 1880,
@@ -5166,7 +5166,7 @@ export const masterProducts: Product[] = [
   {
     id: "921552",
     name: "Marigold Vacuum Flask-650ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 320,
     selling_price: 475,
@@ -5179,7 +5179,7 @@ export const masterProducts: Product[] = [
   {
     id: "82297",
     name: "Royal Flask- 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 430,
     selling_price: 600,
@@ -5192,7 +5192,7 @@ export const masterProducts: Product[] = [
   {
     id: "82296",
     name: "Penguin Flask- 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 440,
     selling_price: 600,
@@ -5205,7 +5205,7 @@ export const masterProducts: Product[] = [
   {
     id: "889580",
     name: "Smart Double layer Rect. Tiffin Box 1800 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 240,
     selling_price: 375,
@@ -5218,7 +5218,7 @@ export const masterProducts: Product[] = [
   {
     id: "889574",
     name: "SMART SS FOOD CARRIER 2 LAYER",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 580,
     selling_price: 750,
@@ -5231,7 +5231,7 @@ export const masterProducts: Product[] = [
   {
     id: "78475",
     name: "Smart Insulated 3 Layer SS Food Carrier 1500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 670,
     selling_price: 875,
@@ -5244,7 +5244,7 @@ export const masterProducts: Product[] = [
   {
     id: "889064",
     name: "Food Serving Box-WN",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 300,
     selling_price: 390,
@@ -5257,7 +5257,7 @@ export const masterProducts: Product[] = [
   {
     id: "81260",
     name: "Applo Lunch Box",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 290,
     selling_price: 365,
@@ -5270,7 +5270,7 @@ export const masterProducts: Product[] = [
   {
     id: "81153",
     name: "Crown Flask-1.8L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 620,
     selling_price: 850,
@@ -5283,7 +5283,7 @@ export const masterProducts: Product[] = [
   {
     id: "889581",
     name: "Smart single Layer Tiffin box 550 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 360,
     selling_price: 575,
@@ -5296,7 +5296,7 @@ export const masterProducts: Product[] = [
   {
     id: "81065",
     name: "Solar Stelo 5000 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 850,
     selling_price: 1060,
@@ -5309,7 +5309,7 @@ export const masterProducts: Product[] = [
   {
     id: "81008",
     name: "Omega Lunch Box Plastico- 5500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 600,
     selling_price: 780,
@@ -5322,7 +5322,7 @@ export const masterProducts: Product[] = [
   {
     id: "851524",
     name: "Galaxy Plastico - 3 Pcs Gift Set-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 500,
     selling_price: 720,
@@ -5335,7 +5335,7 @@ export const masterProducts: Product[] = [
   {
     id: "889857",
     name: "Vacuum Flask - 2L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 640,
     selling_price: 810,
@@ -5348,7 +5348,7 @@ export const masterProducts: Product[] = [
   {
     id: "920287",
     name: "Lovely Vacuum Flask- 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 410,
     selling_price: 575,
@@ -5361,7 +5361,7 @@ export const masterProducts: Product[] = [
   {
     id: "851444",
     name: "Omega Lunch Box Plastico- 2500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 430,
     selling_price: 550,
@@ -5374,7 +5374,7 @@ export const masterProducts: Product[] = [
   {
     id: "851506",
     name: "Galaxy Stelo 2500 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 520,
     selling_price: 660,
@@ -5387,7 +5387,7 @@ export const masterProducts: Product[] = [
   {
     id: "851477",
     name: "Raymond Tiffin Box Plastico-400 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 90,
     selling_price: 120,
@@ -5400,7 +5400,7 @@ export const masterProducts: Product[] = [
   {
     id: "851574",
     name: "Winner Lunch Box",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 280,
     selling_price: 360,
@@ -5413,7 +5413,7 @@ export const masterProducts: Product[] = [
   {
     id: "81083",
     name: "Galaxy Stelo 700 ml",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 220,
     selling_price: 280,
@@ -5426,7 +5426,7 @@ export const masterProducts: Product[] = [
   {
     id: "889586",
     name: "Thermo Travel Flask-Radiant 75 0ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 725,
     selling_price: 995,
@@ -5439,7 +5439,7 @@ export const masterProducts: Product[] = [
   {
     id: "889584",
     name: "Thermo Travel Flask-Radiant 500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 650,
     selling_price: 930,
@@ -5452,7 +5452,7 @@ export const masterProducts: Product[] = [
   {
     id: "889594",
     name: "Thermo Travel Flask Deluxe 750 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 750,
     selling_price: 1030,
@@ -5465,7 +5465,7 @@ export const masterProducts: Product[] = [
   {
     id: "889597",
     name: "Winner Insulated Lunch Bag - Pioneer",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 270,
     selling_price: 375,
@@ -5478,7 +5478,7 @@ export const masterProducts: Product[] = [
   {
     id: "889585",
     name: "Thermo Travel Flask-Radiant 600 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 680,
     selling_price: 975,
@@ -5491,7 +5491,7 @@ export const masterProducts: Product[] = [
   {
     id: "889591",
     name: "Thermo Travel Flask Supreme 480 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 675,
     selling_price: 980,
@@ -5504,7 +5504,7 @@ export const masterProducts: Product[] = [
   {
     id: "81007",
     name: "Omega Lunch Box Plastico- 3600 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 500,
     selling_price: 650,
@@ -5517,7 +5517,7 @@ export const masterProducts: Product[] = [
   {
     id: "81259",
     name: "Thermo Smart Bottle",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 130,
     selling_price: 170,
@@ -5530,7 +5530,7 @@ export const masterProducts: Product[] = [
   {
     id: "889018",
     name: "TB-101 with Jhar-WN",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Winner",
     purchase_price: 135,
     selling_price: 240,
@@ -5543,7 +5543,7 @@ export const masterProducts: Product[] = [
   {
     id: "799995",
     name: "Mother Touch Hello Baby Mum Pot",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 100,
     selling_price: 200,
@@ -5556,7 +5556,7 @@ export const masterProducts: Product[] = [
   {
     id: "889865",
     name: "Temperature Smart Vacuum Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 670,
     selling_price: 880,
@@ -5569,7 +5569,7 @@ export const masterProducts: Product[] = [
   {
     id: "889869",
     name: "Executive Thermo Mug",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 560,
     selling_price: 730,
@@ -5582,7 +5582,7 @@ export const masterProducts: Product[] = [
   {
     id: "921954",
     name: "Leisure Tiffin Box Stelo One Bati - SS Inner Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 280,
     selling_price: 370,
@@ -5595,7 +5595,7 @@ export const masterProducts: Product[] = [
   {
     id: "921955",
     name: "Leisure Tiffin Box  Stelo 1 Ltr - SS Inner Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 325,
     selling_price: 430,
@@ -5608,7 +5608,7 @@ export const masterProducts: Product[] = [
   {
     id: "799125",
     name: "Vacuum Flask - 3.2L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 970,
     selling_price: 1350,
@@ -5621,7 +5621,7 @@ export const masterProducts: Product[] = [
   {
     id: "889679",
     name: "Winner EK-028 (2.8L)",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1350,
     selling_price: 1350,
@@ -5634,7 +5634,7 @@ export const masterProducts: Product[] = [
   {
     id: "851609",
     name: "Galaxy Stelo Premium - 2500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 540,
     selling_price: 680,
@@ -5647,7 +5647,7 @@ export const masterProducts: Product[] = [
   {
     id: "851608",
     name: "Galaxy Stelo Premium - 1800 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 440,
     selling_price: 550,
@@ -5660,7 +5660,7 @@ export const masterProducts: Product[] = [
   {
     id: "851610",
     name: "Galaxy Stelo Premium - 3100 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 640,
     selling_price: 810,
@@ -5673,7 +5673,7 @@ export const masterProducts: Product[] = [
   {
     id: "851619",
     name: "Titan Super Stelo 800 ML Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 285,
     selling_price: 365,
@@ -5686,7 +5686,7 @@ export const masterProducts: Product[] = [
   {
     id: "851504",
     name: "Galaxy Stelo 1300 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 320,
     selling_price: 420,
@@ -5699,7 +5699,7 @@ export const masterProducts: Product[] = [
   {
     id: "81084",
     name: "Galaxy Stelo 1000 ml",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 300,
     selling_price: 390,
@@ -5712,7 +5712,7 @@ export const masterProducts: Product[] = [
   {
     id: "851507",
     name: "Galaxy Stelo 3100 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 620,
     selling_price: 780,
@@ -5725,7 +5725,7 @@ export const masterProducts: Product[] = [
   {
     id: "81051",
     name: "Thermal Tea Pot 500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 600,
     selling_price: 780,
@@ -5738,7 +5738,7 @@ export const masterProducts: Product[] = [
   {
     id: "889590",
     name: "Thermo Mug 400 ML",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 610,
     selling_price: 815,
@@ -5751,7 +5751,7 @@ export const masterProducts: Product[] = [
   {
     id: "81210",
     name: "Happy  Mum Pot",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 55,
     selling_price: 75,
@@ -5764,7 +5764,7 @@ export const masterProducts: Product[] = [
   {
     id: "920286",
     name: "Fancy Feeding Bottle-240 ML",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 75,
     selling_price: 180,
@@ -5777,7 +5777,7 @@ export const masterProducts: Product[] = [
   {
     id: "921349",
     name: "Fancy Baby Feeding Bottle-120 ML-Winner",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 65,
     selling_price: 150,
@@ -5790,7 +5790,7 @@ export const masterProducts: Product[] = [
   {
     id: "919969",
     name: "Fancy Handy Baby Feeding Bottle-120 ML",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 75,
     selling_price: 180,
@@ -5803,7 +5803,7 @@ export const masterProducts: Product[] = [
   {
     id: "81222",
     name: "Dora Mum Pot",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 40,
     selling_price: 65,
@@ -5816,7 +5816,7 @@ export const masterProducts: Product[] = [
   {
     id: "81208",
     name: "Champion Mum Pot",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 40,
     selling_price: 60,
@@ -5829,7 +5829,7 @@ export const masterProducts: Product[] = [
   {
     id: "81296",
     name: "Thermos Jug 1500 Ml",
-    category: "Other",
+    category: "Jugs & Juicers",
     group: "Winner",
     purchase_price: 225,
     selling_price: 280,
@@ -5842,7 +5842,7 @@ export const masterProducts: Product[] = [
   {
     id: "851513",
     name: "Galaxy Stelo - 3 Pcs Gift Set - Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 750,
     selling_price: 920,
@@ -5855,7 +5855,7 @@ export const masterProducts: Product[] = [
   {
     id: "78433",
     name: "Omega Lunch Box Plastico- 1500 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 390,
     selling_price: 490,
@@ -5868,7 +5868,7 @@ export const masterProducts: Product[] = [
   {
     id: "921340",
     name: "Flora vacuum flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 525,
     selling_price: 675,
@@ -5881,7 +5881,7 @@ export const masterProducts: Product[] = [
   {
     id: "921341",
     name: "Deluxe Vacuum flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 360,
     selling_price: 500,
@@ -5894,7 +5894,7 @@ export const masterProducts: Product[] = [
   {
     id: "921342",
     name: "Prime vacuum flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 600,
     selling_price: 790,
@@ -5907,7 +5907,7 @@ export const masterProducts: Product[] = [
   {
     id: "921343",
     name: "Radiant vacuum flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 650,
     selling_price: 850,
@@ -5920,7 +5920,7 @@ export const masterProducts: Product[] = [
   {
     id: "921344",
     name: "Supreme vacuum flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 725,
     selling_price: 950,
@@ -5933,7 +5933,7 @@ export const masterProducts: Product[] = [
   {
     id: "851491",
     name: "Super Penguin Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 470,
     selling_price: 650,
@@ -5946,7 +5946,7 @@ export const masterProducts: Product[] = [
   {
     id: "81081",
     name: "Delta  Vacuum Flask-1.3L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 580,
     selling_price: 780,
@@ -5959,7 +5959,7 @@ export const masterProducts: Product[] = [
   {
     id: "851011",
     name: "Princess Hair Comb-Radiant-Classic -8",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 16.05,
     selling_price: 40,
@@ -5972,7 +5972,7 @@ export const masterProducts: Product[] = [
   {
     id: "919973",
     name: "Happy  Mum Pot With Pack",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 65,
     selling_price: 85,
@@ -5985,7 +5985,7 @@ export const masterProducts: Product[] = [
   {
     id: "851512",
     name: "Titan Stelo 3000 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 620,
     selling_price: 780,
@@ -5998,7 +5998,7 @@ export const masterProducts: Product[] = [
   {
     id: "851606",
     name: "Galaxy Stelo Premium - 900 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 275,
     selling_price: 345,
@@ -6011,7 +6011,7 @@ export const masterProducts: Product[] = [
   {
     id: "851492",
     name: "Super Penguin Flask-1.3L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 490,
     selling_price: 680,
@@ -6024,7 +6024,7 @@ export const masterProducts: Product[] = [
   {
     id: "851620",
     name: "Titan Super Stelo 1200 ML Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 340,
     selling_price: 440,
@@ -6037,7 +6037,7 @@ export const masterProducts: Product[] = [
   {
     id: "851622",
     name: "Titan Super Stelo 2500 ML Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 565,
     selling_price: 720,
@@ -6050,7 +6050,7 @@ export const masterProducts: Product[] = [
   {
     id: "851623",
     name: "Titan Super Stelo 3000 ML Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 645,
     selling_price: 840,
@@ -6063,7 +6063,7 @@ export const masterProducts: Product[] = [
   {
     id: "889056",
     name: "Thermo sports Bottle 750 ML-Cap-01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 250,
     selling_price: 330,
@@ -6076,7 +6076,7 @@ export const masterProducts: Product[] = [
   {
     id: "889299",
     name: "Smart Cool Box Oval - 5L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 600,
     selling_price: 820,
@@ -6089,7 +6089,7 @@ export const masterProducts: Product[] = [
   {
     id: "889301",
     name: "Smart Cool Box Oval - 20L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 1450,
     selling_price: 2000,
@@ -6102,7 +6102,7 @@ export const masterProducts: Product[] = [
   {
     id: "889300",
     name: "Smart Cool Box Oval - 12L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 1000,
     selling_price: 1350,
@@ -6115,7 +6115,7 @@ export const masterProducts: Product[] = [
   {
     id: "799941",
     name: "Premium Coffee Mug SS - 300 ML",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Winner",
     purchase_price: 160,
     selling_price: 220,
@@ -6141,7 +6141,7 @@ export const masterProducts: Product[] = [
   {
     id: "851505",
     name: "Galaxy Stelo 1800 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 425,
     selling_price: 550,
@@ -6154,7 +6154,7 @@ export const masterProducts: Product[] = [
   {
     id: "920354",
     name: "Alpha Plastico 1000  - Classic",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 170,
     selling_price: 220,
@@ -6167,7 +6167,7 @@ export const masterProducts: Product[] = [
   {
     id: "81093",
     name: "Tiffin Box Stelo 4 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 700,
     selling_price: 875,
@@ -6180,7 +6180,7 @@ export const masterProducts: Product[] = [
   {
     id: "81285",
     name: "THERMO MISSION FLASK 1000ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1050,
     selling_price: 1315,
@@ -6193,7 +6193,7 @@ export const masterProducts: Product[] = [
   {
     id: "81254",
     name: "Thermo Travel Flask 1000 ML- Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 720,
     selling_price: 995,
@@ -6206,7 +6206,7 @@ export const masterProducts: Product[] = [
   {
     id: "81261",
     name: "Thermo Travel Flask 350 ML- Premium",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 410,
     selling_price: 540,
@@ -6219,7 +6219,7 @@ export const masterProducts: Product[] = [
   {
     id: "889867",
     name: "Woody Vacuum Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1320,
     selling_price: 1725,
@@ -6232,7 +6232,7 @@ export const masterProducts: Product[] = [
   {
     id: "799143",
     name: "Single Wall SS Water Bottle 650 ML- Winner",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 265,
     selling_price: 350,
@@ -6245,7 +6245,7 @@ export const masterProducts: Product[] = [
   {
     id: "889863",
     name: "Thermo Water Bottle Marble - 500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 495,
     selling_price: 650,
@@ -6258,7 +6258,7 @@ export const masterProducts: Product[] = [
   {
     id: "851470",
     name: "Mickey Baby Feeding Bottle-300 ML-WN",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 80,
     selling_price: 200,
@@ -6271,7 +6271,7 @@ export const masterProducts: Product[] = [
   {
     id: "851694",
     name: "Mickey Baby Feeding Bottle-150 ML-WN",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 65,
     selling_price: 150,
@@ -6284,7 +6284,7 @@ export const masterProducts: Product[] = [
   {
     id: "851695",
     name: "Mickey Handy Baby Feeding Bottle-150 ML-WN",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Winner",
     purchase_price: 70,
     selling_price: 160,
@@ -6297,7 +6297,7 @@ export const masterProducts: Product[] = [
   {
     id: "851585",
     name: "Simon Water Bottle-400 ML With Slim Tiffin Box-Win",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 120,
     selling_price: 200,
@@ -6310,7 +6310,7 @@ export const masterProducts: Product[] = [
   {
     id: "81299",
     name: "Metro Travel Flask-500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 110,
     selling_price: 140,
@@ -6323,7 +6323,7 @@ export const masterProducts: Product[] = [
   {
     id: "81054",
     name: "Thermal Ice Box Combo -25 L+5L",
-    category: "Other",
+    category: "Ice & Cool Boxes",
     group: "Winner",
     purchase_price: 1950,
     selling_price: 2500,
@@ -6336,7 +6336,7 @@ export const masterProducts: Product[] = [
   {
     id: "889051",
     name: "Thermo sports Bottle 550 ML-Cap-01",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 220,
     selling_price: 290,
@@ -6349,7 +6349,7 @@ export const masterProducts: Product[] = [
   {
     id: "81050",
     name: "Galaxy Stelo - 3 Pcs Gift Set",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 790,
     selling_price: 1040,
@@ -6362,7 +6362,7 @@ export const masterProducts: Product[] = [
   {
     id: "81089",
     name: "Galaxy Plastico-3 Pcs Gift-Set",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 460,
     selling_price: 620,
@@ -6375,7 +6375,7 @@ export const masterProducts: Product[] = [
   {
     id: "851446",
     name: "1L Marvel Vacuum Flask",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 410,
     selling_price: 580,
@@ -6388,7 +6388,7 @@ export const masterProducts: Product[] = [
   {
     id: "81291",
     name: "1L Vacuum flask-Green",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 400,
     selling_price: 570,
@@ -6401,7 +6401,7 @@ export const masterProducts: Product[] = [
   {
     id: "81294",
     name: "Elegant Vacuum Flask -1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 410,
     selling_price: 580,
@@ -6414,7 +6414,7 @@ export const masterProducts: Product[] = [
   {
     id: "921550",
     name: "Marigold Vacuum flask 1000 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 430,
     selling_price: 590,
@@ -6427,7 +6427,7 @@ export const masterProducts: Product[] = [
   {
     id: "889678",
     name: "Winner EK- (2.3L)",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 1350,
     selling_price: 1350,
@@ -6440,7 +6440,7 @@ export const masterProducts: Product[] = [
   {
     id: "851459",
     name: "Avenger Travel  flask 1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 350,
     selling_price: 460,
@@ -6453,7 +6453,7 @@ export const masterProducts: Product[] = [
   {
     id: "81104",
     name: "Beauty Thermal Carrier 4 Star-Stelo",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 900,
     selling_price: 1120,
@@ -6466,7 +6466,7 @@ export const masterProducts: Product[] = [
   {
     id: "81152",
     name: "Crown Flask-1L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 580,
     selling_price: 750,
@@ -6479,7 +6479,7 @@ export const masterProducts: Product[] = [
   {
     id: "81062",
     name: "Solar  Stelo 1500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 410,
     selling_price: 530,
@@ -6492,7 +6492,7 @@ export const masterProducts: Product[] = [
   {
     id: "81063",
     name: "Solar  Stelo 2000 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 520,
     selling_price: 650,
@@ -6505,7 +6505,7 @@ export const masterProducts: Product[] = [
   {
     id: "81015",
     name: "Ice Flask -3 L",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 460,
     selling_price: 580,
@@ -6518,7 +6518,7 @@ export const masterProducts: Product[] = [
   {
     id: "81123",
     name: "Cosmo Multi Carrier Plastico- 3 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 210,
     selling_price: 275,
@@ -6531,7 +6531,7 @@ export const masterProducts: Product[] = [
   {
     id: "81086",
     name: "Galaxy Stelo 2000 ml",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 480,
     selling_price: 600,
@@ -6544,7 +6544,7 @@ export const masterProducts: Product[] = [
   {
     id: "81087",
     name: "Galaxy Stelo 2500 ml",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 540,
     selling_price: 675,
@@ -6557,7 +6557,7 @@ export const masterProducts: Product[] = [
   {
     id: "81092",
     name: "Carrier Stelo 3 Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 600,
     selling_price: 750,
@@ -6570,7 +6570,7 @@ export const masterProducts: Product[] = [
   {
     id: "889592",
     name: "Thermo Travel Flask Basic 500 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 530,
     selling_price: 815,
@@ -6583,7 +6583,7 @@ export const masterProducts: Product[] = [
   {
     id: "889577",
     name: "Everest Thermos Water Bottle 550 ML",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 150,
     selling_price: 250,
@@ -6596,7 +6596,7 @@ export const masterProducts: Product[] = [
   {
     id: "920278",
     name: "Winner Oval food container 450 ML",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 60,
     selling_price: 100,
@@ -6609,7 +6609,7 @@ export const masterProducts: Product[] = [
   {
     id: "851515",
     name: "Galaxy plastico 1300 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 190,
     selling_price: 240,
@@ -6622,7 +6622,7 @@ export const masterProducts: Product[] = [
   {
     id: "851516",
     name: "Galaxy Plastico 1800 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 250,
     selling_price: 315,
@@ -6635,7 +6635,7 @@ export const masterProducts: Product[] = [
   {
     id: "851475",
     name: "Leisure Tiffin Box -Classic-Plastico -One Bati",
-    category: "Other",
+    category: "Tiffin & Lunch",
     group: "Winner",
     purchase_price: 125,
     selling_price: 160,
@@ -6648,7 +6648,7 @@ export const masterProducts: Product[] = [
   {
     id: "851503",
     name: "Galaxy Stelo 900 ML-Super",
-    category: "Other",
+    category: "Bottles & Flasks",
     group: "Winner",
     purchase_price: 250,
     selling_price: 325,
@@ -6661,7 +6661,7 @@ export const masterProducts: Product[] = [
   {
     id: "91227",
     name: "Toilet Brush 51 CM -Economy",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 40,
     selling_price: 90,
@@ -6674,7 +6674,7 @@ export const masterProducts: Product[] = [
   {
     id: "889070",
     name: "Double Hockey Toilet Brush-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 110,
     selling_price: 170,
@@ -6687,7 +6687,7 @@ export const masterProducts: Product[] = [
   {
     id: "889098",
     name: "Round Commode Brush-44 CM with Holder-Eureka",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 80,
     selling_price: 160,
@@ -6700,7 +6700,7 @@ export const masterProducts: Product[] = [
   {
     id: "81105",
     name: "5\" Santoku Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 105,
     selling_price: 150,
@@ -6713,7 +6713,7 @@ export const masterProducts: Product[] = [
   {
     id: "81109",
     name: "6.5\" Cleaver Knife- SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 350,
     selling_price: 460,
@@ -6726,7 +6726,7 @@ export const masterProducts: Product[] = [
   {
     id: "81117",
     name: "8\" Chef Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 135,
     selling_price: 195,
@@ -6739,7 +6739,7 @@ export const masterProducts: Product[] = [
   {
     id: "81121",
     name: "6\" Boning Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 100,
     selling_price: 145,
@@ -6752,7 +6752,7 @@ export const masterProducts: Product[] = [
   {
     id: "851464",
     name: "4.3\"Utility Knife",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 22,
     selling_price: 40,
@@ -6765,7 +6765,7 @@ export const masterProducts: Product[] = [
   {
     id: "81113",
     name: "5\" Chef Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 100,
     selling_price: 140,
@@ -6778,7 +6778,7 @@ export const masterProducts: Product[] = [
   {
     id: "91212",
     name: "Basin Brush 26 cm -Pink",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 40,
     selling_price: 80,
@@ -6791,7 +6791,7 @@ export const masterProducts: Product[] = [
   {
     id: "91216",
     name: "Floor Brush -Pink",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 60,
     selling_price: 110,
@@ -6804,7 +6804,7 @@ export const masterProducts: Product[] = [
   {
     id: "851465",
     name: "Cloth  Brush-Exclusive -WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 27,
     selling_price: 60,
@@ -6817,7 +6817,7 @@ export const masterProducts: Product[] = [
   {
     id: "889562",
     name: "Unique Floor Brush-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 28,
     selling_price: 60,
@@ -6830,7 +6830,7 @@ export const masterProducts: Product[] = [
   {
     id: "889180",
     name: "Floor Brush-Elegant-KN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 45,
     selling_price: 80,
@@ -6843,7 +6843,7 @@ export const masterProducts: Product[] = [
   {
     id: "889552",
     name: "Long Handle Brush-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 185,
     selling_price: 280,
@@ -6856,7 +6856,7 @@ export const masterProducts: Product[] = [
   {
     id: "81157",
     name: "Cleanmax  Dust Pan with Broom",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 260,
     selling_price: 450,
@@ -6869,7 +6869,7 @@ export const masterProducts: Product[] = [
   {
     id: "851473",
     name: "Floor Dust Cleaner",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 170,
     selling_price: 250,
@@ -6882,7 +6882,7 @@ export const masterProducts: Product[] = [
   {
     id: "889547",
     name: "Spider Net Cleaning Brush-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 110,
     selling_price: 170,
@@ -6895,7 +6895,7 @@ export const masterProducts: Product[] = [
   {
     id: "889548",
     name: "Elite Broom Brush-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 165,
     selling_price: 300,
@@ -6908,7 +6908,7 @@ export const masterProducts: Product[] = [
   {
     id: "889549",
     name: "Fancy Broom Brush-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 175,
     selling_price: 300,
@@ -6921,7 +6921,7 @@ export const masterProducts: Product[] = [
   {
     id: "889550",
     name: "Cleanmax  Dust Pan with Broom-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 225,
     selling_price: 380,
@@ -6934,7 +6934,7 @@ export const masterProducts: Product[] = [
   {
     id: "81145",
     name: "Fancy Broom Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 220,
     selling_price: 340,
@@ -6947,7 +6947,7 @@ export const masterProducts: Product[] = [
   {
     id: "889198",
     name: "Twist MOP- Flexible",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 245,
     selling_price: 390,
@@ -6960,7 +6960,7 @@ export const masterProducts: Product[] = [
   {
     id: "889935",
     name: "Elegant Floor -Mop (Flexi)",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 205,
     selling_price: 340,
@@ -6973,7 +6973,7 @@ export const masterProducts: Product[] = [
   {
     id: "889936",
     name: "Supreme Floor - Mop (Flexi)",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 180,
     selling_price: 280,
@@ -6986,7 +6986,7 @@ export const masterProducts: Product[] = [
   {
     id: "889937",
     name: "Extreme Floor MOP-(Flexi)",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 200,
     selling_price: 300,
@@ -6999,7 +6999,7 @@ export const masterProducts: Product[] = [
   {
     id: "889335",
     name: "Extreme Floor MOP-SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 260,
     selling_price: 370,
@@ -7012,7 +7012,7 @@ export const masterProducts: Product[] = [
   {
     id: "889814",
     name: "Power Floor Mop",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 250,
     selling_price: 370,
@@ -7025,7 +7025,7 @@ export const masterProducts: Product[] = [
   {
     id: "851449",
     name: "PVA-Twist MOP",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 300,
     selling_price: 460,
@@ -7038,7 +7038,7 @@ export const masterProducts: Product[] = [
   {
     id: "851541",
     name: "Premium Floor - MOP -SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 300,
     selling_price: 480,
@@ -7051,7 +7051,7 @@ export const masterProducts: Product[] = [
   {
     id: "851542",
     name: "Ultra Floor - Mop -SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 260,
     selling_price: 420,
@@ -7064,7 +7064,7 @@ export const masterProducts: Product[] = [
   {
     id: "851691",
     name: "Ultra Floor - MOP (Flexible)",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 230,
     selling_price: 320,
@@ -7077,7 +7077,7 @@ export const masterProducts: Product[] = [
   {
     id: "851692",
     name: "Premium Floor - MOP (Flexible)",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 275,
     selling_price: 370,
@@ -7090,7 +7090,7 @@ export const masterProducts: Product[] = [
   {
     id: "889072",
     name: "Ultra-Modern Floor Mop-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 320,
     selling_price: 500,
@@ -7103,7 +7103,7 @@ export const masterProducts: Product[] = [
   {
     id: "78690",
     name: "SS Scourer -12 Pcs",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 13,
     selling_price: 30,
@@ -7116,7 +7116,7 @@ export const masterProducts: Product[] = [
   {
     id: "920452",
     name: "Easy Floor Wiper",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 155,
     selling_price: 220,
@@ -7129,7 +7129,7 @@ export const masterProducts: Product[] = [
   {
     id: "889099",
     name: "Wastage Bin Multipurpose-Small-WR",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 65,
     selling_price: 110,
@@ -7142,7 +7142,7 @@ export const masterProducts: Product[] = [
   {
     id: "889100",
     name: "Wastage Bin Multipurpose-Large-WR",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 85,
     selling_price: 140,
@@ -7155,7 +7155,7 @@ export const masterProducts: Product[] = [
   {
     id: "889178",
     name: "Kleen Toilet cleaner-750 ml with free item",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 125,
     selling_price: 160,
@@ -7168,7 +7168,7 @@ export const masterProducts: Product[] = [
   {
     id: "889551",
     name: "Easy Floor Wiper-Flexi",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 115,
     selling_price: 200,
@@ -7181,7 +7181,7 @@ export const masterProducts: Product[] = [
   {
     id: "91224",
     name: "Glass Cleaner Wiper",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Kleen",
     purchase_price: 50,
     selling_price: 90,
@@ -7194,7 +7194,7 @@ export const masterProducts: Product[] = [
   {
     id: "91223",
     name: "Dust Pan-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 17,
     selling_price: 40,
@@ -7207,7 +7207,7 @@ export const masterProducts: Product[] = [
   {
     id: "81101",
     name: "4.5\" Utility Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 52,
     selling_price: 75,
@@ -7220,7 +7220,7 @@ export const masterProducts: Product[] = [
   {
     id: "851502",
     name: "Spider Net Cleaning Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 185,
     selling_price: 280,
@@ -7233,7 +7233,7 @@ export const masterProducts: Product[] = [
   {
     id: "889559",
     name: "Kleen Magic Spin MOP",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 1450,
     selling_price: 1950,
@@ -7246,7 +7246,7 @@ export const masterProducts: Product[] = [
   {
     id: "889312",
     name: "3.5\" Peeling Knife - SS",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 43,
     selling_price: 75,
@@ -7259,7 +7259,7 @@ export const masterProducts: Product[] = [
   {
     id: "889311",
     name: "Kleen Long Handle Brush - Smart",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 150,
     selling_price: 240,
@@ -7272,7 +7272,7 @@ export const masterProducts: Product[] = [
   {
     id: "78699",
     name: "Classic Dust pan",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 25,
     selling_price: 55,
@@ -7285,7 +7285,7 @@ export const masterProducts: Product[] = [
   {
     id: "889333",
     name: "Kleen Bed Jharu",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 105,
     selling_price: 180,
@@ -7298,7 +7298,7 @@ export const masterProducts: Product[] = [
   {
     id: "851566",
     name: "Handy Fan-Winner",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 18,
     selling_price: 35,
@@ -7311,7 +7311,7 @@ export const masterProducts: Product[] = [
   {
     id: "889870",
     name: "Kleen Smart Fancy Floor-MOP",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 195,
     selling_price: 300,
@@ -7324,7 +7324,7 @@ export const masterProducts: Product[] = [
   {
     id: "91222",
     name: "Utility brash",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 50,
     selling_price: 80,
@@ -7337,7 +7337,7 @@ export const masterProducts: Product[] = [
   {
     id: "889322",
     name: "Dust Pan with Brush -Elegant",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 100,
     selling_price: 150,
@@ -7350,7 +7350,7 @@ export const masterProducts: Product[] = [
   {
     id: "889844",
     name: "Chopping Board",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 95,
     selling_price: 150,
@@ -7363,7 +7363,7 @@ export const masterProducts: Product[] = [
   {
     id: "851461",
     name: "5.5\" Boning Knife-Ultra",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 70,
     selling_price: 100,
@@ -7376,7 +7376,7 @@ export const masterProducts: Product[] = [
   {
     id: "799965",
     name: "Kleen Round Commode Brush With Holder - Smart",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 180,
     selling_price: 250,
@@ -7389,7 +7389,7 @@ export const masterProducts: Product[] = [
   {
     id: "81149",
     name: "Rubber Dust Pan-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 32,
     selling_price: 50,
@@ -7402,7 +7402,7 @@ export const masterProducts: Product[] = [
   {
     id: "81144",
     name: "Elite Broom Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 200,
     selling_price: 320,
@@ -7415,7 +7415,7 @@ export const masterProducts: Product[] = [
   {
     id: "91219",
     name: "Dust Pan with Brush -Red",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 70,
     selling_price: 100,
@@ -7428,7 +7428,7 @@ export const masterProducts: Product[] = [
   {
     id: "78697",
     name: "Ultra Toilet Brush- 51 Cm",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 48,
     selling_price: 100,
@@ -7441,7 +7441,7 @@ export const masterProducts: Product[] = [
   {
     id: "851563",
     name: "Long Handle - Floor Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 230,
     selling_price: 320,
@@ -7454,7 +7454,7 @@ export const masterProducts: Product[] = [
   {
     id: "799093",
     name: "Dragon Twist Mop - SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 240,
     selling_price: 450,
@@ -7467,7 +7467,7 @@ export const masterProducts: Product[] = [
   {
     id: "799095",
     name: "Dragon Round Mop - SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 190,
     selling_price: 310,
@@ -7480,7 +7480,7 @@ export const masterProducts: Product[] = [
   {
     id: "889078",
     name: "Twist MOP- Elegant-WN",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 300,
     selling_price: 410,
@@ -7493,7 +7493,7 @@ export const masterProducts: Product[] = [
   {
     id: "920466",
     name: "PVA Sponge-Double Roller",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 500,
     selling_price: 690,
@@ -7506,7 +7506,7 @@ export const masterProducts: Product[] = [
   {
     id: "920467",
     name: "PVA Sponge-Single Roller",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 480,
     selling_price: 620,
@@ -7519,7 +7519,7 @@ export const masterProducts: Product[] = [
   {
     id: "921051",
     name: "Easy Dust Cleaner",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 160,
     selling_price: 220,
@@ -7532,7 +7532,7 @@ export const masterProducts: Product[] = [
   {
     id: "889332",
     name: "Toilet Brush 51 CM -Royal",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 50,
     selling_price: 100,
@@ -7545,7 +7545,7 @@ export const masterProducts: Product[] = [
   {
     id: "851407",
     name: "Round Commode Brush-51 CM",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 75,
     selling_price: 120,
@@ -7558,7 +7558,7 @@ export const masterProducts: Product[] = [
   {
     id: "91226",
     name: "Round Commode Brush with Holder-44 CM",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 140,
     selling_price: 210,
@@ -7571,7 +7571,7 @@ export const masterProducts: Product[] = [
   {
     id: "889069",
     name: "Chopping Board with Knife -2 Pcs combo",
-    category: "Other",
+    category: "Strainers & Utensils",
     group: "Kleen",
     purchase_price: 110,
     selling_price: 160,
@@ -7584,7 +7584,7 @@ export const masterProducts: Product[] = [
   {
     id: "889885",
     name: "Kleen Scrub Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 90,
     selling_price: 150,
@@ -7597,7 +7597,7 @@ export const masterProducts: Product[] = [
   {
     id: "889871",
     name: "Kleen Dust Pan With Brush - TPR Bristle",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 160,
     selling_price: 250,
@@ -7610,7 +7610,7 @@ export const masterProducts: Product[] = [
   {
     id: "889887",
     name: "Kleen Multipurpose Scrub Brushes-DT",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 60,
     selling_price: 100,
@@ -7623,7 +7623,7 @@ export const masterProducts: Product[] = [
   {
     id: "799219",
     name: "Kleen Eco Floor Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 30,
     selling_price: 70,
@@ -7636,7 +7636,7 @@ export const masterProducts: Product[] = [
   {
     id: "799218",
     name: "Kleen Popular Floor Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 45,
     selling_price: 90,
@@ -7649,7 +7649,7 @@ export const masterProducts: Product[] = [
   {
     id: "81146",
     name: "Platinum Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 38,
     selling_price: 70,
@@ -7662,7 +7662,7 @@ export const masterProducts: Product[] = [
   {
     id: "81158",
     name: "Basic Dust Pan with Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 60,
     selling_price: 80,
@@ -7675,7 +7675,7 @@ export const masterProducts: Product[] = [
   {
     id: "889326",
     name: "Kleen Iron Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 75,
     selling_price: 110,
@@ -7688,7 +7688,7 @@ export const masterProducts: Product[] = [
   {
     id: "851500",
     name: "Spider Net Cleaning Brush-Economy",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 150,
     selling_price: 250,
@@ -7701,7 +7701,7 @@ export const masterProducts: Product[] = [
   {
     id: "889315",
     name: "Elegant Floor Mop - SS",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 290,
     selling_price: 400,
@@ -7714,7 +7714,7 @@ export const masterProducts: Product[] = [
   {
     id: "889892",
     name: "Kleen Soap Dispensing Dishwashing Brush",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 65,
     selling_price: 100,
@@ -7727,7 +7727,7 @@ export const masterProducts: Product[] = [
   {
     id: "81141",
     name: "Cleaning Pad Green-4 Pcs",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 60,
     selling_price: 90,
@@ -7740,7 +7740,7 @@ export const masterProducts: Product[] = [
   {
     id: "81142",
     name: "Cleaning Pad Multicolor-4 Pcs",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 60,
     selling_price: 90,
@@ -7753,7 +7753,7 @@ export const masterProducts: Product[] = [
   {
     id: "81143",
     name: "Cleaning Pad Economy",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 35,
     selling_price: 70,
@@ -7766,7 +7766,7 @@ export const masterProducts: Product[] = [
   {
     id: "889179",
     name: "Kleen Toilet cleaner-500 ml with free item",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 100,
     selling_price: 130,
@@ -7779,7 +7779,7 @@ export const masterProducts: Product[] = [
   {
     id: "78472",
     name: "Straight Handle Mug - 1L",
-    category: "Other",
+    category: "Mugs & Glasses",
     group: "Kleen",
     purchase_price: 45,
     selling_price: 60,
@@ -7792,7 +7792,7 @@ export const masterProducts: Product[] = [
   {
     id: "851434",
     name: "Kidzstar Small - Baby Potty",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Kleen",
     purchase_price: 150,
     selling_price: 250,
@@ -7805,7 +7805,7 @@ export const masterProducts: Product[] = [
   {
     id: "851432",
     name: "Kidzstar Oval Shape - Baby Potty",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Kleen",
     purchase_price: 185,
     selling_price: 290,
@@ -7818,7 +7818,7 @@ export const masterProducts: Product[] = [
   {
     id: "889090",
     name: "Soap Dispensing Brush-DT",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 75,
     selling_price: 120,
@@ -7831,7 +7831,7 @@ export const masterProducts: Product[] = [
   {
     id: "851433",
     name: "Kidzstar Two Part - Baby Potty",
-    category: "Other",
+    category: "Baby & Kids",
     group: "Kleen",
     purchase_price: 250,
     selling_price: 360,
@@ -7844,7 +7844,7 @@ export const masterProducts: Product[] = [
   {
     id: "799969",
     name: "Dragon Round Mop - uPVC",
-    category: "Other",
+    category: "Cleaning & Bathroom",
     group: "Kleen",
     purchase_price: 135,
     selling_price: 200,
@@ -7853,5 +7853,5 @@ export const masterProducts: Product[] = [
     image_url: "/product-patterns/pattern-17.png",
     sku: "799969",
     created_at: "2026-09-15",
-  }
+  },
 ];
