@@ -3,6 +3,7 @@ import { formatMoney } from '../utils/money';
 
 export interface ReceiptSlipProps {
   sale: Sale;
+  /** @deprecated Prefer sale.payment_method */
   paymentNote?: string;
   /** Shown under invoice meta; defaults to locale now */
   printedAt?: string;
@@ -10,11 +11,18 @@ export interface ReceiptSlipProps {
 
 export function ReceiptSlip({
   sale,
-  paymentNote = 'Cash',
+  paymentNote,
   printedAt,
 }: ReceiptSlipProps) {
   const itemsSubtotal = sale.items.reduce((sum, i) => sum + i.subtotal, 0);
-  const discount = Math.max(0, itemsSubtotal - sale.total_amount);
+  const discount =
+    sale.discount != null
+      ? Math.max(0, Number(sale.discount))
+      : Math.max(0, itemsSubtotal - sale.total_amount);
+  const method = sale.payment_method || paymentNote || 'Cash';
+  const paid =
+    sale.paid_amount != null ? Number(sale.paid_amount) : sale.total_amount;
+  const change = Math.max(0, paid - sale.total_amount);
   const when =
     printedAt ||
     (() => {
@@ -94,8 +102,18 @@ export function ReceiptSlip({
           </div>
           <div className="og-slip-row">
             <span>Paid via</span>
-            <span>{paymentNote}</span>
+            <span>{method}</span>
           </div>
+          <div className="og-slip-row">
+            <span>Received</span>
+            <span>{formatMoney(paid)}</span>
+          </div>
+          {change > 0 ? (
+            <div className="og-slip-row">
+              <span>Change</span>
+              <span>{formatMoney(change)}</span>
+            </div>
+          ) : null}
         </div>
         <div className="og-slip-rule" />
         <p className="og-slip-thanks">Thank you</p>

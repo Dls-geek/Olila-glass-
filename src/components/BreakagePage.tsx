@@ -5,6 +5,7 @@ import {
   Button,
   Input,
   ModuleHeader,
+  ProductSearchBox,
   SectionCard,
   Select,
   StatTile,
@@ -138,15 +139,18 @@ export function BreakagePage({ onViewStock }: { onViewStock?: () => void }) {
                 <label className="mb-1 block text-[13px] font-medium text-[#495057]">
                   পণ্য খুঁজুন
                 </label>
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6c757d]" />
-                  <input
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    placeholder="SKU / নাম / গ্রুপ…"
-                    className="h-9 w-full rounded-md border border-[#ced4da] bg-white pl-8 pr-2 text-sm outline-none focus:border-[#00a65a]"
-                  />
-                </div>
+                <ProductSearchBox
+                  products={products}
+                  value={productSearch}
+                  onChange={setProductSearch}
+                  onPick={(p) => {
+                    setProductSearch(p.sku || p.id);
+                    setProductId(p.id);
+                  }}
+                  placeholder="SKU / নাম / গ্রুপ…"
+                  showMeta={false}
+                  limit={12}
+                />
               </div>
               <Select
                 label="আইটেম *"

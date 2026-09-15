@@ -173,6 +173,7 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
                     <th>তারিখ</th>
                     <th>কাস্টমার</th>
                     <th>Items</th>
+                    <th>পেমেন্ট</th>
                     <th>মোট</th>
                     <th>Action</th>
                   </tr>
@@ -201,6 +202,17 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
                       </td>
                       <td className="px-3 py-2.5 font-mono">
                         {sale.items.length}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="rounded border border-[#dee2e6] bg-[#f8f9fa] px-1.5 py-0.5 text-[11px] font-medium">
+                          {sale.payment_method || 'Cash'}
+                        </span>
+                        {sale.paid_amount != null &&
+                        sale.paid_amount !== sale.total_amount ? (
+                          <div className="mt-0.5 font-mono text-[11px] text-[#6c757d]">
+                            recv {formatMoney(sale.paid_amount)}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="px-3 py-2.5 font-mono font-semibold text-[#15803d]">
                         {formatMoney(sale.total_amount)}

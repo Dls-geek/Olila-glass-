@@ -26,6 +26,8 @@ export interface Sale {
   discount?: number;
   customer_name?: string;
   customer_phone?: string;
+  payment_method?: string;
+  paid_amount?: number;
   items: SaleItem[];
 }
 

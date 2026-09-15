@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
+import type { Product } from '../../types';
 import { Button } from './Button';
+import { ProductSearchBox } from './ProductSearchBox';
 import { cn } from '../../utils/cn';
 
 export function StatTile({
@@ -133,6 +135,7 @@ export function TableToolbar({
   onSearch,
   searchPlaceholder = 'Search…',
   filters,
+  suggestProducts,
 }: {
   pageSize: number;
   onPageSize: (n: number) => void;
@@ -141,6 +144,8 @@ export function TableToolbar({
   onSearch: (v: string) => void;
   searchPlaceholder?: string;
   filters?: ReactNode;
+  /** When set, search shows SKU/name suggestions from the catalog. */
+  suggestProducts?: Product[];
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef1f4] px-4 py-2.5">
@@ -164,15 +169,29 @@ export function TableToolbar({
       </div>
       <label className="flex items-center gap-2 text-[13px] text-[#495057]">
         Search:
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6c757d]" />
-          <input
+        {suggestProducts ? (
+          <ProductSearchBox
+            products={suggestProducts}
             value={search}
-            onChange={(e) => onSearch(e.target.value)}
+            onChange={onSearch}
             placeholder={searchPlaceholder}
-            className="h-8 w-48 rounded-md border border-[#ced4da] bg-white pl-7 pr-2 text-[13px] outline-none focus:border-[#00a65a] sm:w-60"
+            className="w-56 sm:w-72"
+            inputClassName="h-8 pl-8 text-[13px]"
+            showMeta={false}
+            limit={10}
+            aria-label="Search name or SKU"
           />
-        </div>
+        ) : (
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6c757d]" />
+            <input
+              value={search}
+              onChange={(e) => onSearch(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="h-8 w-48 rounded-md border border-[#ced4da] bg-white pl-7 pr-2 text-[13px] outline-none focus:border-[#00a65a] sm:w-60"
+            />
+          </div>
+        )}
       </label>
     </div>
   );

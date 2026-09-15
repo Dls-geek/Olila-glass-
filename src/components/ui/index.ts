@@ -7,6 +7,7 @@ export { Modal } from './Modal';
 export { StatCard } from './StatCard';
 export { ToastProvider, useToast } from './Toast';
 export { ConfirmDialog } from './ConfirmDialog';
+export { ProductSearchBox } from './ProductSearchBox';
 export {
   StatTile,
   ModuleHeader,

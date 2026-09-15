@@ -124,7 +124,11 @@ interface AppContextType extends AppState {
   completeSale: (
     customerName?: string,
     customerPhone?: string,
-    options?: { discount?: number }
+    options?: {
+      discount?: number;
+      paymentMethod?: string;
+      paidAmount?: number;
+    }
   ) => Promise<Sale | null>;
   adjustStock: (
     productId: string,
@@ -210,6 +214,8 @@ function mapSale(
     discount?: number | string | null;
     customer_name?: string | null;
     customer_phone?: string | null;
+    payment_method?: string | null;
+    paid_amount?: number | string | null;
   },
   items: SaleItem[]
 ): Sale {
@@ -220,6 +226,9 @@ function mapSale(
     discount: row.discount != null ? Number(row.discount) : undefined,
     customer_name: row.customer_name ?? undefined,
     customer_phone: row.customer_phone ?? undefined,
+    payment_method: row.payment_method ?? undefined,
+    paid_amount:
+      row.paid_amount != null ? Number(row.paid_amount) : undefined,
     items,
   };
 }
@@ -482,7 +491,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const completeSale = async (
     customerName?: string,
     customerPhone?: string,
-    options?: { discount?: number }
+    options?: {
+      discount?: number;
+      paymentMethod?: string;
+      paidAmount?: number;
+    }
   ): Promise<Sale | null> => {
     if (state.cart.length === 0) return null;
 
@@ -505,6 +518,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       p_customer_phone: customerPhone ?? null,
       p_discount: options?.discount ?? 0,
       p_items: items,
+      p_payment_method: options?.paymentMethod ?? 'Cash',
+      p_paid_amount:
+        options?.paidAmount != null && Number.isFinite(options.paidAmount)
+          ? options.paidAmount
+          : null,
     });
 
     if (error) {
@@ -519,6 +537,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discount?: number;
       customer_name?: string | null;
       customer_phone?: string | null;
+      payment_method?: string | null;
+      paid_amount?: number | null;
       items: SaleItem[];
     };
 

@@ -279,6 +279,7 @@ export function InventoryPage() {
                 setPage(1);
               }}
               searchPlaceholder="Name, SKU, group…"
+              suggestProducts={products}
               filters={
                 <select
                   value={filterStatus}

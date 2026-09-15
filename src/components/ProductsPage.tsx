@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Download, Plus } from 'lucide-react';
 import type { Product } from '../types';
 import { formatMoney } from '../utils/money';
+import { productPatternUrl } from '../utils/productPattern';
 import {
   Button,
   ConfirmDialog,
@@ -19,8 +20,7 @@ import {
   useToast,
 } from './ui';
 
-const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200';
+const DEFAULT_IMAGE = productPatternUrl('new');
 
 const CATEGORY_OPTIONS = [
   'Plates',
@@ -426,6 +426,7 @@ export function ProductsPage({
             setPage(1);
           }}
           searchPlaceholder="Name, SKU, group…"
+          suggestProducts={products}
         />
 
         {paged.length === 0 ? (

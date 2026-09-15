@@ -4,7 +4,6 @@ import { formatMoney } from '../utils/money';
 import { printReceipt } from '../utils/printReceipt';
 import { ReceiptSlip } from './ReceiptSlip';
 import {
-  Search,
   Plus,
   Minus,
   Trash2,
@@ -15,7 +14,7 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 import type { Product, Sale } from '../types';
-import { Button, ConfirmDialog, Input, Modal, Select, useToast } from './ui';
+import { Button, ConfirmDialog, Input, Modal, ProductSearchBox, Select, useToast } from './ui';
 
 interface BillingPageProps {
   onBack?: () => void;
@@ -40,6 +39,7 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
   const [customerName, setCustomerName] = useState('Walk-in');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [posTab, setPosTab] = useState<PosTab>('new');
   const [showPay, setShowPay] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -47,7 +47,6 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
   const [discount, setDiscount] = useState(0);
   const [paidAmount, setPaidAmount] = useState('');
   const [paymentType, setPaymentType] = useState('Cash');
-  const [lastPaymentNote, setLastPaymentNote] = useState('Cash');
   const [checkingOut, setCheckingOut] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
@@ -97,17 +96,33 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
   };
 
   const handleCheckout = async () => {
+    const paid = Number(paidAmount);
+    if (!Number.isFinite(paid) || paid < 0) {
+      toast.warning('Enter a valid amount received.');
+      return;
+    }
+    if (paid + 0.001 < total) {
+      toast.warning(
+        `Amount received (${formatMoney(paid)}) is less than payable (${formatMoney(total)}).`
+      );
+      return;
+    }
     setCheckingOut(true);
-    const sale = await completeSale(customerName, undefined, { discount });
+    const sale = await completeSale(customerName, customerPhone.trim() || undefined, {
+      discount,
+      paymentMethod: paymentType,
+      paidAmount: paid,
+    });
     setCheckingOut(false);
     if (sale) {
       setLastSale(sale);
-      setLastPaymentNote(paymentType);
       setShowPay(false);
       setShowSuccess(true);
       setCustomerName('Walk-in');
+      setCustomerPhone('');
       setDiscount(0);
       setPaymentType('Cash');
+      setPaidAmount('');
       toast.success('Sale completed.');
     }
   };
@@ -235,16 +250,20 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
           </div>
 
           <div className="min-w-0 flex-1 overflow-auto p-2">
-            <div className="relative mb-2">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6c757d]" />
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search name, SKU, group…"
-                className="h-9 w-full rounded-[4px] border border-[#ced4da] bg-white pl-8 pr-2 text-[13px]"
-                aria-label="Search products"
-              />
-            </div>
+            <ProductSearchBox
+              products={products}
+              value={searchTerm}
+              onChange={setSearchTerm}
+              onPick={(p) => {
+                setSearchTerm(p.sku || p.id);
+                if (p.stock > 0) handleAddToCart(p);
+                else toast.warning(`${p.name} is out of stock.`);
+              }}
+              placeholder="SKU বা নাম লিখুন… · Search name / SKU"
+              className="mb-2"
+              limit={15}
+              showMeta
+            />
             {filteredProducts.length === 0 ? (
               <p className="p-8 text-center text-[13px] text-[#6c757d]">
                 No products match. Try another category or search.
@@ -261,7 +280,7 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
                     <img
                       src={product.image_url}
                       alt=""
-                      className="h-28 w-full object-cover"
+                      className="h-14 w-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           'data:image/svg+xml,' +
@@ -271,18 +290,20 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
                       }}
                     />
                     <div className="px-2 py-1.5">
-                      <p className="truncate text-center text-[12px] font-medium">
+                      <p className="line-clamp-2 text-center text-[13px] font-extrabold leading-snug text-[#1a365d]">
                         {product.name}
                       </p>
-                      <p className="mt-0.5 flex justify-between text-[11px] text-[#6c757d]">
-                        <span>{formatMoney(product.selling_price)}</span>
+                      <p className="mt-0.5 flex justify-between text-[12px] font-bold text-[#343a40]">
+                        <span className="text-[#15803d]">
+                          {formatMoney(product.selling_price)}
+                        </span>
                         <span
                           className={
                             product.stock === 0
                               ? 'text-[#dc3545]'
                               : product.stock <= product.low_stock_alert
                                 ? 'text-[#fd7e14]'
-                                : ''
+                                : 'text-[#1a365d]'
                           }
                         >
                           {product.stock === 0 ? 'Out' : `Qty ${product.stock}`}
@@ -296,25 +317,52 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
           </div>
 
           <div className="flex max-h-[45vh] w-full shrink-0 flex-col border-t border-[#dee2e6] bg-white lg:max-h-none lg:w-[400px] lg:border-l lg:border-t-0">
-            <div className="flex items-center gap-1 border-b border-[#dee2e6] p-2 text-[13px]">
-              <UserIcon className="h-4 w-4 shrink-0" />
-              <select
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="h-8 flex-1 rounded-[4px] border border-[#ced4da] px-2"
-                aria-label="Customer"
-              >
-                <option>Walk-in</option>
-                <option>Regular customer</option>
-              </select>
+            <div className="flex flex-col gap-1 border-b border-[#dee2e6] p-2 text-[13px]">
+              <div className="flex items-center gap-1">
+                <UserIcon className="h-4 w-4 shrink-0" />
+                <select
+                  value={
+                    customerName === 'Walk-in' ||
+                    customerName === 'Regular customer'
+                      ? customerName
+                      : 'custom'
+                  }
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      setCustomerName('');
+                    } else {
+                      setCustomerName(e.target.value);
+                    }
+                  }}
+                  className="h-8 w-[140px] shrink-0 rounded-[4px] border border-[#ced4da] px-2"
+                  aria-label="Customer type"
+                >
+                  <option value="Walk-in">Walk-in</option>
+                  <option value="Regular customer">Regular</option>
+                  <option value="custom">Named…</option>
+                </select>
+                <input
+                  className="h-8 min-w-0 flex-1 rounded-[4px] border border-[#ced4da] px-2"
+                  placeholder="Name (optional)"
+                  value={
+                    customerName === 'Walk-in' ||
+                    customerName === 'Regular customer'
+                      ? ''
+                      : customerName
+                  }
+                  onChange={(e) =>
+                    setCustomerName(e.target.value || 'Walk-in')
+                  }
+                  aria-label="Customer name"
+                />
+              </div>
               <input
-                className="h-8 flex-1 rounded-[4px] border border-[#ced4da] px-2"
-                placeholder="Name (optional)"
-                value={customerName === 'Walk-in' || customerName === 'Regular customer' ? '' : customerName}
-                onChange={(e) =>
-                  setCustomerName(e.target.value || 'Walk-in')
-                }
-                aria-label="Customer name"
+                className="h-8 w-full rounded-[4px] border border-[#ced4da] px-2"
+                placeholder="Phone (optional) · ফোন"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                inputMode="tel"
+                aria-label="Customer phone"
               />
             </div>
 
@@ -485,13 +533,25 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
               >
                 <option>Cash</option>
                 <option>bKash</option>
+                <option>Nagad</option>
                 <option>Card</option>
+                <option>Bank</option>
               </Select>
               <Input
-                label="Amount received"
+                label="Amount received *"
+                type="number"
+                min={0}
                 value={paidAmount}
                 onChange={(e) => setPaidAmount(e.target.value)}
               />
+              {Number.isFinite(Number(paidAmount)) && Number(paidAmount) >= total ? (
+                <p className="rounded border border-[#d8e5dc] bg-white px-2 py-1.5 text-[12px] text-[#0b3d2e]">
+                  Change · ফেরত:{' '}
+                  <strong>
+                    {formatMoney(Math.max(0, Number(paidAmount) - total))}
+                  </strong>
+                </p>
+              ) : null}
             </div>
           </div>
           <div className="flex justify-center gap-3">
@@ -500,7 +560,7 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
             </Button>
             <Button
               variant="success"
-              onClick={handleCheckout}
+              onClick={() => void handleCheckout()}
               disabled={checkingOut}
             >
               {checkingOut ? 'Saving…' : 'Complete sale'}
@@ -517,9 +577,7 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
         subtitle="Your Olila Glass slip is ready"
       >
         <div className="og-slip-canvas">
-          {lastSale && (
-            <ReceiptSlip sale={lastSale} paymentNote={lastPaymentNote} />
-          )}
+          {lastSale && <ReceiptSlip sale={lastSale} />}
         </div>
         <div className="flex flex-wrap justify-center gap-2 border-t border-[#dee2e6] bg-white p-3">
           <Button variant="success" onClick={handlePrintInvoice}>
