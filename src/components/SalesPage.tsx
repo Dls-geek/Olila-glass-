@@ -21,11 +21,21 @@ interface SalesPageProps {
   onNewSale?: () => void;
 }
 
+function todayYmd() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export function SalesPage({ onNewSale }: SalesPageProps) {
   const { sales } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-  const [dateFilter, setDateFilter] = useState('');
+  const today = todayYmd();
+  const [fromDate, setFromDate] = useState(today);
+  const [toDate, setToDate] = useState(today);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
@@ -35,8 +45,9 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
       sale.customer_name?.toLowerCase().includes(q) ||
       sale.id.toLowerCase().includes(q) ||
       (sale.customer_phone || '').includes(q);
-    const matchesDate = !dateFilter || sale.date === dateFilter;
-    return matchesSearch && matchesDate;
+    const matchesFrom = !fromDate || sale.date >= fromDate;
+    const matchesTo = !toDate || sale.date <= toDate;
+    return matchesSearch && matchesFrom && matchesTo;
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredSales.length / pageSize));
@@ -52,8 +63,14 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
 
   const totalSales = sales.reduce((sum, s) => sum + s.total_amount, 0);
   const todaySales = sales
-    .filter((s) => s.date === new Date().toISOString().split('T')[0])
+    .filter((s) => s.date === today)
     .reduce((sum, s) => sum + s.total_amount, 0);
+
+  const resetDates = () => {
+    setFromDate(today);
+    setToDate(today);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-3">
@@ -108,23 +125,41 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
           searchPlaceholder="Invoice / কাস্টমার…"
           filters={
             <>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => {
-                  setDateFilter(e.target.value);
-                  setPage(1);
-                }}
-                className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
-                aria-label="Filter by date"
-              />
-              {dateFilter ? (
+              <label className="flex items-center gap-1.5 text-[13px] text-[#495057]">
+                <span className="font-medium">From</span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  max={toDate || undefined}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
+                  aria-label="From date"
+                />
+              </label>
+              <label className="flex items-center gap-1.5 text-[13px] text-[#495057]">
+                <span className="font-medium">To</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
+                  aria-label="To date"
+                />
+              </label>
+              {fromDate !== today || toDate !== today ? (
                 <button
                   type="button"
                   className="text-[13px] text-[#007bff]"
-                  onClick={() => setDateFilter('')}
+                  onClick={resetDates}
                 >
-                  Clear date
+                  আজ · Today
                 </button>
               ) : null}
             </>
@@ -156,7 +191,7 @@ export function SalesPage({ onNewSale }: SalesPageProps) {
               variant="secondary"
               onClick={() => {
                 setSearchTerm('');
-                setDateFilter('');
+                resetDates();
               }}
             >
               ফিল্টার মুছুন

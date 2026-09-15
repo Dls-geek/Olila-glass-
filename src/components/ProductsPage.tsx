@@ -1,10 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Download, Plus } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, Plus, Upload } from 'lucide-react';
 import type { Product } from '../types';
 import { formatMoney } from '../utils/money';
 import { productPatternUrl } from '../utils/productPattern';
 import { PRODUCT_CATEGORIES } from '../utils/categorizeProduct';
+import {
+  parseCatalogCsv,
+  parseCatalogMatrix,
+  type CatalogDraft,
+} from '../utils/parseProductCatalog';
+import * as XLSX from 'xlsx';
 import {
   Button,
   ConfirmDialog,
@@ -39,6 +45,9 @@ const emptyForm = {
   sku: '',
 };
 
+const CATALOG_TEMPLATE =
+  'Name,Group,Category,SKU,Cost,Selling,Stock\n"Sample Bowl","Supreme","Bowls","SKU-001",80,120,0\n';
+
 export function ProductsPage({
   mode = 'list',
   onAdd,
@@ -60,6 +69,13 @@ export function ProductsPage({
   const [customCategory, setCustomCategory] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const csvRef = useRef<HTMLInputElement>(null);
+  const xlsRef = useRef<HTMLInputElement>(null);
+  const pdfRef = useRef<HTMLInputElement>(null);
+  const [importRows, setImportRows] = useState<CatalogDraft[]>([]);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [importFileName, setImportFileName] = useState('');
+  const [importing, setImporting] = useState(false);
 
   const categories = useMemo(
     () => ['all', ...Array.from(new Set(products.map((p) => p.category))).sort()],
@@ -196,6 +212,114 @@ export function ProductsPage({
     toast.success('Export downloaded.');
   };
 
+  const applyImportParse = (
+    result: { rows: CatalogDraft[]; errors: string[] },
+    fileName: string
+  ) => {
+    setImportFileName(fileName);
+    setImportRows(result.rows);
+    setImportErrors(result.errors);
+    if (result.rows.length === 0) {
+      toast.warning(result.errors[0] || 'No valid product rows found.');
+      return;
+    }
+    toast.success(`${result.rows.length} row(s) ready to import.`);
+  };
+
+  const onPickCsv = async (file: File) => {
+    const text = await file.text();
+    applyImportParse(parseCatalogCsv(text), file.name);
+  };
+
+  const onPickExcel = async (file: File) => {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    if (!sheet) {
+      toast.error('Excel sheet is empty.');
+      return;
+    }
+    const matrix = XLSX.utils.sheet_to_json<string[]>(sheet, {
+      header: 1,
+      defval: '',
+      raw: false,
+    }) as string[][];
+    applyImportParse(parseCatalogMatrix(matrix), file.name);
+  };
+
+  const onPickPdf = () => {
+    toast.info(
+      'PDF table auto-import নেই। CSV বা Excel (.xlsx) ব্যবহার করুন।'
+    );
+    if (pdfRef.current) pdfRef.current.value = '';
+  };
+
+  const clearImport = () => {
+    setImportRows([]);
+    setImportErrors([]);
+    setImportFileName('');
+    if (csvRef.current) csvRef.current.value = '';
+    if (xlsRef.current) xlsRef.current.value = '';
+    if (pdfRef.current) pdfRef.current.value = '';
+  };
+
+  const runCatalogImport = async () => {
+    if (importRows.length === 0) return;
+    setImporting(true);
+    const existingSku = new Set(
+      products.map((p) => (p.sku || p.id).toLowerCase()).filter(Boolean)
+    );
+    let added = 0;
+    let skipped = 0;
+    try {
+      for (const row of importRows) {
+        const skuKey = (row.sku || '').toLowerCase();
+        if (skuKey && existingSku.has(skuKey)) {
+          skipped += 1;
+          continue;
+        }
+        await addProduct({
+          name: row.name,
+          category: row.category,
+          group: row.group,
+          purchase_price: row.purchase_price,
+          selling_price: row.selling_price,
+          stock: row.stock,
+          low_stock_alert: 5,
+          image_url: DEFAULT_IMAGE,
+          sku: row.sku || undefined,
+        });
+        if (skuKey) existingSku.add(skuKey);
+        added += 1;
+      }
+      if (added > 0) {
+        toast.success(
+          `${added} product(s) added${skipped ? `, ${skipped} skipped (SKU exists)` : ''}.`
+        );
+        clearImport();
+        onList?.();
+      } else {
+        toast.warning(
+          skipped
+            ? 'All rows skipped — SKUs already exist.'
+            : 'Nothing imported.'
+        );
+      }
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const blob = new Blob([CATALOG_TEMPLATE], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'olila-catalog-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, filteredProducts.length);
 
@@ -325,6 +449,151 @@ export function ProductsPage({
                 তালিকা
               </Button>
             </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="বাল্ক আপলোড · CSV / Excel / PDF"
+          subtitle="Columns: Name, Group, Category, SKU, Cost, Selling, Stock"
+          accent="navy"
+        >
+          <div className="space-y-4 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[13px] text-[#6c757d]">
+                একসাথে অনেক পণ্য যোগ করতে ফাইল আপলোড করুন। PDF থেকে অটো-ইমপোর্ট নেই —
+                CSV বা Excel দিন।
+              </p>
+              <Button size="sm" variant="secondary" onClick={downloadTemplate}>
+                <Download className="h-3.5 w-3.5" />
+                Template CSV
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => csvRef.current?.click()}
+                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#28a745]/40 bg-[#f4fbf7] px-4 py-6 text-center transition hover:border-[#28a745] hover:bg-[#e8f5ec]"
+              >
+                <FileText className="h-8 w-8 text-[#28a745]" />
+                <span className="text-sm font-bold text-[#1a365d]">CSV</span>
+                <span className="text-[12px] text-[#6c757d]">.csv আপলোড</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => xlsRef.current?.click()}
+                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#1a365d]/30 bg-[#eef2f7] px-4 py-6 text-center transition hover:border-[#1a365d] hover:bg-[#e2e8f0]"
+              >
+                <FileSpreadsheet className="h-8 w-8 text-[#1a365d]" />
+                <span className="text-sm font-bold text-[#1a365d]">Excel</span>
+                <span className="text-[12px] text-[#6c757d]">.xlsx / .xls</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => pdfRef.current?.click()}
+                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[#dc3545]/30 bg-[#fdecee] px-4 py-6 text-center transition hover:border-[#dc3545] hover:bg-[#f8d7da]"
+              >
+                <Upload className="h-8 w-8 text-[#dc3545]" />
+                <span className="text-sm font-bold text-[#1a365d]">PDF</span>
+                <span className="text-[12px] text-[#6c757d]">.pdf (ম্যানুয়াল)</span>
+              </button>
+            </div>
+
+            <input
+              ref={csvRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void onPickCsv(f);
+              }}
+            />
+            <input
+              ref={xlsRef}
+              type="file"
+              accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void onPickExcel(f);
+              }}
+            />
+            <input
+              ref={pdfRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              className="hidden"
+              onChange={() => onPickPdf()}
+            />
+
+            {importRows.length > 0 && (
+              <div className="space-y-3 rounded-xl border border-[#dee2e6] bg-white p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[13px] font-semibold text-[#1a365d]">
+                    Preview · {importFileName} ({importRows.length} rows)
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={clearImport}
+                      disabled={importing}
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => void runCatalogImport()}
+                      disabled={importing}
+                    >
+                      {importing
+                        ? 'Importing…'
+                        : `Import ${importRows.length} · ইমপোর্ট`}
+                    </Button>
+                  </div>
+                </div>
+                {importErrors.length > 0 && (
+                  <p className="text-[12px] text-[#b35900]">
+                    {importErrors.slice(0, 3).join(' · ')}
+                    {importErrors.length > 3
+                      ? ` (+${importErrors.length - 3} more)`
+                      : ''}
+                  </p>
+                )}
+                <div className="max-h-56 overflow-auto">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="bg-[#f1f5f9] text-left text-[#1a365d]">
+                        <th className="px-2 py-1.5">Name</th>
+                        <th className="px-2 py-1.5">Group</th>
+                        <th className="px-2 py-1.5">SKU</th>
+                        <th className="px-2 py-1.5">Selling</th>
+                        <th className="px-2 py-1.5">Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {importRows.slice(0, 40).map((r) => (
+                        <tr key={`${r.line}-${r.sku}-${r.name}`} className="border-t border-[#eef1f4]">
+                          <td className="px-2 py-1.5">{r.name}</td>
+                          <td className="px-2 py-1.5">{r.group}</td>
+                          <td className="px-2 py-1.5 font-mono">{r.sku || '—'}</td>
+                          <td className="px-2 py-1.5 font-mono">
+                            {formatMoney(r.selling_price)}
+                          </td>
+                          <td className="px-2 py-1.5 font-mono">{r.stock}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {importRows.length > 40 && (
+                    <p className="mt-1 text-[11px] text-[#6c757d]">
+                      Showing first 40 of {importRows.length}…
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </SectionCard>
       </div>

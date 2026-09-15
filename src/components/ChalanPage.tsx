@@ -16,7 +16,7 @@ import type { Chalan, Product } from '../types';
 import { formatMoney } from '../utils/money';
 import { Button, Input, Modal, Select, useToast } from './ui';
 
-type Tab = 'list' | 'new' | 'paona';
+type ChalanMode = 'list' | 'new' | 'paona';
 
 type DraftLine = {
   productId: string;
@@ -81,27 +81,70 @@ function StatusPill({ status }: { status: string }) {
 function StepHint({
   steps,
 }: {
-  steps: { n: number; title: string; done?: boolean; active?: boolean }[];
+  steps: {
+    n: number;
+    title: string;
+    done?: boolean;
+    active?: boolean;
+    tone?: 'green' | 'navy' | 'amber' | 'red' | 'slate';
+    onClick?: () => void;
+  }[];
 }) {
+  const tones = {
+    green: {
+      base: 'border-[#28a745] bg-[#28a745] text-white',
+      muted: 'border-[#a8d5b5] bg-[#e8f5ec] text-[#1e7e34]',
+      hover: 'hover:brightness-95',
+    },
+    navy: {
+      base: 'border-[#1a365d] bg-[#1a365d] text-white',
+      muted: 'border-[#b8c5d6] bg-[#eef2f7] text-[#1a365d]',
+      hover: 'hover:brightness-95',
+    },
+    amber: {
+      base: 'border-[#fd7e14] bg-[#fd7e14] text-white',
+      muted: 'border-[#f5c89a] bg-[#fff4e8] text-[#b35900]',
+      hover: 'hover:brightness-95',
+    },
+    red: {
+      base: 'border-[#dc3545] bg-[#dc3545] text-white',
+      muted: 'border-[#f0b8bd] bg-[#fdecee] text-[#b02a37]',
+      hover: 'hover:brightness-95',
+    },
+    slate: {
+      base: 'border-[#6c757d] bg-[#6c757d] text-white',
+      muted: 'border-[#dee2e6] bg-[#f8f9fa] text-[#6c757d]',
+      hover: 'hover:brightness-95',
+    },
+  } as const;
+
   return (
     <div className="flex flex-wrap gap-2">
-      {steps.map((s) => (
-        <div
-          key={s.n}
-          className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[12px] ${
-            s.done
-              ? 'border-[#28a745]/30 bg-[#28a745]/10 text-[#1e7e34]'
-              : s.active
-                ? 'border-[#00a65a]/40 bg-[#00a65a]/10 text-[#008d4c]'
-                : 'border-[#dee2e6] bg-[#f8f9fa] text-[#6c757d]'
-          }`}
-        >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[11px] font-bold">
-            {s.n}
-          </span>
-          {s.title}
-        </div>
-      ))}
+      {steps.map((s) => {
+        const tone = tones[s.tone ?? 'slate'];
+        const className = `rounded-lg border px-3 py-1.5 text-[12px] font-bold text-white transition-colors ${
+          tone.base
+        } ${s.active || s.done ? 'ring-2 ring-offset-1 ring-black/15' : 'opacity-90'} ${
+          s.onClick ? `cursor-pointer ${tone.hover}` : ''
+        }`;
+        if (s.onClick) {
+          return (
+            <button
+              key={s.n}
+              type="button"
+              onClick={s.onClick}
+              className={className}
+            >
+              {s.title}
+            </button>
+          );
+        }
+        return (
+          <div key={s.n} className={className}>
+            {s.title}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -111,7 +154,13 @@ function shortId(id: string) {
   return `${id.slice(0, 8)}…`;
 }
 
-export function ChalanPage() {
+export function ChalanPage({
+  mode = 'list',
+  onNavigate,
+}: {
+  mode?: ChalanMode;
+  onNavigate?: (page: string) => void;
+}) {
   const {
     products,
     listChalans,
@@ -125,7 +174,6 @@ export function ChalanPage() {
   const payFileRef = useRef<HTMLInputElement>(null);
   const recvFileRef = useRef<HTMLInputElement>(null);
 
-  const [tab, setTab] = useState<Tab>('list');
   const [chalans, setChalans] = useState<Chalan[]>([]);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<Chalan | null>(null);
@@ -347,7 +395,7 @@ export function ChalanPage() {
         setNotes('');
         setProductSearch('');
         setGroupFilter('all');
-        setTab('list');
+        onNavigate?.('chalan');
         await refresh();
         await openDetail(res.id);
       } else {
@@ -459,16 +507,6 @@ export function ChalanPage() {
     setRecvQty(next);
   };
 
-  const tabs: { id: Tab; label: string; hint: string }[] = [
-    { id: 'list', label: 'চালান তালিকা', hint: 'All orders' },
-    { id: 'new', label: 'নতুন চালান', hint: 'Create order' },
-    {
-      id: 'paona',
-      label: `পাওনা (${paonaRows.length})`,
-      hint: 'Not received yet',
-    },
-  ];
-
   const pageButtons = (current: number, total: number, set: (n: number) => void) => {
     const nums: number[] = [];
     const maxShow = Math.min(total, 5);
@@ -521,10 +559,6 @@ export function ChalanPage() {
                 <ClipboardList className="h-5 w-5 text-[#00a65a]" />
                 Chalan · চালান ও পাওনা
               </h1>
-              <p className="mt-1 max-w-2xl text-[13px] text-[#6c757d]">
-                ১) চালান বানান → ২) কোম্পানিকে টাকা দিন (লিংকড পেমেন্ট) → ৩) মাল
-                এলে রিসিভ → ৪) বাকিটা পাওনায়।
-              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -538,7 +572,7 @@ export function ChalanPage() {
                 />
                 Refresh
               </Button>
-              <Button size="sm" onClick={() => setTab('new')}>
+              <Button size="sm" onClick={() => onNavigate?.('chalanNew')}>
                 <Plus className="h-3.5 w-3.5" />
                 নতুন চালান
               </Button>
@@ -548,14 +582,41 @@ export function ChalanPage() {
           <div className="mt-3">
             <StepHint
               steps={[
-                { n: 1, title: 'চালান তৈরি', active: tab === 'new' },
-                { n: 2, title: 'পেমেন্ট লিংক', done: kpi.paid > 0 },
+                {
+                  n: 1,
+                  title: 'চালান তৈরি',
+                  tone: 'green',
+                  active: mode === 'new',
+                  onClick: () => onNavigate?.('chalanNew'),
+                },
+                {
+                  n: 2,
+                  title: 'পেমেন্ট লিংক',
+                  tone: 'navy',
+                  done: kpi.paid > 0,
+                  active: mode === 'list',
+                  onClick: () => {
+                    onNavigate?.('chalan');
+                    toast.info('একটা চালান খুলে পেমেন্ট লিংক করুন।');
+                  },
+                },
                 {
                   n: 3,
                   title: 'মাল রিসিভ',
+                  tone: 'amber',
                   done: chalans.some((c) => c.received_units > 0),
+                  onClick: () => {
+                    onNavigate?.('chalan');
+                    toast.info('একটা চালান খুলে মাল রিসিভ করুন।');
+                  },
                 },
-                { n: 4, title: 'পাওনা দেখুন', active: tab === 'paona' },
+                {
+                  n: 4,
+                  title: 'পাওনা দেখুন',
+                  tone: 'red',
+                  active: mode === 'paona',
+                  onClick: () => onNavigate?.('chalanPaona'),
+                },
               ]}
             />
           </div>
@@ -582,31 +643,9 @@ export function ChalanPage() {
             tone="green"
           />
         </div>
-
-        <div className="mx-3 mb-3 flex gap-1 rounded-xl border border-[#dee2e6] bg-[#eef1f4] p-1">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`flex min-w-0 flex-1 flex-col items-center rounded-lg px-3 py-2 text-center transition-colors ${
-                tab === t.id
-                  ? 'bg-white text-[#1a365d] shadow-sm ring-1 ring-[#dee2e6]'
-                  : 'text-[#6c757d] hover:bg-white/60 hover:text-[#343a40]'
-              }`}
-            >
-              <span className="text-sm font-semibold tracking-tight">
-                {t.label}
-              </span>
-              <span className="mt-0.5 text-[11px] font-normal text-[#6c757d]">
-                {t.hint}
-              </span>
-            </button>
-          ))}
-        </div>
       </div>
 
-      {tab === 'new' && (
+      {mode === 'new' && (
         <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#f8fafb] px-4 py-3">
             <div className="flex items-center gap-2">
@@ -621,7 +660,7 @@ export function ChalanPage() {
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="secondary" onClick={() => setTab('list')}>
+            <Button size="sm" variant="secondary" onClick={() => onNavigate?.('chalan')}>
               <List className="h-3.5 w-3.5" />
               তালিকা
             </Button>
@@ -842,7 +881,7 @@ export function ChalanPage() {
                 <Save className="h-4 w-4" />
                 {saving ? 'সেভ হচ্ছে…' : 'সেভ · চালান তৈরি'}
               </Button>
-              <Button variant="success" onClick={() => setTab('list')}>
+              <Button variant="success" onClick={() => onNavigate?.('chalan')}>
                 <List className="h-4 w-4" />
                 তালিকা
               </Button>
@@ -851,7 +890,7 @@ export function ChalanPage() {
         </div>
       )}
 
-      {tab === 'list' && (
+      {mode === 'list' && (
         <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#f8fafb] px-4 py-3">
             <div className="flex items-center gap-2">
@@ -865,7 +904,7 @@ export function ChalanPage() {
                 </p>
               </div>
             </div>
-            <Button size="sm" onClick={() => setTab('new')}>
+            <Button size="sm" onClick={() => onNavigate?.('chalanNew')}>
               <Plus className="h-3.5 w-3.5" />
               New
             </Button>
@@ -928,7 +967,7 @@ export function ChalanPage() {
               <p className="mt-1 text-[13px] text-[#6c757d]">
                 কোম্পানি থেকে অর্ডার করলে প্রথমে এখানে চালান বানান।
               </p>
-              <Button className="mt-4" onClick={() => setTab('new')}>
+              <Button className="mt-4" onClick={() => onNavigate?.('chalanNew')}>
                 <Plus className="h-4 w-4" />
                 প্রথম চালান তৈরি করুন
               </Button>
@@ -1059,7 +1098,7 @@ export function ChalanPage() {
         </div>
       )}
 
-      {tab === 'paona' && (
+      {mode === 'paona' && (
         <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#fff7ed] px-4 py-3">
             <div className="flex items-center gap-2">
@@ -1092,7 +1131,7 @@ export function ChalanPage() {
               <Button
                 className="mt-4"
                 variant="secondary"
-                onClick={() => setTab('list')}
+                onClick={() => onNavigate?.('chalan')}
               >
                 চালান তালিকায় যান
               </Button>
@@ -1240,19 +1279,39 @@ export function ChalanPage() {
 
             <StepHint
               steps={[
-                { n: 1, title: 'চালান', done: true },
+                {
+                  n: 1,
+                  title: 'চালান',
+                  tone: 'green',
+                  done: true,
+                  onClick: () => onNavigate?.('chalan'),
+                },
                 {
                   n: 2,
                   title: 'পেমেন্ট',
+                  tone: 'navy',
                   done: detail.paid_amount > 0,
                   active: showPay,
+                  onClick: () => {
+                    setShowRecv(false);
+                    setShowPay(true);
+                  },
                 },
                 {
                   n: 3,
                   title: 'রিসিভ',
+                  tone: 'amber',
                   done:
                     detail.received_units > 0 && detail.remaining_units === 0,
                   active: showRecv,
+                  onClick: () => {
+                    if (detail.remaining_units <= 0) {
+                      toast.info('সব মাল রিসিভ হয়ে গেছে।');
+                      return;
+                    }
+                    setShowPay(false);
+                    setShowRecv(true);
+                  },
                 },
               ]}
             />

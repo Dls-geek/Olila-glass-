@@ -14,13 +14,14 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  BarChart3,
+  Warehouse,
+  Truck,
   PieChart,
+  Wallet,
   ChevronRight,
   LogOut,
   Menu,
   UserCircle,
-  Trash2,
 } from 'lucide-react';
 
 type Page =
@@ -31,7 +32,12 @@ type Page =
   | 'sales'
   | 'billing'
   | 'breakage'
-  | 'chalan';
+  | 'chalan'
+  | 'chalanNew'
+  | 'chalanPaona'
+  | 'stockBulk'
+  | 'stockCsv'
+  | 'stockPurchase';
 
 const HASH_PAGES: Page[] = [
   'dashboard',
@@ -42,6 +48,11 @@ const HASH_PAGES: Page[] = [
   'billing',
   'breakage',
   'chalan',
+  'chalanNew',
+  'chalanPaona',
+  'stockBulk',
+  'stockCsv',
+  'stockPurchase',
 ];
 
 function pageFromHash(): Page {
@@ -61,15 +72,6 @@ type NavItem = {
 const parents: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, page: 'dashboard' },
   {
-    id: 'products',
-    label: 'Products',
-    icon: Package,
-    children: [
-      { label: 'Product List', page: 'products' },
-      { label: 'Add Product', page: 'addProduct' },
-    ],
-  },
-  {
     id: 'sales',
     label: 'Sales',
     icon: ShoppingCart,
@@ -79,15 +81,36 @@ const parents: NavItem[] = [
     ],
   },
   {
-    id: 'stock',
-    label: 'Stock',
-    icon: BarChart3,
+    id: 'catalog',
+    label: 'Catalog',
+    icon: Package,
     children: [
-      { label: 'Current Stock', page: 'inventory' },
-      { label: 'Chalan & পাওনা', page: 'chalan' },
+      { label: 'Product List', page: 'products' },
+      { label: 'Add Product', page: 'addProduct' },
     ],
   },
-  { id: 'breakage', label: 'Breakage', icon: Trash2, page: 'breakage' },
+  {
+    id: 'inventory',
+    label: 'Inventory',
+    icon: Warehouse,
+    children: [
+      { label: 'Current Stock', page: 'inventory' },
+      { label: 'Breakage', page: 'breakage' },
+    ],
+  },
+  {
+    id: 'purchase',
+    label: 'Purchase',
+    icon: Truck,
+    children: [
+      { label: 'Chalan List', page: 'chalan' },
+      { label: 'New Chalan', page: 'chalanNew' },
+      { label: 'পাওনা', page: 'chalanPaona' },
+      { label: 'Bulk Restock', page: 'stockBulk' },
+      { label: 'Import CSV', page: 'stockCsv' },
+      { label: 'Purchase + Receipt', page: 'stockPurchase' },
+    ],
+  },
   {
     id: 'report',
     label: 'Reports',
@@ -95,7 +118,15 @@ const parents: NavItem[] = [
     children: [
       { label: 'Sales Overview', page: 'dashboard' },
       { label: 'Sale Report', page: 'sales' },
+      { label: 'Top Selling', page: null },
+      { label: 'Profit & Loss', page: null },
     ],
+  },
+  {
+    id: 'expense',
+    label: 'Expense',
+    icon: Wallet,
+    children: [{ label: 'Expense List', page: null }],
   },
 ];
 
@@ -123,7 +154,12 @@ function MainApp() {
   const [page, setPage] = useState<Page>(() =>
     typeof window === 'undefined' ? 'dashboard' : pageFromHash()
   );
-  const [openMenus, setOpenMenus] = useState<string[]>(['products', 'sales']);
+  const [openMenus, setOpenMenus] = useState<string[]>([
+    'sales',
+    'catalog',
+    'inventory',
+    'purchase',
+  ]);
   const [mobileNav, setMobileNav] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
   const [posReturn, setPosReturn] = useState<Page>('dashboard');
@@ -199,6 +235,25 @@ function MainApp() {
     toast.success('Signed out.');
   };
 
+  const chalanMode =
+    page === 'chalanNew' ? 'new' : page === 'chalanPaona' ? 'paona' : 'list';
+  const showChalan =
+    page === 'chalan' || page === 'chalanNew' || page === 'chalanPaona';
+
+  const inventoryIntake =
+    page === 'stockBulk'
+      ? 'bulk'
+      : page === 'stockCsv'
+        ? 'csv'
+        : page === 'stockPurchase'
+          ? 'purchase'
+          : null;
+  const showInventory =
+    page === 'inventory' ||
+    page === 'stockBulk' ||
+    page === 'stockCsv' ||
+    page === 'stockPurchase';
+
   return (
     <div className="min-h-screen bg-[#ebeff2]">
       {mobileNav && (
@@ -237,6 +292,9 @@ function MainApp() {
           </button>
           <button className="as-quick bg-[#6f42c1]" onClick={() => go('products')}>
             Catalog
+          </button>
+          <button className="as-quick bg-[#17a2b8]" onClick={() => go('chalan')}>
+            Chalan
           </button>
           <button className="as-quick bg-[#00a65a]" onClick={() => go('billing')}>
             POS
@@ -349,8 +407,18 @@ function MainApp() {
           {page === 'addProduct' && (
             <ProductsPage mode="form" onList={() => go('products')} />
           )}
-          {page === 'inventory' && <InventoryPage />}
-          {page === 'chalan' && <ChalanPage />}
+          {showInventory && (
+            <InventoryPage
+              intake={inventoryIntake}
+              onNavigate={(p) => go(p as Page)}
+            />
+          )}
+          {showChalan && (
+            <ChalanPage
+              mode={chalanMode}
+              onNavigate={(p) => go(p as Page)}
+            />
+          )}
           {page === 'breakage' && (
             <BreakagePage onViewStock={() => go('inventory')} />
           )}

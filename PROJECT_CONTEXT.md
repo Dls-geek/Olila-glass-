@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-15 (pattern product images)
+Last updated: 2026-09-15 (add-product bulk import)
 
 ---
 
@@ -55,12 +55,17 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 | `products` | `#/products` | Product list |
 | `addProduct` | `#/addProduct` | Add product form |
 | `inventory` | `#/inventory` | Current stock |
+| `stockBulk` | `#/stockBulk` | Inventory + bulk restock modal |
+| `stockCsv` | `#/stockCsv` | Inventory + CSV import modal |
+| `stockPurchase` | `#/stockPurchase` | Inventory + purchase+receipt modal |
 | `sales` | `#/sales` | Sale list |
 | `billing` | `#/billing` | POS (full screen, no sidebar) |
 | `breakage` | `#/breakage` | Breakage |
-| `chalan` | `#/chalan` | Company chalan, linked payments, receive, পাওনা |
+| `chalan` | `#/chalan` | Chalan list |
+| `chalanNew` | `#/chalanNew` | New chalan |
+| `chalanPaona` | `#/chalanPaona` | পাওনা (outstanding qty) |
 
-Sidebar parents: Dashboard · Products · Sales · Stock (Current Stock, Chalan & পাওনা) · Breakage · Reports.
+Sidebar (domain parents): Dashboard · **Sales** (POS, Sale List) · **Catalog** (Product List, Add) · **Inventory** (Current Stock, Breakage) · **Purchase** (Chalan List/New/পাওনা, Bulk, CSV, Purchase+Receipt) · **Reports** (Overview, Sale Report, Top Selling/P&L coming soon) · **Expense** (coming soon).
 
 ### State
 
@@ -110,7 +115,7 @@ Generated from `olila master product list.xlsx` — **do not hand-edit row-by-ro
 | `low_stock_alert` | **5** |
 | `id` / `sku` | Excel `Item_Code` |
 | Prices | DP → `purchase_price`, MRP → `selling_price` |
-| Images | shared Unsplash placeholder |
+| Images | 25 local pattern PNGs in `public/product-patterns/` (placeholders) |
 
 Form helpers on Products page:
 
@@ -125,10 +130,10 @@ Form helpers on Products page:
 |--------|------|----------|
 | Login | `LoginPage.tsx` | Supabase `signInWithPassword`; fill helper for shop admin |
 | Dashboard | `Dashboard.tsx` | Bilingual header; catalog/sales/OOS/today tiles; charts; Open POS |
-| Products | `ProductsPage.tsx` | DeshiVoj list chrome (KPI, Show/Search/pager, dark thead); group/category filter; CRUD; CSV export |
+| Products | `ProductsPage.tsx` | DeshiVoj list chrome (KPI, Show/Search/pager, dark thead); group/category filter; CRUD; CSV export; Add page bulk CSV/Excel import (PDF tip only) |
 | POS | `BillingPage.tsx` | Cart, discount, payment method + amount received (stored), customer phone, print receipt, F2; bilingual tabs |
-| Inventory | `InventoryPage.tsx` | DeshiVoj stock list + KPIs; Bulk / CSV / Purchase+receipt; logs |
-| Chalan | `ChalanPage.tsx` | DeshiVoj-style: KPI + tabs; create form (group chips, recipe table, Save/List); list (Show/Search/status filter/pagination); পাওনা + receive CTA; detail pay/receive with toasts |
+| Inventory | `InventoryPage.tsx` | Current stock list; intake modes via hash (`stockBulk` / `stockCsv` / `stockPurchase`) open modals; logs |
+| Chalan | `ChalanPage.tsx` | Modes via hash (`chalan` / `chalanNew` / `chalanPaona`); StepHint buttons navigate / open pay·receive; create / list / পাওনা; pay + receive in detail |
 | Breakage | `BreakagePage.tsx` | Searchable SKU picker; KPIs; history table with Show/Search/pager |
 | Sales | `SalesPage.tsx` | DeshiVoj sale list (KPI, payment column, filters, pager); invoice modal + print |
 
@@ -195,7 +200,10 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-15 | Add Product: bulk catalog upload (CSV + Excel via `xlsx`, PDF tip); template download + preview/import; `parseProductCatalog`. |
+| 2026-09-15 | Chalan StepHint buttons clickable: navigate New/List/পাওনা; detail steps open pay/receive panels. |
 | 2026-09-15 | Derived product categories from names (`categorizeProductName`); updated `masterProducts`, Supabase, and Products filters (18 categories). |
+| 2026-09-15 | Scalable domain sidebar: Sales / Catalog / Inventory / Purchase / Reports / Expense; Chalan + stock-intake modes as hash routes (no in-page Chalan tabs). |
 | 2026-09-15 | Chalan & পাওনা: create order from catalog (DP rate), linked payments (separate), partial receive → stock, outstanding qty tab; RPCs `create_chalan` / `add_chalan_payment` / `receive_chalan`. |
 | 2026-09-15 | Chalan UI polish (DeshiVoj-inspired): bilingual header, KPI strip, numbered step hints, empty-state CTAs, product/list search, payment due prefill. |
 | 2026-09-15 | Chalan UI finished: Show/Search/pagination, status filter, group chips + recipe line table, Save/List CTAs, পাওনা receive actions, toast feedback, fill-all remaining receive. |

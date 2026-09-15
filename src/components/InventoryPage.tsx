@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Package, TrendingDown, TrendingUp, Upload } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { Product, PurchaseSource } from '../types';
@@ -28,7 +28,13 @@ const getStockStatus = (product: Product): Status => {
   return 'good';
 };
 
-export function InventoryPage() {
+export function InventoryPage({
+  intake = null,
+  onNavigate,
+}: {
+  intake?: IntakeMode;
+  onNavigate?: (page: string) => void;
+}) {
   const { products, inventoryLogs, adjustStock, recordPurchase, uploadPurchaseReceipt } =
     useApp();
   const toast = useToast();
@@ -112,12 +118,48 @@ export function InventoryPage() {
     setReceiptName('');
     setPurchaseLines([{ productId: '', qty: '' }]);
     if (receiptInputRef.current) receiptInputRef.current.value = '';
+    if (intake) onNavigate?.('inventory');
   };
 
   const openIntake = (mode: IntakeMode) => {
-    resetIntake();
-    setIntakeMode(mode);
+    if (mode === 'bulk') onNavigate?.('stockBulk');
+    else if (mode === 'csv') onNavigate?.('stockCsv');
+    else if (mode === 'purchase') onNavigate?.('stockPurchase');
+    else {
+      setIntakeMode(null);
+    }
+    if (!onNavigate && mode) {
+      setBulkScope('all');
+      setBulkQty('10');
+      setCsvText('');
+      setCsvPreview([]);
+      setSupplier('');
+      setNotes('');
+      setReceiptFile(null);
+      setReceiptName('');
+      setPurchaseLines([{ productId: '', qty: '' }]);
+      if (receiptInputRef.current) receiptInputRef.current.value = '';
+      setIntakeMode(mode);
+    }
   };
+
+  useEffect(() => {
+    if (intake === 'bulk' || intake === 'csv' || intake === 'purchase') {
+      setBulkScope('all');
+      setBulkQty('10');
+      setCsvText('');
+      setCsvPreview([]);
+      setSupplier('');
+      setNotes('');
+      setReceiptFile(null);
+      setReceiptName('');
+      setPurchaseLines([{ productId: '', qty: '' }]);
+      if (receiptInputRef.current) receiptInputRef.current.value = '';
+      setIntakeMode(intake);
+    } else {
+      setIntakeMode(null);
+    }
+  }, [intake]);
 
   const buildCsvPreview = (text: string) => {
     setCsvText(text);
