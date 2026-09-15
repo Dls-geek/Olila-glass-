@@ -1,0 +1,23 @@
+---
+description: Always follow and update PROJECT_CONTEXT.md for Olila Glass
+alwaysApply: true
+---
+
+# Project context (mandatory)
+
+Before non-trivial work on this repo, read [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) at the repo root.
+
+## You must
+
+1. Treat `PROJECT_CONTEXT.md` as the source of truth for product purpose, stack, pages, data model, catalog rules, and known gaps.
+2. Match conventions documented there (snake_case `Product` fields, `formatMoney`, in-memory `AppContext`, hash pages in `App.tsx`, `ui/` primitives).
+3. After you add/change a feature, architecture, type, catalog rule, or close a known gap: **update `PROJECT_CONTEXT.md` in the same change** — refresh the relevant section, tick or add gaps in §7, set **Last updated**, and append a one-line **Changelog** entry (date + what changed).
+4. Do not invent a backend, router library, or persistence layer unless the user asks.
+5. Do not hand-edit `src/data/masterProducts.ts` row-by-row; regenerate from the Excel mapping in §4 if the master list changes.
+6. Leave `Ref web desine/` untracked unless the user asks to commit it.
+
+## Quick anchors
+
+- Catalog: 604 SKUs, groups Supreme / Winner / Kleen, stock starts at 0
+- State: `AppContext` only — refresh loses data
+- Money: `formatMoney` → `৳…`
