@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import type { Product } from '../types';
-import { Card, CardHeader } from './ui';
+import { Button, Card, CardHeader, Input, Modal } from './ui';
 
 const currency = (n: number) => `৳${n.toLocaleString()}`;
 
@@ -15,11 +15,13 @@ const getStockStatus = (product: Product): Status => {
 };
 
 export function InventoryPage() {
-  const { products, inventoryLogs } = useApp();
+  const { products, inventoryLogs, adjustStock } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const [restockTarget, setRestockTarget] = useState<Product | null>(null);
+  const [restockQty, setRestockQty] = useState('10');
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -69,7 +71,10 @@ export function InventoryPage() {
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4 lg:col-span-2">
-          <h1 className="mb-3 text-[18px] font-semibold">Stock</h1>
+          <h1 className="mb-1 text-[18px] font-semibold">Stock</h1>
+          <p className="mb-3 text-[13px] text-[#6c757d]">
+            Track plates, cups, and bowls. Use Restock to add qty, or Breakage for chips.
+          </p>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[13px]">
               Show
@@ -122,9 +127,20 @@ export function InventoryPage() {
                   <th className="px-3 py-2 font-medium">Stock</th>
                   <th className="px-3 py-2 font-medium">Status</th>
                   <th className="px-3 py-2 font-medium">Price</th>
+                  <th className="px-3 py-2 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
+                {paged.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-3 py-10 text-center text-[#6c757d]"
+                    >
+                      No stock rows match this filter.
+                    </td>
+                  </tr>
+                ) : null}
                 {paged.map((product, idx) => {
                   const status = getStockStatus(product);
                   return (
@@ -134,7 +150,7 @@ export function InventoryPage() {
                         <div className="flex items-center gap-2">
                           <img
                             src={product.image_url}
-                            alt={product.name}
+                            alt=""
                             className="h-9 w-9 rounded object-cover"
                           />
                           <div>
@@ -165,6 +181,20 @@ export function InventoryPage() {
                         )}
                       </td>
                       <td className="px-3 py-2">{currency(product.selling_price)}</td>
+                      <td className="px-3 py-2">
+                        <button
+                          type="button"
+                          className="text-[12px] text-[#007bff]"
+                          onClick={() => {
+                            setRestockTarget(product);
+                            setRestockQty(
+                              String(Math.max(product.low_stock_alert, 5))
+                            );
+                          }}
+                        >
+                          Restock
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -211,7 +241,12 @@ export function InventoryPage() {
         <Card>
           <CardHeader title="Inventory Logs" />
           <div className="max-h-[28rem] space-y-1 overflow-y-auto p-3">
-            {inventoryLogs.slice(0, 15).map((log) => (
+            {inventoryLogs.length === 0 ? (
+              <p className="py-6 text-center text-[13px] text-[#6c757d]">
+                No inventory activity yet.
+              </p>
+            ) : (
+              inventoryLogs.slice(0, 15).map((log) => (
               <div
                 key={log.id}
                 className="flex items-center gap-2 border-b border-[#f1f3f5] py-2 text-[13px]"
@@ -223,7 +258,14 @@ export function InventoryPage() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate">{log.product_name}</p>
-                  <p className="text-[11px] text-[#6c757d]">{log.date}</p>
+                  <p className="text-[11px] text-[#6c757d]">
+                    {log.date} ·{' '}
+                    {log.change_type === 'add'
+                      ? 'Restock'
+                      : log.change_type === 'break'
+                        ? 'Breakage'
+                        : 'Sale'}
+                  </p>
                 </div>
                 <span
                   className={
@@ -234,10 +276,50 @@ export function InventoryPage() {
                   {log.quantity}
                 </span>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </Card>
       </div>
+
+      <Modal
+        open={restockTarget !== null}
+        onClose={() => setRestockTarget(null)}
+        title={restockTarget ? `Restock ${restockTarget.name}` : 'Restock'}
+        size="sm"
+      >
+        <div className="space-y-3 p-4">
+          <p className="text-[13px] text-[#6c757d]">
+            On hand now: {restockTarget?.stock ?? 0}
+          </p>
+          <Input
+            label="Quantity to add"
+            type="number"
+            min={1}
+            value={restockQty}
+            onChange={(e) => setRestockQty(e.target.value)}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setRestockTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="success"
+              onClick={() => {
+                if (!restockTarget) return;
+                const ok = adjustStock(
+                  restockTarget.id,
+                  Number(restockQty),
+                  'add'
+                );
+                if (ok) setRestockTarget(null);
+              }}
+            >
+              Add to stock
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

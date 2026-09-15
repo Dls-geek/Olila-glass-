@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider, useToast } from './components/ui';
 import { LoginPage } from './components/LoginPage';
@@ -7,30 +7,19 @@ import { BillingPage } from './components/BillingPage';
 import { ProductsPage } from './components/ProductsPage';
 import { InventoryPage } from './components/InventoryPage';
 import { SalesPage } from './components/SalesPage';
+import { BreakagePage } from './components/BreakagePage';
 import { cn } from './utils/cn';
 import {
   LayoutDashboard,
-  Utensils,
-  Trash2,
-  Truck,
-  Users,
-  ShoppingCart,
-  Archive,
   Package,
-  ShoppingBag,
+  ShoppingCart,
   BarChart3,
   PieChart,
-  Wallet,
-  Landmark,
-  UserCircle,
-  User,
-  Store,
-  MessageSquare,
-  Settings,
   ChevronRight,
   LogOut,
-  Bell,
   Menu,
+  UserCircle,
+  Trash2,
 } from 'lucide-react';
 
 type Page =
@@ -39,174 +28,85 @@ type Page =
   | 'addProduct'
   | 'inventory'
   | 'sales'
-  | 'billing';
+  | 'billing'
+  | 'breakage';
 
-const parents = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, page: 'dashboard' as Page },
-  {
-    id: 'food',
-    label: 'Food Manage',
-    icon: Utensils,
-    children: [
-      { label: 'Add Food', page: 'addProduct' as Page },
-      { label: 'Food List', page: 'products' as Page },
-      { label: 'Food Category', page: 'products' as Page },
-      { label: 'Table', page: null },
-      { label: 'Waiter', page: null },
-    ],
-  },
-  {
-    id: 'waste',
-    label: 'Food Waste',
-    icon: Trash2,
-    children: [
-      { label: 'Add Waste Food', page: null },
-      { label: 'Waste Food List', page: null },
-    ],
-  },
-  {
-    id: 'supplier',
-    label: 'Supplier',
-    icon: Truck,
-    children: [
-      { label: 'Supplier List', page: null },
-      { label: 'Due Received List', page: null },
-      { label: 'Due Payment List', page: null },
-    ],
-  },
-  {
-    id: 'customer',
-    label: 'Customer',
-    icon: Users,
-    children: [
-      { label: 'Customer List', page: null },
-      { label: 'Due Received List', page: null },
-      { label: 'Customer Group', page: null },
-      { label: 'Branches List', page: null },
-    ],
-  },
-  {
-    id: 'order',
-    label: 'Order',
-    icon: ShoppingCart,
-    children: [
-      { label: 'New Order', page: 'billing' as Page },
-      { label: 'Token List', page: null },
-      { label: 'Sale List', page: 'sales' as Page },
-    ],
-  },
-  {
-    id: 'trash',
-    label: 'Trash Box',
-    icon: Archive,
-    children: [
-      { label: 'Item Void List', page: null },
-      { label: 'Token Trash List', page: null },
-      { label: 'Sale Trash List', page: null },
-    ],
-  },
+const HASH_PAGES: Page[] = [
+  'dashboard',
+  'products',
+  'addProduct',
+  'inventory',
+  'sales',
+  'billing',
+  'breakage',
+];
+
+function pageFromHash(): Page {
+  const raw = window.location.hash.replace(/^#\/?/, '') as Page;
+  return HASH_PAGES.includes(raw) ? raw : 'dashboard';
+}
+
+type NavChild = { label: string; page: Page | null };
+type NavItem = {
+  id: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  page?: Page;
+  children?: NavChild[];
+};
+
+const parents: NavItem[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, page: 'dashboard' },
   {
     id: 'products',
     label: 'Products',
     icon: Package,
     children: [
-      { label: 'Product List', page: 'products' as Page },
-      { label: 'Add Product', page: 'addProduct' as Page },
-      { label: 'Unit', page: null },
-      { label: 'Categories', page: null },
+      { label: 'Product List', page: 'products' },
+      { label: 'Add Product', page: 'addProduct' },
     ],
   },
   {
-    id: 'purchase',
-    label: 'Purchase',
-    icon: ShoppingBag,
+    id: 'sales',
+    label: 'Sales',
+    icon: ShoppingCart,
     children: [
-      { label: 'Add Purchase', page: null },
-      { label: 'Manage Purchase', page: null },
+      { label: 'New Sale (POS)', page: 'billing' },
+      { label: 'Sale List', page: 'sales' },
     ],
   },
   {
     id: 'stock',
     label: 'Stock',
     icon: BarChart3,
-    children: [
-      { label: 'Current Stock', page: 'inventory' as Page },
-      { label: 'Stock Out', page: null },
-      { label: 'Stock Out List', page: null },
-      { label: 'Adjustment', page: null },
-    ],
+    children: [{ label: 'Current Stock', page: 'inventory' }],
   },
+  { id: 'breakage', label: 'Breakage', icon: Trash2, page: 'breakage' },
   {
     id: 'report',
-    label: 'Report',
+    label: 'Reports',
     icon: PieChart,
     children: [
-      { label: 'Profit / Loss Report', page: 'dashboard' as Page },
-      { label: 'Master Sales Report', page: 'sales' as Page },
-    ],
-  },
-  {
-    id: 'expense',
-    label: 'Expense',
-    icon: Wallet,
-    children: [
-      { label: 'Expense List', page: null },
-      { label: 'Expense Type', page: null },
-    ],
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    icon: Landmark,
-    children: [
-      { label: 'Account List', page: null },
-      { label: 'Balance Transfer', page: null },
-    ],
-  },
-  {
-    id: 'employee',
-    label: 'Employee',
-    icon: UserCircle,
-    children: [{ label: 'Employee List', page: null }],
-  },
-  {
-    id: 'user',
-    label: 'User',
-    icon: User,
-    children: [
-      { label: 'All User', page: null },
-      { label: 'Create User', page: null },
-    ],
-  },
-  {
-    id: 'ecom',
-    label: 'E-commerce',
-    icon: Store,
-    children: [{ label: 'E-commerce settings', page: null }],
-  },
-  {
-    id: 'message',
-    label: 'Message',
-    icon: MessageSquare,
-    children: [{ label: 'Send SMS', page: null }],
-  },
-  {
-    id: 'setting',
-    label: 'Setting',
-    icon: Settings,
-    children: [
-      { label: 'Business Settings', page: null },
-      { label: 'Print Settings', page: null },
+      { label: 'Sales Overview', page: 'dashboard' },
+      { label: 'Sale Report', page: 'sales' },
     ],
   },
 ];
 
 function Logo() {
   return (
-    <div className="flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-[#00a65a] bg-white text-center text-[10px] font-bold leading-[1.1] text-[#008d4c]">
-      অলিলা
-      <br />
-      গ্লাস
+    <div className="flex items-center gap-2">
+      <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[3px] border-[#00a65a] bg-white text-center text-[9px] font-bold leading-[1.1] text-[#008d4c]">
+        অলিলা
+        <br />
+        গ্লাস
+      </div>
+      <div className="hidden min-w-0 sm:block">
+        <p className="truncate text-[14px] font-bold leading-tight text-[#008d4c]">
+          Olila Glass
+        </p>
+        <p className="truncate text-[11px] text-[#98a6ad]">Tableware shop</p>
+      </div>
     </div>
   );
 }
@@ -214,29 +114,75 @@ function Logo() {
 function MainApp() {
   const { user, logout } = useApp();
   const toast = useToast();
-  const [page, setPage] = useState<Page>('dashboard');
-  const [openMenus, setOpenMenus] = useState<string[]>(['food']);
+  const [page, setPage] = useState<Page>(() =>
+    typeof window === 'undefined' ? 'dashboard' : pageFromHash()
+  );
+  const [openMenus, setOpenMenus] = useState<string[]>(['products', 'sales']);
   const [mobileNav, setMobileNav] = useState(false);
+  const [userMenu, setUserMenu] = useState(false);
+  const [posReturn, setPosReturn] = useState<Page>('dashboard');
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onHash = () => setPage(pageFromHash());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  useEffect(() => {
+    if (!userMenu) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!userMenuRef.current?.contains(e.target as Node)) setUserMenu(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setUserMenu(false);
+        setMobileNav(false);
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [userMenu]);
+
+  const go = (next: Page | null) => {
+    if (!next) {
+      toast.info('Coming soon.');
+      return;
+    }
+    if (next === 'billing' && page !== 'billing') {
+      setPosReturn(page);
+    }
+    setPage(next);
+    window.location.hash = '/' + next;
+    setMobileNav(false);
+    setUserMenu(false);
+  };
 
   if (!user) return <LoginPage />;
 
   if (page === 'billing') {
-    return <BillingPage onBack={() => setPage('dashboard')} />;
+    return (
+      <BillingPage
+        onBack={() => go(posReturn === 'billing' ? 'dashboard' : posReturn)}
+        onViewSales={() => go('sales')}
+      />
+    );
   }
-
-  const go = (next: Page | null) => {
-    if (!next) {
-      toast.info('This menu matches the original layout (coming soon).');
-      return;
-    }
-    setPage(next);
-    setMobileNav(false);
-  };
 
   const toggle = (id: string) => {
     setOpenMenus((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
+
+  const handleLogout = () => {
+    setUserMenu(false);
+    logout();
+    toast.success('Signed out.');
   };
 
   return (
@@ -249,22 +195,22 @@ function MainApp() {
       )}
 
       <header className="as-topbar">
-        <div className="as-topbar-left">
+        <div className="as-topbar-left !justify-start gap-2 px-3">
           <button
             className="p-2 lg:hidden"
             onClick={() => setMobileNav(true)}
-            aria-label="Menu"
+            aria-label="Open menu"
           >
             <Menu className="h-6 w-6" />
           </button>
           <Logo />
         </div>
         <div className="as-topbar-right overflow-x-auto">
-          <span className="hidden text-[13px] text-black sm:inline">
+          <span className="hidden text-[13px] text-black md:inline">
             Quick Links :
           </span>
           <button className="as-quick bg-[#00a65a]" onClick={() => go('dashboard')}>
-            Expense
+            Dashboard
           </button>
           <button className="as-quick bg-[#20c997]" onClick={() => go('sales')}>
             Sale List
@@ -276,24 +222,44 @@ function MainApp() {
             Stock
           </button>
           <button className="as-quick bg-[#6f42c1]" onClick={() => go('products')}>
-            Kitchen
-          </button>
-          <button className="as-quick bg-[#007bff]" onClick={() => go('dashboard')}>
-            Today's Summary
+            Catalog
           </button>
           <button className="as-quick bg-[#00a65a]" onClick={() => go('billing')}>
-            Order
+            POS
           </button>
-          <div className="ml-2 flex items-center gap-2 border-l border-[#eee] pl-3">
-            <Bell className="h-5 w-5 text-[#435966]" />
-            <button
-              onClick={logout}
-              className="flex items-center gap-1 text-[13px] text-[#435966]"
+        </div>
+        <div className="as-user relative" ref={userMenuRef}>
+          <button
+            type="button"
+            onClick={() => setUserMenu((open) => !open)}
+            className="flex items-center gap-2"
+            aria-expanded={userMenu}
+            aria-haspopup="menu"
+            aria-label="Account menu"
+          >
+            <UserCircle className="h-8 w-8 shrink-0 text-[#98a6ad]" />
+            <span className="as-user-lines">
+              <strong>{user.name}</strong>
+              <span>{user.role === 'admin' ? 'Admin' : 'Staff'}</span>
+              <span>Olila Glass</span>
+            </span>
+          </button>
+          {userMenu && (
+            <div
+              role="menu"
+              className="absolute right-2 top-full z-50 min-w-[150px] border border-[#eee] bg-white py-1 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
             >
-              <LogOut className="h-4 w-4" />
-              {user.name}
-            </button>
-          </div>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-[#435966] hover:bg-[#e9f7f0]"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -305,31 +271,31 @@ function MainApp() {
           )}
           style={{ minHeight: 'calc(100vh - 77px)' }}
         >
-          <nav className="pb-8" id="sidebar-menu">
+          <nav className="pb-8" id="sidebar-menu" aria-label="Main">
             {parents.map((item) => {
               const Icon = item.icon;
               const opened = openMenus.includes(item.id);
-              const isDash = item.id === 'dashboard';
+              const isLeaf = Boolean(item.page) && !item.children;
               const activeParent =
-                isDash && page === 'dashboard'
-                  ? true
-                  : item.children?.some((c) => c.page === page);
+                item.page === page ||
+                item.children?.some((c) => c.page === page);
               return (
                 <div key={item.id}>
                   <button
                     className={cn(
                       'as-nav',
-                      isDash && page === 'dashboard' && 'active',
-                      opened && !isDash && 'subdrop'
+                      activeParent && (isLeaf || item.id === 'dashboard') && 'active',
+                      opened && !isLeaf && item.id !== 'dashboard' && 'subdrop'
                     )}
                     onClick={() => {
-                      if (isDash) go('dashboard');
+                      if (item.page && !item.children) go(item.page);
+                      else if (item.id === 'dashboard') go('dashboard');
                       else toggle(item.id);
                     }}
                   >
                     <Icon className="mr-[15px] ml-[3px] h-4 w-5" />
                     <span className="flex-1">{item.label}</span>
-                    {!isDash && (
+                    {item.children && (
                       <ChevronRight
                         className={cn(
                           'h-4 w-4 text-[#98a6ad] transition-transform',
@@ -370,7 +336,12 @@ function MainApp() {
             <ProductsPage mode="form" onList={() => go('products')} />
           )}
           {page === 'inventory' && <InventoryPage />}
-          {page === 'sales' && <SalesPage />}
+          {page === 'breakage' && (
+            <BreakagePage onViewStock={() => go('inventory')} />
+          )}
+          {page === 'sales' && (
+            <SalesPage onNewSale={() => go('billing')} />
+          )}
         </main>
       </div>
     </div>

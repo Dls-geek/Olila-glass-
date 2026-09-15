@@ -39,7 +39,7 @@ export interface InventoryLog {
   id: string;
   product_id: string;
   product_name: string;
-  change_type: 'add' | 'sell';
+  change_type: 'add' | 'sell' | 'break';
   quantity: number;
   date: string;
 }

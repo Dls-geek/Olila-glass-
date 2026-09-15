@@ -113,7 +113,16 @@ interface AppContextType extends AppState {
   updateCartQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
-  completeSale: (customerName?: string, customerPhone?: string) => Sale | null;
+  completeSale: (
+    customerName?: string,
+    customerPhone?: string,
+    options?: { discount?: number }
+  ) => Sale | null;
+  adjustStock: (
+    productId: string,
+    quantity: number,
+    change_type: 'add' | 'break'
+  ) => boolean;
   getCartTotal: () => number;
   getLowStockProducts: () => Product[];
   getDailySales: () => number;
@@ -127,95 +136,103 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const sampleProducts: Product[] = [
   {
     id: '1',
-    name: 'Glass Tumbler Set',
-    category: 'Glassware',
-    purchase_price: 150,
-    selling_price: 299,
+    name: 'Dinner Plate',
+    category: 'Plates',
+    purchase_price: 90,
+    selling_price: 180,
     stock: 45,
     low_stock_alert: 10,
-    image_url: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'GLS-001',
+    image_url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=200&h=200',
+    sku: 'PLT-001',
     created_at: '2024-01-01',
   },
   {
     id: '2',
     name: 'Ceramic Bowl',
-    category: 'Ceramic',
+    category: 'Bowls',
     purchase_price: 80,
-    selling_price: 180,
+    selling_price: 160,
     stock: 5,
     low_stock_alert: 10,
     image_url: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'CER-001',
+    sku: 'BWL-001',
     created_at: '2024-01-02',
   },
   {
     id: '3',
     name: 'Dinner Plate Set',
-    category: 'Tableware',
+    category: 'Plates',
     purchase_price: 200,
     selling_price: 450,
     stock: 25,
     low_stock_alert: 8,
     image_url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'TAB-001',
+    sku: 'PLT-SET',
     created_at: '2024-01-03',
   },
   {
     id: '4',
-    name: 'Wine Glass',
+    name: 'Glass Tumbler',
     category: 'Glassware',
-    purchase_price: 120,
-    selling_price: 250,
+    purchase_price: 60,
+    selling_price: 120,
     stock: 0,
     low_stock_alert: 5,
-    image_url: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'GLS-002',
+    image_url: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200',
+    sku: 'GLS-001',
     created_at: '2024-01-04',
   },
   {
     id: '5',
-    name: 'Ceramic Mug',
-    category: 'Ceramic',
+    name: 'Ceramic Cup',
+    category: 'Cups',
     purchase_price: 50,
-    selling_price: 120,
+    selling_price: 110,
     stock: 60,
     low_stock_alert: 15,
     image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'CER-002',
+    sku: 'CUP-001',
     created_at: '2024-01-05',
   },
   {
     id: '6',
-    name: 'Cutlery Set',
-    category: 'Tableware',
+    name: 'Serving Platter',
+    category: 'Serving',
     purchase_price: 180,
     selling_price: 380,
     stock: 15,
     low_stock_alert: 5,
-    image_url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'TAB-002',
+    image_url: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=200&h=200',
+    sku: 'SRV-001',
     created_at: '2024-01-06',
   },
 ];
 
+const todayIso = () => new Date().toISOString().split('T')[0];
+const daysAgoIso = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+};
+
 const sampleSales: Sale[] = [
   {
     id: 'S1',
-    date: '2024-01-15',
-    total_amount: 899,
-    customer_name: 'John Doe',
-    customer_phone: '1234567890',
+    date: todayIso(),
+    total_amount: 580,
+    customer_name: 'Rahim Uddin',
+    customer_phone: '01712345678',
     items: [
-      { product_id: '1', product_name: 'Glass Tumbler Set', quantity: 2, price: 299, subtotal: 598 },
-      { product_id: '5', product_name: 'Ceramic Mug', quantity: 2, price: 120, subtotal: 240 },
+      { product_id: '1', product_name: 'Dinner Plate', quantity: 2, price: 180, subtotal: 360 },
+      { product_id: '5', product_name: 'Ceramic Cup', quantity: 2, price: 110, subtotal: 220 },
     ],
   },
   {
     id: 'S2',
-    date: '2024-01-14',
+    date: daysAgoIso(1),
     total_amount: 450,
-    customer_name: 'Jane Smith',
+    customer_name: 'Fatema Begum',
+    customer_phone: '01812345678',
     items: [
       { product_id: '3', product_name: 'Dinner Plate Set', quantity: 1, price: 450, subtotal: 450 },
     ],
@@ -223,10 +240,10 @@ const sampleSales: Sale[] = [
 ];
 
 const sampleLogs: InventoryLog[] = [
-  { id: 'L1', product_id: '1', product_name: 'Glass Tumbler Set', change_type: 'add', quantity: 50, date: '2024-01-01' },
-  { id: 'L2', product_id: '1', product_name: 'Glass Tumbler Set', change_type: 'sell', quantity: 2, date: '2024-01-15' },
-  { id: 'L3', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'add', quantity: 30, date: '2024-01-03' },
-  { id: 'L4', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'sell', quantity: 1, date: '2024-01-14' },
+  { id: 'L1', product_id: '1', product_name: 'Dinner Plate', change_type: 'add', quantity: 50, date: daysAgoIso(14) },
+  { id: 'L2', product_id: '1', product_name: 'Dinner Plate', change_type: 'sell', quantity: 2, date: todayIso() },
+  { id: 'L3', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'add', quantity: 30, date: daysAgoIso(10) },
+  { id: 'L4', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'sell', quantity: 1, date: daysAgoIso(1) },
 ];
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -242,15 +259,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_LOADING', payload: true });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
-    if (email && password.length >= 4) {
+    if (email.trim() && password.length >= 4) {
       const user: User = {
         id: '1',
         name: 'Shop Owner',
-        email: email,
+        email: email.trim(),
         role: 'admin',
       };
       dispatch({ type: 'SET_USER', payload: user });
       dispatch({ type: 'SET_LOADING', payload: false });
+      toast.success('Welcome to Olila Glass.');
       return true;
     }
     dispatch({ type: 'SET_LOADING', payload: false });
@@ -318,10 +336,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_CART' });
   };
 
-  const completeSale = (customerName?: string, customerPhone?: string): Sale | null => {
+  const completeSale = (
+    customerName?: string,
+    customerPhone?: string,
+    options?: { discount?: number }
+  ): Sale | null => {
     if (state.cart.length === 0) return null;
 
-    // Check stock
     for (const item of state.cart) {
       if (item.quantity > item.product.stock) {
         toast.error(
@@ -339,7 +360,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       subtotal: item.product.selling_price * item.quantity,
     }));
 
-    const totalAmount = saleItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const subtotal = saleItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const discount = Math.max(0, Math.min(options?.discount ?? 0, subtotal));
+    const totalAmount = Math.max(0, subtotal - discount);
 
     const sale: Sale = {
       id: 'S' + Date.now(),
@@ -372,14 +395,54 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return sale;
   };
 
+  const adjustStock = (
+    productId: string,
+    quantity: number,
+    change_type: 'add' | 'break'
+  ): boolean => {
+    const product = state.products.find((p) => p.id === productId);
+    const qty = Math.floor(Number(quantity));
+    if (!product || qty <= 0) {
+      toast.warning('Enter a valid quantity.');
+      return false;
+    }
+    if (change_type === 'break' && qty > product.stock) {
+      toast.error(`Only ${product.stock} of ${product.name} on hand.`);
+      return false;
+    }
+    const next =
+      change_type === 'add' ? product.stock + qty : product.stock - qty;
+    dispatch({
+      type: 'UPDATE_PRODUCT',
+      payload: { ...product, stock: next },
+    });
+    dispatch({
+      type: 'ADD_LOG',
+      payload: {
+        id: 'L' + Date.now() + productId,
+        product_id: product.id,
+        product_name: product.name,
+        change_type,
+        quantity: qty,
+        date: new Date().toISOString().split('T')[0],
+      },
+    });
+    toast.success(
+      change_type === 'add'
+        ? `Restocked ${qty} × ${product.name}.`
+        : `Recorded ${qty} broken ${product.name}.`
+    );
+    return true;
+  };
+
   const getCartTotal = (): number => {
     return state.cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
   };
 
   const getLowStockProducts = (): Product[] => {
-    return state.products.filter(
-      (p) => p.stock <= p.low_stock_alert && p.stock > 0
-    );
+    return state.products
+      .filter((p) => p.stock <= p.low_stock_alert)
+      .sort((a, b) => a.stock - b.stock);
   };
 
   const getDailySales = (): number => {
@@ -428,6 +491,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         removeFromCart,
         clearCart,
         completeSale,
+        adjustStock,
         getCartTotal,
         getLowStockProducts,
         getDailySales,

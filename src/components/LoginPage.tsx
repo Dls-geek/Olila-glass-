@@ -3,9 +3,10 @@ import { useApp } from '../context/AppContext';
 import { useToast } from './ui';
 
 export function LoginPage() {
-  const [email, setEmail] = useState('Deshi Voj');
-  const [password, setPassword] = useState('root');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
+  const [remember, setRemember] = useState(true);
   const { login, isLoading } = useApp();
   const toast = useToast();
 
@@ -13,19 +14,37 @@ export function LoginPage() {
     e.preventDefault();
     const success = await login(email, password);
     if (!success) {
-      toast.error('Login failed. Please check your credentials.');
+      toast.error('Enter a username and a password of at least 4 characters.');
     }
+  };
+
+  const fillDemo = () => {
+    setEmail('olila');
+    setPassword('root');
   };
 
   return (
     <div className="flex min-h-screen">
       <div
-        className="hidden w-1/2 bg-cover bg-center lg:block"
+        className="relative hidden w-1/2 overflow-hidden lg:block"
         style={{
-          backgroundImage:
+          background:
             'linear-gradient(160deg,#0b3d2e 0%,#1b7a3a 45%,#0e5c3a 100%)',
         }}
-      />
+      >
+        <div className="absolute inset-0 flex flex-col justify-end p-10 text-white">
+          <p className="mb-2 text-[13px] uppercase tracking-widest text-white/70">
+            Olila Glass
+          </p>
+          <h2 className="mb-3 max-w-md text-3xl font-bold leading-tight">
+            Manage plates, cups &amp; ceramic stock in one place.
+          </h2>
+          <p className="max-w-sm text-[15px] text-white/80">
+            POS, inventory alerts, and sales reports built for your tableware
+            shop.
+          </p>
+        </div>
+      </div>
       <div
         className="flex w-full items-center justify-center px-6 py-10 lg:w-1/2"
         style={{ background: '#E6F2F4' }}
@@ -38,63 +57,107 @@ export function LoginPage() {
               গ্লাস
             </div>
           </div>
-          <h3
+          <h1
             style={{
               color: '#1e293b',
               fontWeight: 700,
               fontSize: 24,
-              marginBottom: 10,
+              marginBottom: 8,
             }}
           >
-            Sign Into Your Account
-          </h3>
-          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 30 }}>
-            Welcome back! Please enter your details.
+            Olila Glass — Shop login
+          </h1>
+          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 28 }}>
+            Sign in to manage catalog, stock, and counter sales.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
+            <div>
+              <label
+                htmlFor="login-user"
+                className="mb-1 block text-[13px] font-medium text-[#435966]"
+              >
+                Username or email
+              </label>
               <input
+                id="login-user"
                 className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 text-[15px]"
-                placeholder="username or email"
+                placeholder="e.g. olila"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoFocus
+                autoComplete="username"
                 required
               />
             </div>
-            <div className="relative">
-              <input
-                type={showPass ? 'text' : 'password'}
-                className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 text-[15px]"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                className="absolute right-5 top-3 text-[#6c757d]"
-                onClick={() => setShowPass((v) => !v)}
+            <div>
+              <label
+                htmlFor="login-pass"
+                className="mb-1 block text-[13px] font-medium text-[#435966]"
               >
-                {showPass ? 'Hide' : 'Show'}
-              </button>
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="login-pass"
+                  type={showPass ? 'text' : 'password'}
+                  className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 pr-16 text-[15px]"
+                  placeholder="At least 4 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={remember ? 'current-password' : 'off'}
+                  required
+                  minLength={4}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] text-[#6c757d]"
+                  onClick={() => setShowPass((v) => !v)}
+                  aria-label={showPass ? 'Hide password' : 'Show password'}
+                >
+                  {showPass ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="h-[46px] w-full rounded bg-[#00a65a] text-[16px] font-semibold text-white hover:bg-[#008d4c]"
+              className="h-[46px] w-full rounded bg-[#00a65a] text-[16px] font-semibold text-white hover:bg-[#008d4c] disabled:opacity-70"
             >
-              {isLoading ? 'Login…' : 'Login'}
+              {isLoading ? 'Signing in…' : 'Login'}
             </button>
             <div className="flex items-center justify-between text-[14px]">
-              <label className="flex items-center gap-2" style={{ color: '#4b5563' }}>
-                <input type="checkbox" /> Remember me
+              <label
+                className="flex items-center gap-2"
+                style={{ color: '#4b5563' }}
+              >
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                />{' '}
+                Remember me
               </label>
-              <span style={{ color: '#2348C2', fontWeight: 600 }}>
-                Forgot Password?
-              </span>
+              <button
+                type="button"
+                className="font-semibold text-[#2348C2]"
+                onClick={() =>
+                  toast.info('Ask your shop admin to reset the password.')
+                }
+              >
+                Forgot password?
+              </button>
             </div>
           </form>
+          <p className="mt-6 text-center text-[13px] text-[#6c757d]">
+            Demo:{' '}
+            <button
+              type="button"
+              onClick={fillDemo}
+              className="font-semibold text-[#00a65a] underline"
+            >
+              fill olila / root
+            </button>
+          </p>
         </div>
       </div>
     </div>

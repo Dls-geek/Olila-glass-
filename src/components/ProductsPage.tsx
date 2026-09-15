@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Download, Plus } from 'lucide-react';
 import type { Product } from '../types';
+import { formatMoney } from '../utils/money';
 import {
   Button,
   ConfirmDialog,
@@ -14,9 +15,19 @@ import {
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200';
 
+const CATEGORY_OPTIONS = [
+  'Plates',
+  'Cups',
+  'Bowls',
+  'Glassware',
+  'Serving',
+  'Sets',
+  'Other',
+];
+
 const emptyForm = {
   name: '',
-  category: '',
+  category: 'Plates',
   purchase_price: '',
   selling_price: '',
   stock: '',
@@ -24,8 +35,6 @@ const emptyForm = {
   image_url: DEFAULT_IMAGE,
   sku: '',
 };
-
-const currency = (n: number) => String(n);
 
 export function ProductsPage({
   mode = 'list',
@@ -123,62 +132,110 @@ export function ProductsPage({
   const setField = (key: keyof typeof emptyForm, value: string) =>
     setFormData((prev) => ({ ...prev, [key]: value }));
 
+  useEffect(() => {
+    if (!openAction) return;
+    const onDoc = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-action-menu]')) return;
+      setOpenAction(null);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [openAction]);
+
+  const exportCsv = () => {
+    const header = [
+      'Name',
+      'Category',
+      'SKU',
+      'Cost',
+      'Selling',
+      'Stock',
+    ];
+    const rows = filteredProducts.map((p) =>
+      [p.name, p.category, p.sku || '', p.purchase_price, p.selling_price, p.stock]
+        .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+    const blob = new Blob([[header.join(','), ...rows].join('\n')], {
+      type: 'text/csv',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'olila-products.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Export downloaded.');
+  };
+
   const start = filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, filteredProducts.length);
+
+  const formFields = (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <Input
+        label="Name *"
+        value={formData.name}
+        onChange={(e) => setField('name', e.target.value)}
+      />
+      <Select
+        label="Category *"
+        value={formData.category}
+        onChange={(e) => setField('category', e.target.value)}
+      >
+        {CATEGORY_OPTIONS.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </Select>
+      <Input
+        label="Image URL"
+        value={formData.image_url}
+        onChange={(e) => setField('image_url', e.target.value)}
+      />
+      <Input
+        label="Selling price (৳)"
+        type="number"
+        value={formData.selling_price}
+        onChange={(e) => setField('selling_price', e.target.value)}
+      />
+      <Input
+        label="Cost price (৳)"
+        type="number"
+        value={formData.purchase_price}
+        onChange={(e) => setField('purchase_price', e.target.value)}
+      />
+      <Input
+        label="Low-stock alert"
+        type="number"
+        value={formData.low_stock_alert}
+        onChange={(e) => setField('low_stock_alert', e.target.value)}
+      />
+      <Input
+        label="Stock quantity"
+        type="number"
+        value={formData.stock}
+        onChange={(e) => setField('stock', e.target.value)}
+      />
+      <Input
+        label="SKU"
+        value={formData.sku}
+        onChange={(e) => setField('sku', e.target.value)}
+      />
+    </div>
+  );
 
   if (mode === 'form') {
     return (
       <div className="as-card p-4">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <Input
-            label="Name *"
-            value={formData.name}
-            onChange={(e) => setField('name', e.target.value)}
-          />
-          <Input
-            label="Category *"
-            value={formData.category}
-            onChange={(e) => setField('category', e.target.value)}
-          />
-          <Input
-            label="Image URL"
-            value={formData.image_url}
-            onChange={(e) => setField('image_url', e.target.value)}
-          />
-          <Input
-            label="Price"
-            type="number"
-            value={formData.selling_price}
-            onChange={(e) => setField('selling_price', e.target.value)}
-          />
-          <Input
-            label="Cost Price"
-            type="number"
-            value={formData.purchase_price}
-            onChange={(e) => setField('purchase_price', e.target.value)}
-          />
-          <Input
-            label="Alert Quantity"
-            type="number"
-            value={formData.low_stock_alert}
-            onChange={(e) => setField('low_stock_alert', e.target.value)}
-          />
-          <Input
-            label="Stock Quantity"
-            type="number"
-            value={formData.stock}
-            onChange={(e) => setField('stock', e.target.value)}
-          />
-          <Input
-            label="SKU"
-            value={formData.sku}
-            onChange={(e) => setField('sku', e.target.value)}
-          />
-        </div>
+        <h1 className="mb-4 text-[18px] font-semibold">Add Product</h1>
+        {formFields}
         <div className="mt-6 flex justify-center gap-3">
           <Button onClick={handleSubmit}>Save</Button>
-          <Button variant="success" onClick={() => onList?.()}>
-            List
+          <Button variant="secondary" onClick={() => onList?.()}>
+            Back to list
           </Button>
         </div>
       </div>
@@ -190,9 +247,9 @@ export function ProductsPage({
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-[18px] font-semibold">Product List</h1>
         <div className="flex gap-2">
-          <Button variant="info" size="sm">
+          <Button variant="info" size="sm" onClick={exportCsv}>
             <Download className="h-3.5 w-3.5" />
-            Export Product
+            Export CSV
           </Button>
           <Button
             size="sm"
@@ -208,31 +265,16 @@ export function ProductsPage({
         </div>
       </div>
 
-      <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+      <div className="mb-3 max-w-xs">
         <Select
+          label="Category"
           value={selectedCategory}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
             setPage(1);
           }}
         >
-          <option value="all">Select products</option>
-          {categories
-            .filter((c) => c !== 'all')
-            .map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-        </Select>
-        <Select
-          value={selectedCategory}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="all">Select All</option>
+          <option value="all">All categories</option>
           {categories
             .filter((c) => c !== 'all')
             .map((cat) => (
@@ -289,6 +331,16 @@ export function ProductsPage({
             </tr>
           </thead>
           <tbody>
+            {paged.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={9}
+                  className="px-3 py-10 text-center text-[13px] text-[#6c757d]"
+                >
+                  No products match. Clear filters or add a plate, cup, or bowl.
+                </td>
+              </tr>
+            ) : null}
             {paged.map((product, idx) => (
               <tr key={product.id} className="border-b border-[#dee2e6] hover:bg-[#f8f9fa]">
                 <td className="px-3 py-2">{start + idx}</td>
@@ -302,10 +354,10 @@ export function ProductsPage({
                 <td className="px-3 py-2">{product.name}</td>
                 <td className="px-3 py-2">{product.category}</td>
                 <td className="px-3 py-2">{product.sku || '-'}</td>
-                <td className="px-3 py-2">{currency(product.purchase_price)}</td>
-                <td className="px-3 py-2">{currency(product.selling_price)}</td>
+                <td className="px-3 py-2">{formatMoney(product.purchase_price)}</td>
+                <td className="px-3 py-2">{formatMoney(product.selling_price)}</td>
                 <td className="px-3 py-2">{product.stock}</td>
-                <td className="relative px-3 py-2">
+                <td className="relative px-3 py-2" data-action-menu>
                   <Button
                     variant="info"
                     size="sm"
@@ -386,58 +438,13 @@ export function ProductsPage({
         footer={
           <div className="flex justify-center gap-3">
             <Button onClick={handleSubmit}>Save</Button>
-            <Button variant="success" onClick={() => setShowModal(false)}>
-              List
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
             </Button>
           </div>
         }
       >
-        <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
-          <Input
-            label="Name *"
-            value={formData.name}
-            onChange={(e) => setField('name', e.target.value)}
-          />
-          <Input
-            label="Category *"
-            value={formData.category}
-            onChange={(e) => setField('category', e.target.value)}
-          />
-          <Input
-            label="Image URL"
-            value={formData.image_url}
-            onChange={(e) => setField('image_url', e.target.value)}
-          />
-          <Input
-            label="Price"
-            type="number"
-            value={formData.selling_price}
-            onChange={(e) => setField('selling_price', e.target.value)}
-          />
-          <Input
-            label="Cost Price"
-            type="number"
-            value={formData.purchase_price}
-            onChange={(e) => setField('purchase_price', e.target.value)}
-          />
-          <Input
-            label="Alert Quantity"
-            type="number"
-            value={formData.low_stock_alert}
-            onChange={(e) => setField('low_stock_alert', e.target.value)}
-          />
-          <Input
-            label="Stock Quantity"
-            type="number"
-            value={formData.stock}
-            onChange={(e) => setField('stock', e.target.value)}
-          />
-          <Input
-            label="SKU"
-            value={formData.sku}
-            onChange={(e) => setField('sku', e.target.value)}
-          />
-        </div>
+        <div className="p-4">{formFields}</div>
       </Modal>
 
       <ConfirmDialog

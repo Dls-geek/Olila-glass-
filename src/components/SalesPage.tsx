@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Plus } from 'lucide-react';
+import { formatMoney } from '../utils/money';
+import { printReceipt } from '../utils/printReceipt';
+import { ReceiptSlip } from './ReceiptSlip';
+import { Plus, Printer } from 'lucide-react';
 import type { Sale } from '../types';
 import { Button, Modal } from './ui';
 
-const currency = (n: number) => n.toLocaleString();
+interface SalesPageProps {
+  onNewSale?: () => void;
+}
 
-export function SalesPage() {
+export function SalesPage({ onNewSale }: SalesPageProps) {
   const { sales } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
@@ -29,7 +34,8 @@ export function SalesPage() {
     return filteredSales.slice(start, start + pageSize);
   }, [filteredSales, currentPage, pageSize]);
 
-  const start = filteredSales.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const start =
+    filteredSales.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, filteredSales.length);
 
   const totalSales = sales.reduce((sum, s) => sum + s.total_amount, 0);
@@ -41,9 +47,9 @@ export function SalesPage() {
     <div className="space-y-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
-          ['Total Revenue', `৳${currency(totalSales)}`],
-          ["Today's Sales", `৳${currency(todaySales)}`],
-          ['Total Orders', String(sales.length)],
+          ['Total revenue', formatMoney(totalSales)],
+          ["Today's sales", formatMoney(todaySales)],
+          ['Invoices', String(sales.length)],
         ].map(([label, value]) => (
           <div
             key={label}
@@ -58,9 +64,9 @@ export function SalesPage() {
       <div className="rounded-[4px] border border-[#dee2e6] bg-white p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-[18px] font-semibold">Sale List</h1>
-          <Button variant="info" size="sm">
+          <Button variant="info" size="sm" onClick={() => onNewSale?.()}>
             <Plus className="h-3.5 w-3.5" />
-            New
+            New sale
           </Button>
         </div>
 
@@ -87,7 +93,17 @@ export function SalesPage() {
                 setPage(1);
               }}
               className="h-8 rounded-[4px] border border-[#ced4da] px-2"
+              aria-label="Filter by date"
             />
+            {dateFilter && (
+              <button
+                type="button"
+                className="text-[#007bff]"
+                onClick={() => setDateFilter('')}
+              >
+                Clear date
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-2 text-[13px]">
             Search:
@@ -98,6 +114,8 @@ export function SalesPage() {
                 setPage(1);
               }}
               className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+              placeholder="Invoice or customer"
+              aria-label="Search sales"
             />
           </div>
         </div>
@@ -116,37 +134,51 @@ export function SalesPage() {
               </tr>
             </thead>
             <tbody>
-              {paged.map((sale, idx) => (
-                <tr key={sale.id} className="border-b border-[#dee2e6]">
-                  <td className="px-3 py-2">{start + idx}</td>
-                  <td className="px-3 py-2">{sale.id}</td>
-                  <td className="px-3 py-2">{sale.date}</td>
-                  <td className="px-3 py-2">
-                    {sale.customer_name || 'Walk-in Customer'}
-                    {sale.customer_phone ? (
-                      <div className="text-[11px] text-[#6c757d]">
-                        {sale.customer_phone}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-2">{sale.items.length}</td>
-                  <td className="px-3 py-2">{currency(sale.total_amount)}</td>
-                  <td className="px-3 py-2">
+              {paged.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-3 py-10 text-center text-[#6c757d]"
+                  >
+                    No sales found.{' '}
                     <button
-                      onClick={() => setSelectedSale(sale)}
-                      className="mr-1 rounded-[3px] bg-[#007bff] px-2 py-0.5 text-[12px] text-white"
+                      type="button"
+                      className="text-[#007bff] underline"
+                      onClick={() => onNewSale?.()}
                     >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setSelectedSale(sale)}
-                      className="rounded-[3px] bg-[#dc3545] px-2 py-0.5 text-[12px] text-white"
-                    >
-                      Delete
+                      Open POS
                     </button>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paged.map((sale, idx) => (
+                  <tr key={sale.id} className="border-b border-[#dee2e6]">
+                    <td className="px-3 py-2">{start + idx}</td>
+                    <td className="px-3 py-2">{sale.id}</td>
+                    <td className="px-3 py-2">{sale.date}</td>
+                    <td className="px-3 py-2">
+                      {sale.customer_name || 'Walk-in'}
+                      {sale.customer_phone ? (
+                        <div className="text-[11px] text-[#6c757d]">
+                          {sale.customer_phone}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2">{sale.items.length}</td>
+                    <td className="px-3 py-2">
+                      {formatMoney(sale.total_amount)}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button
+                        onClick={() => setSelectedSale(sale)}
+                        className="rounded-[3px] bg-[#007bff] px-2 py-0.5 text-[12px] text-white"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -191,66 +223,35 @@ export function SalesPage() {
         open={selectedSale !== null}
         onClose={() => setSelectedSale(null)}
         size="sm"
+        title="Invoice slip"
+        subtitle="Olila Glass · ceramic tableware"
       >
         {selectedSale && (
-          <div className="p-6 font-mono text-[13px] leading-5">
-            <div className="text-center">
-              <p className="text-base font-bold">Olila Glass</p>
-              <p>Address: Circular Road, Firoza Merchant Plaza</p>
-              <p>Mobile: 01783867744</p>
-              <p>--------------------------------------------</p>
-              <p className="text-left">Invoice No: {selectedSale.id}</p>
-              <p className="text-left">Date: {selectedSale.date}</p>
-              <p className="text-left">
-                Customer Name: {selectedSale.customer_name || 'Guest'}
-              </p>
-              <p className="font-bold">INVOICE</p>
+          <>
+            <div className="og-slip-canvas">
+              <ReceiptSlip
+                sale={selectedSale}
+                printedAt={selectedSale.date}
+              />
             </div>
-            <table className="mt-2 w-full">
-              <thead>
-                <tr>
-                  <th className="text-left">Name</th>
-                  <th className="text-right">Qty</th>
-                  <th className="text-right">Price</th>
-                  <th className="text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedSale.items.map((item) => (
-                  <tr key={`${selectedSale.id}-${item.product_id}`}>
-                    <td>{item.product_name}</td>
-                    <td className="text-right">{item.quantity}</td>
-                    <td className="text-right">{item.price}</td>
-                    <td className="text-right">{item.subtotal.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p>--------------------------------------------</p>
-            <p className="text-right">
-              Subtotal: {selectedSale.total_amount.toFixed(2)}
-            </p>
-            <p className="text-right">Discount: 0.00</p>
-            <p className="text-right font-bold">
-              Total Amount: {selectedSale.total_amount.toFixed(2)}
-            </p>
-            <p className="text-right">
-              Paid: {selectedSale.total_amount.toFixed(2)}
-            </p>
-            <p className="mt-4 text-center">
-              congratulations!! you have saved 0.00 taka
-            </p>
-            <div className="mt-4 flex justify-center">
+            <div className="flex justify-center gap-2 border-t border-[#dee2e6] bg-white p-3">
               <Button
                 variant="success"
-                onClick={() => {
-                  window.print();
-                }}
+                onClick={() =>
+                  printReceipt('invoice-print', `Invoice ${selectedSale.id}`)
+                }
               >
-                Print Invoice
+                <Printer className="h-4 w-4" />
+                Print slip
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedSale(null)}
+              >
+                Close
               </Button>
             </div>
-          </div>
+          </>
         )}
       </Modal>
     </div>
