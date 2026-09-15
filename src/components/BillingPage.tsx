@@ -96,9 +96,9 @@ export function BillingPage({ onBack, onViewSales }: BillingPageProps) {
     setShowPay(true);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setCheckingOut(true);
-    const sale = completeSale(customerName, undefined, { discount });
+    const sale = await completeSale(customerName, undefined, { discount });
     setCheckingOut(false);
     if (sale) {
       setLastSale(sale);

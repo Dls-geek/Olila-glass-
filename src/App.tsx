@@ -112,7 +112,7 @@ function Logo() {
 }
 
 function MainApp() {
-  const { user, logout } = useApp();
+  const { user, logout, isLoading } = useApp();
   const toast = useToast();
   const [page, setPage] = useState<Page>(() =>
     typeof window === 'undefined' ? 'dashboard' : pageFromHash()
@@ -162,6 +162,14 @@ function MainApp() {
     setUserMenu(false);
   };
 
+  if (isLoading && !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#ebeff2] text-[#435966]">
+        Loading shop…
+      </div>
+    );
+  }
+
   if (!user) return <LoginPage />;
 
   if (page === 'billing') {
@@ -179,9 +187,9 @@ function MainApp() {
     );
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setUserMenu(false);
-    logout();
+    await logout();
     toast.success('Signed out.');
   };
 

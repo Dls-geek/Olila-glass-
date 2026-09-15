@@ -107,7 +107,7 @@ export function ProductsPage({
     setEditingProduct(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name || !formData.category.trim() || !formData.group || !formData.selling_price) {
       toast.warning('Please fill in the required fields.');
       return;
@@ -122,10 +122,10 @@ export function ProductsPage({
       low_stock_alert: Number(formData.low_stock_alert) || 5,
     };
     if (editingProduct) {
-      updateProduct(editingProduct.id, payload);
+      await updateProduct(editingProduct.id, payload);
       toast.success('Product updated.');
     } else {
-      addProduct(payload);
+      await addProduct(payload);
       toast.success('Product added.');
     }
     resetForm();
@@ -152,9 +152,9 @@ export function ProductsPage({
     setOpenAction(null);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteTarget) {
-      deleteProduct(deleteTarget.id);
+      await deleteProduct(deleteTarget.id);
       toast.success('Product deleted.');
       setDeleteTarget(null);
     }

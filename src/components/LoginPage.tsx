@@ -12,15 +12,12 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (!success) {
-      toast.error('Enter a username and a password of at least 4 characters.');
-    }
+    await login(email, password);
   };
 
   const fillDemo = () => {
-    setEmail('olila');
-    setPassword('root');
+    setEmail('olila.shop.admin@gmail.com');
+    setPassword('OlilaGlass2026!');
   };
 
   return (
@@ -81,7 +78,7 @@ export function LoginPage() {
               <input
                 id="login-user"
                 className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 text-[15px]"
-                placeholder="e.g. olila"
+                placeholder="e.g. olila.shop.admin@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoFocus
@@ -101,7 +98,7 @@ export function LoginPage() {
                   id="login-pass"
                   type={showPass ? 'text' : 'password'}
                   className="h-[46px] w-full rounded border border-[#ced4da] bg-white px-4 pr-16 text-[15px]"
-                  placeholder="At least 4 characters"
+                  placeholder="Your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete={remember ? 'current-password' : 'off'}
@@ -149,13 +146,13 @@ export function LoginPage() {
             </div>
           </form>
           <p className="mt-6 text-center text-[13px] text-[#6c757d]">
-            Demo:{' '}
+            Shop admin:{' '}
             <button
               type="button"
               onClick={fillDemo}
               className="font-semibold text-[#00a65a] underline"
             >
-              fill olila / root
+              fill login
             </button>
           </p>
         </div>

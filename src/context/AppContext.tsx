@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  ReactNode,
+} from 'react';
 import { Product, Sale, SaleItem, InventoryLog, CartItem, User } from '../types';
-import { masterProducts } from '../data/masterProducts';
 import { useToast } from '../components/ui';
+import { supabase } from '../lib/supabase';
 
 interface AppState {
   user: User | null;
@@ -34,7 +40,7 @@ const initialState: AppState = {
   sales: [],
   inventoryLogs: [],
   cart: [],
-  isLoading: false,
+  isLoading: true,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -65,7 +71,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, inventoryLogs: action.payload };
     case 'ADD_LOG':
       return { ...state, inventoryLogs: [action.payload, ...state.inventoryLogs] };
-    case 'ADD_TO_CART':
+    case 'ADD_TO_CART': {
       const existing = state.cart.find(
         (item) => item.product.id === action.payload.product.id
       );
@@ -80,6 +86,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         };
       }
       return { ...state, cart: [...state.cart, action.payload] };
+    }
     case 'UPDATE_CART_QUANTITY':
       return {
         ...state,
@@ -106,10 +113,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
 interface AppContextType extends AppState {
   dispatch: React.Dispatch<AppAction>;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  addProduct: (product: Omit<Product, 'id' | 'created_at'>) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  logout: () => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'created_at'>) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   addToCart: (product: Product, quantity?: number) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
@@ -118,12 +125,12 @@ interface AppContextType extends AppState {
     customerName?: string,
     customerPhone?: string,
     options?: { discount?: number }
-  ) => Sale | null;
+  ) => Promise<Sale | null>;
   adjustStock: (
     productId: string,
     quantity: number,
     change_type: 'add' | 'break'
-  ) => boolean;
+  ) => Promise<boolean>;
   getCartTotal: () => number;
   getLowStockProducts: () => Product[];
   getDailySales: () => number;
@@ -133,69 +140,285 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+type ProductRow = {
+  id: string;
+  name: string;
+  category: string;
+  group: string;
+  purchase_price: number | string;
+  selling_price: number | string;
+  stock: number;
+  low_stock_alert: number;
+  image_url: string;
+  sku: string | null;
+  created_at: string;
+};
+
+function mapProduct(row: ProductRow): Product {
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category,
+    group: row.group,
+    purchase_price: Number(row.purchase_price),
+    selling_price: Number(row.selling_price),
+    stock: Number(row.stock),
+    low_stock_alert: Number(row.low_stock_alert),
+    image_url: row.image_url || '',
+    sku: row.sku ?? undefined,
+    created_at: String(row.created_at).slice(0, 10),
+  };
+}
+
+function mapSale(
+  row: {
+    id: string;
+    date: string;
+    total_amount: number | string;
+    discount?: number | string | null;
+    customer_name?: string | null;
+    customer_phone?: string | null;
+  },
+  items: SaleItem[]
+): Sale {
+  return {
+    id: row.id,
+    date: String(row.date).slice(0, 10),
+    total_amount: Number(row.total_amount),
+    discount: row.discount != null ? Number(row.discount) : undefined,
+    customer_name: row.customer_name ?? undefined,
+    customer_phone: row.customer_phone ?? undefined,
+    items,
+  };
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
-  const [state, dispatch] = useReducer(appReducer, {
-    ...initialState,
-    products: masterProducts,
-    sales: [],
-    inventoryLogs: [],
-  });
+  const [state, dispatch] = useReducer(appReducer, initialState);
+
+  const loadShopData = async () => {
+    const [productsRes, salesRes, itemsRes, logsRes] = await Promise.all([
+      supabase.from('products').select('*').order('name'),
+      supabase.from('sales').select('*').order('date', { ascending: false }),
+      supabase.from('sale_items').select('*'),
+      supabase
+        .from('inventory_logs')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(500),
+    ]);
+
+    if (productsRes.error) throw productsRes.error;
+    if (salesRes.error) throw salesRes.error;
+    if (itemsRes.error) throw itemsRes.error;
+    if (logsRes.error) throw logsRes.error;
+
+    const itemsBySale = new Map<string, SaleItem[]>();
+    for (const row of itemsRes.data || []) {
+      const list = itemsBySale.get(row.sale_id) || [];
+      list.push({
+        product_id: row.product_id,
+        product_name: row.product_name,
+        quantity: Number(row.quantity),
+        price: Number(row.price),
+        subtotal: Number(row.subtotal),
+      });
+      itemsBySale.set(row.sale_id, list);
+    }
+
+    dispatch({
+      type: 'SET_PRODUCTS',
+      payload: (productsRes.data || []).map((r) => mapProduct(r as ProductRow)),
+    });
+    dispatch({
+      type: 'SET_SALES',
+      payload: (salesRes.data || []).map((s) =>
+        mapSale(s, itemsBySale.get(s.id) || [])
+      ),
+    });
+    dispatch({
+      type: 'SET_LOGS',
+      payload: (logsRes.data || []).map((l) => ({
+        id: l.id,
+        product_id: l.product_id,
+        product_name: l.product_name,
+        change_type: l.change_type as InventoryLog['change_type'],
+        quantity: Number(l.quantity),
+        date: String(l.date).slice(0, 10),
+      })),
+    });
+  };
+
+  const resolveUser = async (authUser: {
+    id: string;
+    email?: string | null;
+  }): Promise<User> => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name, role')
+      .eq('id', authUser.id)
+      .maybeSingle();
+
+    return {
+      id: authUser.id,
+      email: authUser.email || '',
+      name: profile?.name || 'Shop Owner',
+      role: (profile?.role as User['role']) || 'admin',
+    };
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const boot = async () => {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const { data } = await supabase.auth.getSession();
+      if (!mounted) return;
+
+      if (data.session?.user) {
+        try {
+          const user = await resolveUser(data.session.user);
+          if (!mounted) return;
+          dispatch({ type: 'SET_USER', payload: user });
+          await loadShopData();
+        } catch (err) {
+          console.error(err);
+          toast.error('Could not load shop data from Supabase.');
+        }
+      } else {
+        dispatch({ type: 'SET_USER', payload: null });
+      }
+      if (mounted) dispatch({ type: 'SET_LOADING', payload: false });
+    };
+
+    void boot();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'INITIAL_SESSION') return;
+      if (!session?.user) {
+        dispatch({ type: 'SET_USER', payload: null });
+        dispatch({ type: 'SET_PRODUCTS', payload: [] });
+        dispatch({ type: 'SET_SALES', payload: [] });
+        dispatch({ type: 'SET_LOGS', payload: [] });
+        dispatch({ type: 'CLEAR_CART' });
+        return;
+      }
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        const user = await resolveUser(session.user);
+        dispatch({ type: 'SET_USER', payload: user });
+        await loadShopData();
+      } catch (err) {
+        console.error(err);
+        toast.error('Could not load shop data from Supabase.');
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     dispatch({ type: 'SET_LOADING', payload: true });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    if (email.trim() && password.length >= 4) {
-      const user: User = {
-        id: '1',
-        name: 'Shop Owner',
-        email: email.trim(),
-        role: 'admin',
-      };
-      dispatch({ type: 'SET_USER', payload: user });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
-      toast.success('Welcome to Olila Glass.');
-      return true;
+      toast.error(error.message || 'Login failed.');
+      return false;
     }
-    dispatch({ type: 'SET_LOADING', payload: false });
-    return false;
+    toast.success('Welcome to Olila Glass.');
+    return true;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     dispatch({ type: 'SET_USER', payload: null });
+    dispatch({ type: 'CLEAR_CART' });
   };
 
-  const addProduct = (product: Omit<Product, 'id' | 'created_at'>) => {
-    const newProduct: Product = {
-      ...product,
-      id: Date.now().toString(),
-      created_at: new Date().toISOString().split('T')[0],
+  const addProduct = async (product: Omit<Product, 'id' | 'created_at'>) => {
+    const id = product.sku?.trim() || String(Date.now());
+    const created_at = new Date().toISOString().slice(0, 10);
+    const row = {
+      id,
+      name: product.name,
+      category: product.category,
+      group: product.group,
+      purchase_price: product.purchase_price,
+      selling_price: product.selling_price,
+      stock: product.stock,
+      low_stock_alert: product.low_stock_alert,
+      image_url: product.image_url,
+      sku: product.sku || null,
+      created_at,
     };
+    const { data, error } = await supabase
+      .from('products')
+      .insert(row)
+      .select('*')
+      .single();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const newProduct = mapProduct(data as ProductRow);
     dispatch({ type: 'ADD_PRODUCT', payload: newProduct });
-    
-    const log: InventoryLog = {
-      id: Date.now().toString(),
-      product_id: newProduct.id,
-      product_name: newProduct.name,
-      change_type: 'add',
-      quantity: newProduct.stock,
-      date: new Date().toISOString().split('T')[0],
-    };
-    dispatch({ type: 'ADD_LOG', payload: log });
-  };
 
-  const updateProduct = (id: string, product: Partial<Product>) => {
-    const existingProduct = state.products.find((p) => p.id === id);
-    if (existingProduct) {
-      dispatch({
-        type: 'UPDATE_PRODUCT',
-        payload: { ...existingProduct, ...product },
-      });
+    if (newProduct.stock > 0) {
+      const log: InventoryLog = {
+        id: 'L' + Date.now(),
+        product_id: newProduct.id,
+        product_name: newProduct.name,
+        change_type: 'add',
+        quantity: newProduct.stock,
+        date: created_at,
+      };
+      const { error: logError } = await supabase.from('inventory_logs').insert(log);
+      if (!logError) dispatch({ type: 'ADD_LOG', payload: log });
     }
   };
 
-  const deleteProduct = (id: string) => {
+  const updateProduct = async (id: string, product: Partial<Product>) => {
+    const existing = state.products.find((p) => p.id === id);
+    if (!existing) return;
+    const next = { ...existing, ...product };
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        name: next.name,
+        category: next.category,
+        group: next.group,
+        purchase_price: next.purchase_price,
+        selling_price: next.selling_price,
+        stock: next.stock,
+        low_stock_alert: next.low_stock_alert,
+        image_url: next.image_url,
+        sku: next.sku || null,
+      })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    dispatch({ type: 'UPDATE_PRODUCT', payload: mapProduct(data as ProductRow) });
+  };
+
+  const deleteProduct = async (id: string) => {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     dispatch({ type: 'DELETE_PRODUCT', payload: id });
   };
 
@@ -223,11 +446,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_CART' });
   };
 
-  const completeSale = (
+  const completeSale = async (
     customerName?: string,
     customerPhone?: string,
     options?: { discount?: number }
-  ): Sale | null => {
+  ): Promise<Sale | null> => {
     if (state.cart.length === 0) return null;
 
     for (const item of state.cart) {
@@ -239,54 +462,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const saleItems: SaleItem[] = state.cart.map((item) => ({
+    const items = state.cart.map((item) => ({
       product_id: item.product.id,
-      product_name: item.product.name,
       quantity: item.quantity,
-      price: item.product.selling_price,
-      subtotal: item.product.selling_price * item.quantity,
     }));
 
-    const subtotal = saleItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const discount = Math.max(0, Math.min(options?.discount ?? 0, subtotal));
-    const totalAmount = Math.max(0, subtotal - discount);
+    const { data, error } = await supabase.rpc('complete_sale', {
+      p_customer_name: customerName ?? null,
+      p_customer_phone: customerPhone ?? null,
+      p_discount: options?.discount ?? 0,
+      p_items: items,
+    });
 
-    const sale: Sale = {
-      id: 'S' + Date.now(),
-      date: new Date().toISOString().split('T')[0],
-      total_amount: totalAmount,
-      customer_name: customerName,
-      customer_phone: customerPhone,
-      items: saleItems,
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+
+    const payload = data as {
+      id: string;
+      date: string;
+      total_amount: number;
+      discount?: number;
+      customer_name?: string | null;
+      customer_phone?: string | null;
+      items: SaleItem[];
     };
 
+    const sale = mapSale(payload, payload.items || []);
     dispatch({ type: 'ADD_SALE', payload: sale });
 
-    // Update stock and create logs
-    state.cart.forEach((item) => {
-      const newStock = item.product.stock - item.quantity;
-      updateProduct(item.product.id, { stock: newStock });
-
-      const log: InventoryLog = {
-        id: 'L' + Date.now() + item.product.id,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        change_type: 'sell',
-        quantity: item.quantity,
-        date: new Date().toISOString().split('T')[0],
-      };
-      dispatch({ type: 'ADD_LOG', payload: log });
-    });
+    for (const item of state.cart) {
+      const product = state.products.find((p) => p.id === item.product.id);
+      if (product) {
+        dispatch({
+          type: 'UPDATE_PRODUCT',
+          payload: { ...product, stock: product.stock - item.quantity },
+        });
+      }
+      dispatch({
+        type: 'ADD_LOG',
+        payload: {
+          id: 'L' + Date.now() + item.product.id,
+          product_id: item.product.id,
+          product_name: item.product.name,
+          change_type: 'sell',
+          quantity: item.quantity,
+          date: sale.date,
+        },
+      });
+    }
 
     clearCart();
     return sale;
   };
 
-  const adjustStock = (
+  const adjustStock = async (
     productId: string,
     quantity: number,
     change_type: 'add' | 'break'
-  ): boolean => {
+  ): Promise<boolean> => {
     const product = state.products.find((p) => p.id === productId);
     const qty = Math.floor(Number(quantity));
     if (!product || qty <= 0) {
@@ -299,21 +534,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     const next =
       change_type === 'add' ? product.stock + qty : product.stock - qty;
-    dispatch({
-      type: 'UPDATE_PRODUCT',
-      payload: { ...product, stock: next },
-    });
-    dispatch({
-      type: 'ADD_LOG',
-      payload: {
-        id: 'L' + Date.now() + productId,
-        product_id: product.id,
-        product_name: product.name,
-        change_type,
-        quantity: qty,
-        date: new Date().toISOString().split('T')[0],
-      },
-    });
+
+    const { data, error } = await supabase
+      .from('products')
+      .update({ stock: next })
+      .eq('id', productId)
+      .select('*')
+      .single();
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+
+    const log: InventoryLog = {
+      id: 'L' + Date.now() + productId,
+      product_id: product.id,
+      product_name: product.name,
+      change_type,
+      quantity: qty,
+      date: new Date().toISOString().slice(0, 10),
+    };
+    const { error: logError } = await supabase.from('inventory_logs').insert(log);
+    if (logError) {
+      toast.error(logError.message);
+      return false;
+    }
+
+    dispatch({ type: 'UPDATE_PRODUCT', payload: mapProduct(data as ProductRow) });
+    dispatch({ type: 'ADD_LOG', payload: log });
     toast.success(
       change_type === 'add'
         ? `Restocked ${qty} × ${product.name}.`
@@ -323,7 +571,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const getCartTotal = (): number => {
-    return state.cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+    return state.cart.reduce(
+      (sum, item) => sum + item.product.selling_price * item.quantity,
+      0
+    );
   };
 
   const getLowStockProducts = (): Product[] => {
@@ -345,7 +596,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return state.sales
       .filter((s) => {
         const saleDate = new Date(s.date);
-        return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
+        return (
+          saleDate.getMonth() === currentMonth &&
+          saleDate.getFullYear() === currentYear
+        );
       })
       .reduce((sum, s) => sum + s.total_amount, 0);
   };
@@ -354,7 +608,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const productSales: Record<string, number> = {};
     state.sales.forEach((sale) => {
       sale.items.forEach((item) => {
-        productSales[item.product_name] = (productSales[item.product_name] || 0) + item.quantity;
+        productSales[item.product_name] =
+          (productSales[item.product_name] || 0) + item.quantity;
       });
     });
     return Object.entries(productSales)

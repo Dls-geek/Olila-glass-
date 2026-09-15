@@ -9,9 +9,9 @@ export function BreakagePage({ onViewStock }: { onViewStock?: () => void }) {
   const breaks = inventoryLogs.filter((l) => l.change_type === 'break');
   const selected = products.find((p) => p.id === productId);
 
-  const submit = () => {
+  const submit = async () => {
     if (!productId) return;
-    const ok = adjustStock(productId, Number(qty), 'break');
+    const ok = await adjustStock(productId, Number(qty), 'break');
     if (ok) setQty('1');
   };
 

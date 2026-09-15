@@ -311,9 +311,9 @@ export function InventoryPage() {
             </Button>
             <Button
               variant="success"
-              onClick={() => {
+              onClick={async () => {
                 if (!restockTarget) return;
-                const ok = adjustStock(
+                const ok = await adjustStock(
                   restockTarget.id,
                   Number(restockQty),
                   'add'

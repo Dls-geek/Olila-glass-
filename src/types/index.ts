@@ -23,6 +23,7 @@ export interface Sale {
   id: string;
   date: string;
   total_amount: number;
+  discount?: number;
   customer_name?: string;
   customer_phone?: string;
   items: SaleItem[];
