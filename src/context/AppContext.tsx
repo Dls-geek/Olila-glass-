@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Product, Sale, SaleItem, InventoryLog, CartItem, User } from '../types';
+import { masterProducts } from '../data/masterProducts';
 import { useToast } from '../components/ui';
 
 interface AppState {
@@ -132,127 +133,13 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Sample data
-const sampleProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Dinner Plate',
-    category: 'Plates',
-    purchase_price: 90,
-    selling_price: 180,
-    stock: 45,
-    low_stock_alert: 10,
-    image_url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'PLT-001',
-    created_at: '2024-01-01',
-  },
-  {
-    id: '2',
-    name: 'Ceramic Bowl',
-    category: 'Bowls',
-    purchase_price: 80,
-    selling_price: 160,
-    stock: 5,
-    low_stock_alert: 10,
-    image_url: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'BWL-001',
-    created_at: '2024-01-02',
-  },
-  {
-    id: '3',
-    name: 'Dinner Plate Set',
-    category: 'Plates',
-    purchase_price: 200,
-    selling_price: 450,
-    stock: 25,
-    low_stock_alert: 8,
-    image_url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'PLT-SET',
-    created_at: '2024-01-03',
-  },
-  {
-    id: '4',
-    name: 'Glass Tumbler',
-    category: 'Glassware',
-    purchase_price: 60,
-    selling_price: 120,
-    stock: 0,
-    low_stock_alert: 5,
-    image_url: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'GLS-001',
-    created_at: '2024-01-04',
-  },
-  {
-    id: '5',
-    name: 'Ceramic Cup',
-    category: 'Cups',
-    purchase_price: 50,
-    selling_price: 110,
-    stock: 60,
-    low_stock_alert: 15,
-    image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'CUP-001',
-    created_at: '2024-01-05',
-  },
-  {
-    id: '6',
-    name: 'Serving Platter',
-    category: 'Serving',
-    purchase_price: 180,
-    selling_price: 380,
-    stock: 15,
-    low_stock_alert: 5,
-    image_url: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=200&h=200',
-    sku: 'SRV-001',
-    created_at: '2024-01-06',
-  },
-];
-
-const todayIso = () => new Date().toISOString().split('T')[0];
-const daysAgoIso = (n: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
-};
-
-const sampleSales: Sale[] = [
-  {
-    id: 'S1',
-    date: todayIso(),
-    total_amount: 580,
-    customer_name: 'Rahim Uddin',
-    customer_phone: '01712345678',
-    items: [
-      { product_id: '1', product_name: 'Dinner Plate', quantity: 2, price: 180, subtotal: 360 },
-      { product_id: '5', product_name: 'Ceramic Cup', quantity: 2, price: 110, subtotal: 220 },
-    ],
-  },
-  {
-    id: 'S2',
-    date: daysAgoIso(1),
-    total_amount: 450,
-    customer_name: 'Fatema Begum',
-    customer_phone: '01812345678',
-    items: [
-      { product_id: '3', product_name: 'Dinner Plate Set', quantity: 1, price: 450, subtotal: 450 },
-    ],
-  },
-];
-
-const sampleLogs: InventoryLog[] = [
-  { id: 'L1', product_id: '1', product_name: 'Dinner Plate', change_type: 'add', quantity: 50, date: daysAgoIso(14) },
-  { id: 'L2', product_id: '1', product_name: 'Dinner Plate', change_type: 'sell', quantity: 2, date: todayIso() },
-  { id: 'L3', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'add', quantity: 30, date: daysAgoIso(10) },
-  { id: 'L4', product_id: '3', product_name: 'Dinner Plate Set', change_type: 'sell', quantity: 1, date: daysAgoIso(1) },
-];
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
   const [state, dispatch] = useReducer(appReducer, {
     ...initialState,
-    products: sampleProducts,
-    sales: sampleSales,
-    inventoryLogs: sampleLogs,
+    products: masterProducts,
+    sales: [],
+    inventoryLogs: [],
   });
 
   const login = async (email: string, password: string): Promise<boolean> => {

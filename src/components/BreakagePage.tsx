@@ -30,7 +30,7 @@ export function BreakagePage({ onViewStock }: { onViewStock?: () => void }) {
           >
             {products.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name} · on hand {p.stock}
+                [{p.group}] {p.sku} — {p.name} · on hand {p.stock}
               </option>
             ))}
           </Select>
