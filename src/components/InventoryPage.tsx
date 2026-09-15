@@ -24,9 +24,12 @@ export function InventoryPage() {
   const [restockQty, setRestockQty] = useState('10');
 
   const filteredProducts = products.filter((p) => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch =
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchTerm.toLowerCase());
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.group.toLowerCase().includes(q) ||
+      (p.sku || '').toLowerCase().includes(q);
     const matchesStatus =
       filterStatus === 'all' || getStockStatus(p) === filterStatus;
     return matchesSearch && matchesStatus;
@@ -112,7 +115,8 @@ export function InventoryPage() {
                   setSearchTerm(e.target.value);
                   setPage(1);
                 }}
-                className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+                placeholder="Name, SKU, group…"
+                className="h-8 w-52 rounded-[4px] border border-[#ced4da] px-2"
               />
             </div>
           </div>
@@ -123,6 +127,7 @@ export function InventoryPage() {
                 <tr className="bg-[#9e9e9e] text-left text-white">
                   <th className="px-3 py-2 font-medium">SL</th>
                   <th className="px-3 py-2 font-medium">Product</th>
+                  <th className="px-3 py-2 font-medium">Group</th>
                   <th className="px-3 py-2 font-medium">Category</th>
                   <th className="px-3 py-2 font-medium">Stock</th>
                   <th className="px-3 py-2 font-medium">Status</th>
@@ -134,7 +139,7 @@ export function InventoryPage() {
                 {paged.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-3 py-10 text-center text-[#6c757d]"
                     >
                       No stock rows match this filter.
@@ -161,6 +166,7 @@ export function InventoryPage() {
                           </div>
                         </div>
                       </td>
+                      <td className="px-3 py-2">{product.group}</td>
                       <td className="px-3 py-2">{product.category}</td>
                       <td className="px-3 py-2">{product.stock}</td>
                       <td className="px-3 py-2">

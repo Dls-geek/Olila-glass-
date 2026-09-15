@@ -25,12 +25,15 @@ const CATEGORY_OPTIONS = [
   'Other',
 ];
 
+const GROUP_OPTIONS = ['Supreme', 'Winner', 'Kleen', 'Other'];
+
 const emptyForm = {
   name: '',
-  category: 'Plates',
+  category: 'Other',
+  group: 'Supreme',
   purchase_price: '',
   selling_price: '',
-  stock: '',
+  stock: '0',
   low_stock_alert: '5',
   image_url: DEFAULT_IMAGE,
   sku: '',
@@ -51,22 +54,44 @@ export function ProductsPage({
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedGroup, setSelectedGroup] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [customCategory, setCustomCategory] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
   const [openAction, setOpenAction] = useState<string | null>(null);
 
-  const categories = ['all', ...Array.from(new Set(products.map((p) => p.category)))];
+  const categories = useMemo(
+    () => ['all', ...Array.from(new Set(products.map((p) => p.category))).sort()],
+    [products]
+  );
+  const groups = useMemo(
+    () => ['all', ...Array.from(new Set(products.map((p) => p.group))).sort()],
+    [products]
+  );
+
+  const formCategoryOptions = useMemo(() => {
+    const fromProducts = products.map((p) => p.category);
+    return Array.from(new Set([...CATEGORY_OPTIONS, ...fromProducts])).sort();
+  }, [products]);
+
+  const formGroupOptions = useMemo(() => {
+    const fromProducts = products.map((p) => p.group);
+    return Array.from(new Set([...GROUP_OPTIONS, ...fromProducts])).sort();
+  }, [products]);
 
   const filteredProducts = products.filter((p) => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch =
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.sku?.toLowerCase().includes(searchTerm.toLowerCase());
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.group.toLowerCase().includes(q) ||
+      (p.sku || '').toLowerCase().includes(q);
     const matchesCategory =
       selectedCategory === 'all' || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesGroup = selectedGroup === 'all' || p.group === selectedGroup;
+    return matchesSearch && matchesCategory && matchesGroup;
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
@@ -78,20 +103,23 @@ export function ProductsPage({
 
   const resetForm = () => {
     setFormData(emptyForm);
+    setCustomCategory(false);
     setEditingProduct(null);
   };
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.category || !formData.selling_price) {
+    if (!formData.name || !formData.category.trim() || !formData.group || !formData.selling_price) {
       toast.warning('Please fill in the required fields.');
       return;
     }
     const payload = {
       ...formData,
-      purchase_price: Number(formData.purchase_price),
+      category: formData.category.trim(),
+      group: formData.group.trim(),
+      purchase_price: Number(formData.purchase_price) || 0,
       selling_price: Number(formData.selling_price),
-      stock: Number(formData.stock),
-      low_stock_alert: Number(formData.low_stock_alert),
+      stock: Number(formData.stock) || 0,
+      low_stock_alert: Number(formData.low_stock_alert) || 5,
     };
     if (editingProduct) {
       updateProduct(editingProduct.id, payload);
@@ -107,9 +135,12 @@ export function ProductsPage({
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
+    const known = formCategoryOptions.includes(product.category);
+    setCustomCategory(!known);
     setFormData({
       name: product.name,
       category: product.category,
+      group: product.group || 'Other',
       purchase_price: product.purchase_price.toString(),
       selling_price: product.selling_price.toString(),
       stock: product.stock.toString(),
@@ -146,6 +177,7 @@ export function ProductsPage({
   const exportCsv = () => {
     const header = [
       'Name',
+      'Group',
       'Category',
       'SKU',
       'Cost',
@@ -153,7 +185,15 @@ export function ProductsPage({
       'Stock',
     ];
     const rows = filteredProducts.map((p) =>
-      [p.name, p.category, p.sku || '', p.purchase_price, p.selling_price, p.stock]
+      [
+        p.name,
+        p.group,
+        p.category,
+        p.sku || '',
+        p.purchase_price,
+        p.selling_price,
+        p.stock,
+      ]
         .map((c) => `"${String(c).replace(/"/g, '""')}"`)
         .join(',')
     );
@@ -180,16 +220,58 @@ export function ProductsPage({
         onChange={(e) => setField('name', e.target.value)}
       />
       <Select
-        label="Category *"
-        value={formData.category}
-        onChange={(e) => setField('category', e.target.value)}
+        label="Group *"
+        value={formData.group}
+        onChange={(e) => setField('group', e.target.value)}
       >
-        {CATEGORY_OPTIONS.map((c) => (
-          <option key={c} value={c}>
-            {c}
+        {formGroupOptions.map((g) => (
+          <option key={g} value={g}>
+            {g}
           </option>
         ))}
       </Select>
+      {customCategory ? (
+        <Input
+          label="Category * (custom)"
+          value={formData.category}
+          onChange={(e) => setField('category', e.target.value)}
+          placeholder="Type a new category"
+        />
+      ) : (
+        <Select
+          label="Category *"
+          value={formData.category}
+          onChange={(e) => {
+            if (e.target.value === '__custom__') {
+              setCustomCategory(true);
+              setField('category', '');
+            } else {
+              setField('category', e.target.value);
+            }
+          }}
+        >
+          {formCategoryOptions.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+          <option value="__custom__">Custom…</option>
+        </Select>
+      )}
+      {customCategory ? (
+        <button
+          type="button"
+          className="self-end pb-2 text-left text-[13px] text-[#007bff]"
+          onClick={() => {
+            setCustomCategory(false);
+            setField('category', 'Other');
+          }}
+        >
+          Use category list
+        </button>
+      ) : (
+        <span className="hidden md:block" />
+      )}
       <Input
         label="Image URL"
         value={formData.image_url}
@@ -265,7 +347,24 @@ export function ProductsPage({
         </div>
       </div>
 
-      <div className="mb-3 max-w-xs">
+      <div className="mb-3 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
+        <Select
+          label="Group"
+          value={selectedGroup}
+          onChange={(e) => {
+            setSelectedGroup(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="all">All groups</option>
+          {groups
+            .filter((g) => g !== 'all')
+            .map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+        </Select>
         <Select
           label="Category"
           value={selectedCategory}
@@ -310,18 +409,20 @@ export function ProductsPage({
               setSearchTerm(e.target.value);
               setPage(1);
             }}
-            className="h-8 w-44 rounded-[4px] border border-[#ced4da] px-2"
+            placeholder="Name, SKU, group…"
+            className="h-8 w-52 rounded-[4px] border border-[#ced4da] px-2"
           />
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-[13px]">
+        <table className="w-full min-w-[980px] text-[13px]">
           <thead>
             <tr className="bg-[#9e9e9e] text-left text-white">
               <th className="px-3 py-2 font-medium">#</th>
               <th className="px-3 py-2 font-medium">Image</th>
               <th className="px-3 py-2 font-medium">Name</th>
+              <th className="px-3 py-2 font-medium">Group</th>
               <th className="px-3 py-2 font-medium">Category</th>
               <th className="px-3 py-2 font-medium">SKU</th>
               <th className="px-3 py-2 font-medium">Cost Price</th>
@@ -334,10 +435,10 @@ export function ProductsPage({
             {paged.length === 0 ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-3 py-10 text-center text-[13px] text-[#6c757d]"
                 >
-                  No products match. Clear filters or add a plate, cup, or bowl.
+                  No products match. Clear filters or add a product.
                 </td>
               </tr>
             ) : null}
@@ -352,6 +453,7 @@ export function ProductsPage({
                   />
                 </td>
                 <td className="px-3 py-2">{product.name}</td>
+                <td className="px-3 py-2">{product.group}</td>
                 <td className="px-3 py-2">{product.category}</td>
                 <td className="px-3 py-2">{product.sku || '-'}</td>
                 <td className="px-3 py-2">{formatMoney(product.purchase_price)}</td>
@@ -406,7 +508,10 @@ export function ProductsPage({
             Previous
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .slice(0, 5)
+            .slice(
+              Math.max(0, Math.min(currentPage - 3, totalPages - 5)),
+              Math.max(0, Math.min(currentPage - 3, totalPages - 5)) + 5
+            )
             .map((n) => (
               <button
                 key={n}
