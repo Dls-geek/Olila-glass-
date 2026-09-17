@@ -13,6 +13,7 @@ import { StaffPage } from './components/StaffPage';
 import { TopSellingPage } from './components/TopSellingPage';
 import { ProfitLossPage } from './components/ProfitLossPage';
 import { ExpensePage } from './components/ExpensePage';
+import { CashLedgerPage } from './components/CashLedgerPage';
 import {
   SalesHub,
   CatalogHub,
@@ -62,7 +63,8 @@ type Page =
   | 'staff'
   | 'topSelling'
   | 'profitLoss'
-  | 'expenses';
+  | 'expenses'
+  | 'cashLedger';
 
 const HASH_PAGES: Page[] = [
   'dashboard',
@@ -89,6 +91,7 @@ const HASH_PAGES: Page[] = [
   'topSelling',
   'profitLoss',
   'expenses',
+  'cashLedger',
 ];
 
 function pageFromHash(): Page {
@@ -120,7 +123,7 @@ const parents: NavItem[] = [
   },
   {
     id: 'catalog',
-    label: 'Catalog',
+    label: 'Products',
     icon: Package,
     page: 'catalogHome',
     children: [
@@ -147,9 +150,9 @@ const parents: NavItem[] = [
     page: 'purchaseHome',
     children: [
       { label: 'Overview', page: 'purchaseHome' },
-      { label: 'Chalan List', page: 'chalan' },
+      { label: 'Purchase Status', page: 'chalan' },
       { label: 'Purchase Order', page: 'chalanNew' },
-      { label: 'পাওনা', page: 'chalanPaona' },
+      { label: 'Pending', page: 'chalanPaona' },
       { label: 'Bulk Restock', page: 'stockBulk' },
       { label: 'Import CSV', page: 'stockCsv' },
       { label: 'Purchase + Receipt', page: 'stockPurchase' },
@@ -176,6 +179,7 @@ const parents: NavItem[] = [
     children: [
       { label: 'Overview', page: 'expenseHome' },
       { label: 'Expense List', page: 'expenses' },
+      { label: 'Cash Ledger', page: 'cashLedger' },
     ],
   },
   {
@@ -364,7 +368,7 @@ function MainApp() {
             Stock
           </button>
           <button className="as-quick bg-[#6f42c1]" onClick={() => go('products')}>
-            Catalog
+            Products
           </button>
           <button className="as-quick bg-[#17a2b8]" onClick={() => go('chalan')}>
             Chalan
@@ -526,6 +530,7 @@ function MainApp() {
           {page === 'topSelling' && <TopSellingPage />}
           {page === 'profitLoss' && <ProfitLossPage />}
           {page === 'expenses' && <ExpensePage />}
+          {page === 'cashLedger' && <CashLedgerPage />}
           {page === 'staff' && <StaffPage />}
         </main>
       </div>

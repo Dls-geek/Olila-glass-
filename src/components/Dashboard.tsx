@@ -121,7 +121,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         >
           <div className="inner">
             <h4>{products.length}</h4>
-            <p>ক্যাটালগ · Catalog</p>
+            <p>পণ্য · Products</p>
           </div>
           <Package className="icon" />
         </button>

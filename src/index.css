@@ -174,10 +174,13 @@
 }
 .small-box .icon {
   position: absolute;
-  top: -10px;
-  right: 10px;
-  font-size: 70px;
-  color: rgba(0, 0, 0, 0.15);
+  top: 50%;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.18);
+  pointer-events: none;
 }
 .bg-green {
   background: #00a65a !important;

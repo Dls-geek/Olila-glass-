@@ -587,13 +587,19 @@ export function ChalanPage({
               steps={[
                 {
                   n: 1,
+                  title: 'Overview',
+                  tone: 'slate',
+                  onClick: () => onNavigate?.('purchaseHome'),
+                },
+                {
+                  n: 2,
                   title: 'Purchase Order',
                   tone: 'green',
                   active: mode === 'new',
                   onClick: () => onNavigate?.('chalanNew'),
                 },
                 {
-                  n: 2,
+                  n: 3,
                   title: 'পেমেন্ট লিংক',
                   tone: 'navy',
                   done: kpi.paid > 0,
@@ -604,7 +610,7 @@ export function ChalanPage({
                   },
                 },
                 {
-                  n: 3,
+                  n: 4,
                   title: 'মাল রিসিভ',
                   tone: 'amber',
                   done: chalans.some((c) => c.received_units > 0),
@@ -614,7 +620,7 @@ export function ChalanPage({
                   },
                 },
                 {
-                  n: 4,
+                  n: 5,
                   title: 'পাওনা দেখুন',
                   tone: 'red',
                   active: mode === 'paona',
@@ -1373,44 +1379,61 @@ export function ChalanPage({
               </table>
             </div>
 
-            <div className="rounded-xl border border-[#dee2e6] p-3">
-              <h3 className="mb-2 text-[14px] font-bold text-[#1a365d]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#dee2e6] bg-[#f8fafb] px-3 py-1.5 text-[13px]">
+              <span className="shrink-0 font-semibold text-[#1a365d]">
                 লিংকড পেমেন্ট · Linked payments
-              </h3>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-[11px] text-[#6c757d]">Due</span>
+                <strong className="font-mono text-[#b45309]">
+                  {formatMoney(
+                    Math.max(0, detail.ordered_amount - detail.paid_amount)
+                  )}
+                </strong>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-[11px] text-[#6c757d]">Pending</span>
+                <strong className="font-mono text-[#dc3545]">
+                  {formatMoney(
+                    detail.items.reduce(
+                      (sum, i) => sum + i.remaining_qty * i.unit_rate,
+                      0
+                    )
+                  )}
+                </strong>
+                <span className="text-[11px] text-[#6c757d]">
+                  ({detail.remaining_units} pcs)
+                </span>
+              </span>
               {detail.payments.length === 0 ? (
-                <p className="rounded-lg bg-[#f8f9fa] px-3 py-3 text-[13px] text-[#6c757d]">
-                  এখনও কোনো পেমেন্ট লিংক নেই। কোম্পানিকে টাকা দিলে উপরের বাটন
-                  দিয়ে এখানে রেকর্ড করুন।
-                </p>
+                <span className="text-[#6c757d]">এখনও কোনো পেমেন্ট নেই</span>
               ) : (
-                <ul className="space-y-1.5 text-[13px]">
-                  {detail.payments.map((p) => (
-                    <li
-                      key={p.id}
-                      className="flex flex-wrap items-center gap-2 rounded-lg border border-[#eef1f4] bg-[#f8fafb] px-3 py-2"
-                    >
-                      <span className="font-mono text-[12px] text-[#6c757d]">
-                        {p.paid_at}
-                      </span>
-                      <strong className="font-mono text-[#15803d]">
-                        {formatMoney(p.amount)}
-                      </strong>
-                      <span className="rounded border border-[#dee2e6] bg-white px-1.5 py-0.5 text-[11px]">
-                        {p.method}
-                      </span>
-                      {p.receipt_url && (
-                        <a
-                          href={p.receipt_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[#007bff]"
-                        >
-                          রসিদ দেখুন
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                detail.payments.map((p) => (
+                  <span
+                    key={p.id}
+                    className="inline-flex flex-wrap items-center gap-2"
+                  >
+                    <span className="font-mono text-[12px] text-[#6c757d]">
+                      {p.paid_at}
+                    </span>
+                    <strong className="font-mono text-[#15803d]">
+                      {formatMoney(p.amount)}
+                    </strong>
+                    <span className="rounded border border-[#dee2e6] bg-white px-1.5 py-0.5 text-[11px]">
+                      {p.method}
+                    </span>
+                    {p.receipt_url ? (
+                      <a
+                        href={p.receipt_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[12px] text-[#007bff]"
+                      >
+                        রসিদ
+                      </a>
+                    ) : null}
+                  </span>
+                ))
               )}
             </div>
 

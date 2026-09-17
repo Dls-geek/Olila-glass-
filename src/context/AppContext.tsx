@@ -5,7 +5,7 @@ import React, {
   useReducer,
   ReactNode,
 } from 'react';
-import { Product, Sale, SaleItem, InventoryLog, CartItem, User, StaffProfile, Expense, ExpenseType, PurchaseItemInput, PurchaseResult, PurchaseSource, Chalan, ChalanItem, ChalanPayment, ChalanStatus } from '../types';
+import { Product, Sale, SaleItem, InventoryLog, CartItem, User, StaffProfile, Expense, ExpenseTypeRow, PurchaseItemInput, PurchaseResult, PurchaseSource, Chalan, ChalanItem, ChalanPayment, ChalanStatus, CashSettings, CashLedgerLine, CashDirection } from '../types';
 import { useToast } from '../components/ui';
 import { supabase } from '../lib/supabase';
 
@@ -178,11 +178,34 @@ interface AppContextType extends AppState {
   listExpenses: (range?: { from?: string; to?: string }) => Promise<Expense[]>;
   addExpense: (input: {
     date: string;
-    type: ExpenseType;
+    type: string;
     amount: number;
     notes?: string;
   }) => Promise<boolean>;
   deleteExpense: (id: string) => Promise<boolean>;
+  listExpenseTypes: () => Promise<ExpenseTypeRow[]>;
+  addExpenseType: (name: string) => Promise<ExpenseTypeRow | null>;
+  deleteExpenseType: (id: string) => Promise<boolean>;
+  getCashSettings: () => Promise<CashSettings>;
+  updateCashSettings: (input: {
+    opening_balance: number;
+    opening_date: string;
+  }) => Promise<boolean>;
+  addCashEntry: (input: {
+    date: string;
+    direction: CashDirection;
+    amount: number;
+    note?: string;
+  }) => Promise<boolean>;
+  deleteCashEntry: (id: string) => Promise<boolean>;
+  getCashLedger: (range?: {
+    from?: string;
+    to?: string;
+  }) => Promise<{
+    settings: CashSettings;
+    lines: CashLedgerLine[];
+    totals: { cashIn: number; cashOut: number; balance: number };
+  }>;
   getCartTotal: () => number;
   getLowStockProducts: () => Product[];
   getDailySales: () => number;
@@ -1090,7 +1113,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return (data || []).map((row) => ({
       id: row.id as string,
       date: String(row.date).slice(0, 10),
-      type: row.type as ExpenseType,
+      type: row.type as string,
       amount: Number(row.amount),
       notes: (row.notes as string | null) || undefined,
       created_at: String(row.created_at),
@@ -1099,7 +1122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addExpense = async (input: {
     date: string;
-    type: ExpenseType;
+    type: string;
     amount: number;
     notes?: string;
   }): Promise<boolean> => {
@@ -1131,6 +1154,348 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const listExpenseTypes = async (): Promise<ExpenseTypeRow[]> => {
+    const { data, error } = await supabase
+      .from('expense_types')
+      .select('id, name, created_at')
+      .order('name', { ascending: true });
+    if (error) {
+      toast.error(error.message);
+      return [];
+    }
+    return (data || []).map((row) => ({
+      id: row.id as string,
+      name: row.name as string,
+      created_at: String(row.created_at),
+    }));
+  };
+
+  const addExpenseType = async (
+    name: string
+  ): Promise<ExpenseTypeRow | null> => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.warning('Type name required.');
+      return null;
+    }
+    const id = `ET_${Date.now()}`;
+    const { data, error } = await supabase
+      .from('expense_types')
+      .insert({ id, name: trimmed })
+      .select('id, name, created_at')
+      .single();
+    if (error) {
+      toast.error(
+        error.code === '23505' ? 'Type already exists.' : error.message
+      );
+      return null;
+    }
+    return {
+      id: data.id as string,
+      name: data.name as string,
+      created_at: String(data.created_at),
+    };
+  };
+
+  const deleteExpenseType = async (id: string): Promise<boolean> => {
+    const { error } = await supabase.from('expense_types').delete().eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const isCashMethod = (method?: string | null) => {
+    const v = (method || 'Cash').trim().toLowerCase();
+    return v === 'cash' || v === 'নগদ';
+  };
+
+  const getCashSettings = async (): Promise<CashSettings> => {
+    const { data, error } = await supabase
+      .from('cash_settings')
+      .select('opening_balance, opening_date')
+      .eq('id', 'default')
+      .maybeSingle();
+    if (error) {
+      toast.error(error.message);
+      return { opening_balance: 0, opening_date: new Date().toISOString().slice(0, 10) };
+    }
+    if (!data) {
+      return { opening_balance: 0, opening_date: new Date().toISOString().slice(0, 10) };
+    }
+    return {
+      opening_balance: Number(data.opening_balance),
+      opening_date: String(data.opening_date).slice(0, 10),
+    };
+  };
+
+  const updateCashSettings = async (input: {
+    opening_balance: number;
+    opening_date: string;
+  }): Promise<boolean> => {
+    if (!Number.isFinite(input.opening_balance) || input.opening_balance < 0) {
+      toast.warning('Opening balance must be 0 or more.');
+      return false;
+    }
+    const { error } = await supabase.from('cash_settings').upsert({
+      id: 'default',
+      opening_balance: input.opening_balance,
+      opening_date: input.opening_date,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const addCashEntry = async (input: {
+    date: string;
+    direction: CashDirection;
+    amount: number;
+    note?: string;
+  }): Promise<boolean> => {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) {
+      toast.warning('Amount must be greater than 0.');
+      return false;
+    }
+    const id = `CL_${Date.now()}`;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const { error } = await supabase.from('cash_ledger_entries').insert({
+      id,
+      date: input.date,
+      direction: input.direction,
+      amount: input.amount,
+      note: input.note || null,
+      created_by: user?.id ?? null,
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const deleteCashEntry = async (id: string): Promise<boolean> => {
+    const { error } = await supabase
+      .from('cash_ledger_entries')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const getCashLedger = async (range?: {
+    from?: string;
+    to?: string;
+  }): Promise<{
+    settings: CashSettings;
+    lines: CashLedgerLine[];
+    totals: { cashIn: number; cashOut: number; balance: number };
+  }> => {
+    const settings = await getCashSettings();
+
+    const [manualRes, salesRes, expensesRes, paymentsRes] = await Promise.all([
+      supabase
+        .from('cash_ledger_entries')
+        .select('id, date, direction, amount, note, created_at')
+        .order('date', { ascending: true })
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('sales')
+        .select('id, date, total_amount, paid_amount, payment_method, customer_name, created_at')
+        .order('date', { ascending: true }),
+      supabase
+        .from('expenses')
+        .select('id, date, type, amount, notes, created_at')
+        .order('date', { ascending: true }),
+      supabase
+        .from('chalan_payments')
+        .select('id, chalan_id, amount, paid_at, method, notes, created_at')
+        .order('paid_at', { ascending: true }),
+    ]);
+
+    if (manualRes.error) toast.error(manualRes.error.message);
+    if (salesRes.error) toast.error(salesRes.error.message);
+    if (expensesRes.error) toast.error(expensesRes.error.message);
+    if (paymentsRes.error) toast.error(paymentsRes.error.message);
+
+    type Raw = Omit<CashLedgerLine, 'balance'> & { sortKey: string };
+
+    const movements: Raw[] = [];
+
+    for (const row of manualRes.data || []) {
+      movements.push({
+        id: row.id as string,
+        date: String(row.date).slice(0, 10),
+        direction: row.direction as CashDirection,
+        amount: Number(row.amount),
+        source: 'manual',
+        label: row.direction === 'in' ? 'Cash in · ম্যানুয়াল' : 'Cash out · ম্যানুয়াল',
+        note: (row.note as string | null) || undefined,
+        sortKey: `${String(row.date).slice(0, 10)}T${String(row.created_at)}`,
+      });
+    }
+
+    for (const row of salesRes.data || []) {
+      if (!isCashMethod(row.payment_method as string | null)) continue;
+      const amount =
+        row.paid_amount != null
+          ? Number(row.paid_amount)
+          : Number(row.total_amount);
+      if (!(amount > 0)) continue;
+      const date = String(row.date).slice(0, 10);
+      const created = row.created_at
+        ? String(row.created_at)
+        : `${date}T12:00:00`;
+      movements.push({
+        id: `sale_${row.id}`,
+        date,
+        direction: 'in',
+        amount,
+        source: 'sale',
+        label: `Sale ${row.id}${row.customer_name ? ` · ${row.customer_name}` : ''}`,
+        note: undefined,
+        sortKey: `${date}T${created}`,
+      });
+    }
+
+    for (const row of expensesRes.data || []) {
+      const amount = Number(row.amount);
+      if (!(amount > 0)) continue;
+      const date = String(row.date).slice(0, 10);
+      movements.push({
+        id: `exp_${row.id}`,
+        date,
+        direction: 'out',
+        amount,
+        source: 'expense',
+        label: `Expense · ${row.type}`,
+        note: (row.notes as string | null) || undefined,
+        sortKey: `${date}T${String(row.created_at)}`,
+      });
+    }
+
+    for (const row of paymentsRes.data || []) {
+      if (!isCashMethod(row.method as string | null)) continue;
+      const amount = Number(row.amount);
+      if (!(amount > 0)) continue;
+      const date = String(row.paid_at).slice(0, 10);
+      const created = row.created_at
+        ? String(row.created_at)
+        : String(row.paid_at);
+      movements.push({
+        id: `cpay_${row.id}`,
+        date,
+        direction: 'out',
+        amount,
+        source: 'chalan',
+        label: `Chalan payment · ${row.chalan_id}`,
+        note: (row.notes as string | null) || undefined,
+        sortKey: `${date}T${created}`,
+      });
+    }
+
+    movements.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+
+    const full: CashLedgerLine[] = [
+      {
+        id: 'opening',
+        date: settings.opening_date,
+        direction: 'in',
+        amount: settings.opening_balance,
+        source: 'opening',
+        label: 'Opening balance · শুরুর নগদ',
+        balance: settings.opening_balance,
+      },
+    ];
+
+    let bal = settings.opening_balance;
+    for (const m of movements) {
+      // Movements before opening_date still affect math if any; keep after opening for book clarity
+      if (m.date < settings.opening_date) continue;
+      bal += m.direction === 'in' ? m.amount : -m.amount;
+      full.push({
+        id: m.id,
+        date: m.date,
+        direction: m.direction,
+        amount: m.amount,
+        source: m.source,
+        label: m.label,
+        note: m.note,
+        balance: bal,
+      });
+    }
+
+    const from = range?.from;
+    const to = range?.to;
+    let lines = full;
+    if (from || to) {
+      const inRange = full.filter((l) => {
+        if (l.source === 'opening') {
+          if (from && settings.opening_date < from) return false;
+          if (to && settings.opening_date > to) return false;
+          return true;
+        }
+        if (from && l.date < from) return false;
+        if (to && l.date > to) return false;
+        return true;
+      });
+
+      if (from && settings.opening_date < from) {
+        // Period opening = balance just before first in-range movement
+        let periodOpen = settings.opening_balance;
+        for (const l of full) {
+          if (l.source === 'opening') continue;
+          if (l.date < from) periodOpen = l.balance;
+          else break;
+        }
+        const periodLine: CashLedgerLine = {
+          id: 'period_opening',
+          date: from,
+          direction: 'in',
+          amount: periodOpen,
+          source: 'opening',
+          label: 'Period opening · রেঞ্জ শুরু',
+          balance: periodOpen,
+        };
+        lines = [periodLine, ...inRange.filter((l) => l.source !== 'opening')];
+        // Recompute balances for display continuity
+        let b = periodOpen;
+        lines = lines.map((l, i) => {
+          if (i === 0) return l;
+          b += l.direction === 'in' ? l.amount : -l.amount;
+          return { ...l, balance: b };
+        });
+      } else {
+        lines = inRange;
+      }
+    }
+
+    let cashIn = 0;
+    let cashOut = 0;
+    for (const l of lines) {
+      if (l.source === 'opening') continue;
+      if (l.direction === 'in') cashIn += l.amount;
+      else cashOut += l.amount;
+    }
+    const balance =
+      lines.length > 0 ? lines[lines.length - 1].balance : settings.opening_balance;
+
+    return {
+      settings,
+      lines,
+      totals: { cashIn, cashOut, balance },
+    };
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1160,6 +1525,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         listExpenses,
         addExpense,
         deleteExpense,
+        listExpenseTypes,
+        addExpenseType,
+        deleteExpenseType,
+        getCashSettings,
+        updateCashSettings,
+        addCashEntry,
+        deleteCashEntry,
+        getCashLedger,
         getCartTotal,
         getLowStockProducts,
         getDailySales,

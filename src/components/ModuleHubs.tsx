@@ -13,6 +13,7 @@ import {
   Warehouse,
   AlertTriangle,
   List,
+  BookOpen,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatMoney } from '../utils/money';
@@ -96,8 +97,8 @@ export function CatalogHub({ onNavigate }: { onNavigate: Go }) {
   return (
     <div className="space-y-3">
       <ModuleHeader
-        eyebrow="Catalog · Module"
-        title="Catalog Hub · ক্যাটালগ"
+        eyebrow="Products · Module"
+        title="Products Hub · পণ্য"
         subtitle="পণ্য তালিকা ও নতুন SKU — আলাদা পেজে।"
         accent="green"
       />
@@ -195,7 +196,7 @@ export function PurchaseHub({ onNavigate }: { onNavigate: Go }) {
         <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
           <HubActionCard
             tone="green"
-            title="Chalan List"
+            title="Purchase Status"
             description="সব অর্ডার ও স্ট্যাটাস।"
             icon={<ClipboardList className="h-5 w-5" />}
             onClick={() => onNavigate('chalan')}
@@ -209,7 +210,7 @@ export function PurchaseHub({ onNavigate }: { onNavigate: Go }) {
           />
           <HubActionCard
             tone="amber"
-            title="পাওনা"
+            title="Pending"
             description="বাকি মাল রিসিভ করুন।"
             icon={<Truck className="h-5 w-5" />}
             onClick={() => onNavigate('chalanPaona')}
@@ -309,7 +310,7 @@ export function ExpenseHub({ onNavigate }: { onNavigate: Go }) {
       <ModuleHeader
         eyebrow="Expense · Module"
         title="Expense Hub · খরচ"
-        subtitle="দোকানের অপারেটিং খরচ ট্র্যাক করুন।"
+        subtitle="দোকানের অপারেটিং খরচ ও নগদ খাতা।"
         accent="amber"
       />
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -324,6 +325,13 @@ export function ExpenseHub({ onNavigate }: { onNavigate: Go }) {
             description="খরচ যোগ/দেখুন (types + amounts)।"
             icon={<Wallet className="h-5 w-5" />}
             onClick={() => onNavigate('expenses')}
+          />
+          <HubActionCard
+            tone="green"
+            title="Cash Ledger"
+            description="নগদ ইন/আউট + রানিং ব্যালেন্স।"
+            icon={<BookOpen className="h-5 w-5" />}
+            onClick={() => onNavigate('cashLedger')}
           />
         </div>
       </SectionCard>

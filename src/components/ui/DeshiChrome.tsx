@@ -25,13 +25,17 @@ export function StatTile({
   };
   return (
     <div
-      className={`rounded-xl bg-gradient-to-br ${tones[tone]} px-3 py-3 text-white shadow-sm`}
+      className={`min-w-0 rounded-lg bg-gradient-to-br ${tones[tone]} px-2.5 py-2 text-white shadow-sm`}
     >
-      <p className="text-[11px] font-medium text-white/80">{label}</p>
-      <p className="mt-0.5 font-mono text-xl font-bold tabular-nums tracking-tight">
+      <p className="truncate text-[10px] font-medium leading-tight text-white/85">
+        {label}
+      </p>
+      <p className="mt-0.5 truncate font-mono text-lg font-bold tabular-nums tracking-tight leading-none">
         {value}
       </p>
-      {hint ? <p className="mt-0.5 text-[11px] text-white/70">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-0.5 truncate text-[10px] text-white/70">{hint}</p>
+      ) : null}
     </div>
   );
 }
@@ -96,7 +100,7 @@ export function SectionCard({
   actions,
   children,
 }: {
-  title: string;
+  title?: string;
   subtitle?: string;
   accent?: 'navy' | 'green' | 'amber' | 'red';
   actions?: ReactNode;
@@ -110,18 +114,20 @@ export function SectionCard({
   };
   return (
     <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#f8fafb] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className={cn('h-8 w-1 rounded-full', bar[accent])} />
-          <div>
-            <h2 className="text-[15px] font-bold text-[#1a365d]">{title}</h2>
-            {subtitle ? (
-              <p className="text-[12px] text-[#6c757d]">{subtitle}</p>
-            ) : null}
+      {title ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#f8fafb] px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className={cn('h-8 w-1 rounded-full', bar[accent])} />
+            <div>
+              <h2 className="text-[15px] font-bold text-[#1a365d]">{title}</h2>
+              {subtitle ? (
+                <p className="text-[12px] text-[#6c757d]">{subtitle}</p>
+              ) : null}
+            </div>
           </div>
+          {actions}
         </div>
-        {actions}
-      </div>
+      ) : null}
       {children}
     </div>
   );

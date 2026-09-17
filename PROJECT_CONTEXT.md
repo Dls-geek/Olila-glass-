@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-15 (module hubs + staff + reports + expense)
+Last updated: 2026-09-17 (Products nav rename + small-box icons)
 
 ---
 
@@ -53,7 +53,7 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 |---------|------|--------|
 | `dashboard` | `#/dashboard` | Shop dashboard |
 | `salesHome` | `#/salesHome` | Sales module hub |
-| `catalogHome` | `#/catalogHome` | Catalog module hub |
+| `catalogHome` | `#/catalogHome` | Products module hub |
 | `inventoryHome` | `#/inventoryHome` | Inventory module hub |
 | `purchaseHome` | `#/purchaseHome` | Purchase module hub |
 | `reportsHome` | `#/reportsHome` | Reports module hub |
@@ -70,9 +70,10 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 | `topSelling` | `#/topSelling` | Top selling report |
 | `profitLoss` | `#/profitLoss` | Profit & loss |
 | `expenses` | `#/expenses` | Expense list |
+| `cashLedger` | `#/cashLedger` | Cash ledger (নগদ খাতা) |
 | `staff` | `#/staff` | Staff invite / roles |
 
-Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children are deep links. Domains: Dashboard · Sales · Catalog · Inventory · Purchase · Reports · Expense · Settings.
+Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children are deep links. Domains: Dashboard · Sales · Products · Inventory · Purchase · Reports · Expense · Settings.
 
 ### State
 
@@ -86,6 +87,7 @@ Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children ar
 - **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
 - **Staff:** Edge Function `invite-staff` (admin JWT + service role); `profiles.email`; `is_admin()` helper.
 - **Expenses:** table `expenses` (type/amount/date/notes); feeds P&L net profit.
+- **Cash ledger:** `cash_settings` (opening balance/date) + `cash_ledger_entries` (manual in/out); UI merges Cash sales, expenses, Cash chalan payments, and manual entries with running balance.
 
 ### Types ([`src/types/index.ts`](src/types/index.ts))
 
@@ -106,9 +108,11 @@ CartItem { product, quantity }
 User { id, name, email, role: 'admin'|'staff' }
 StaffProfile { id, name, email, role, created_at }
 Expense { id, date, type, amount, notes?, created_at }
+CashSettings { opening_balance, opening_date }
+CashLedgerLine { id, date, direction: 'in'|'out', amount, source, label, note?, balance }
 ```
 
-DB also has `profiles` (id → auth.users, name, role, email) and `expenses`.
+DB also has `profiles` (id → auth.users, name, role, email), `expenses`, `expense_types`, `cash_settings`, `cash_ledger_entries`.
 
 ---
 
@@ -151,6 +155,7 @@ Form helpers on Products page:
 | Top Selling | `TopSellingPage.tsx` | Ranked SKUs + chart by date range |
 | P&L | `ProfitLossPage.tsx` | Revenue − COGS − expenses |
 | Expense | `ExpensePage.tsx` | Add/list/delete shop expenses |
+| Cash Ledger | `CashLedgerPage.tsx` | Opening balance + merge Cash sales/expenses/chalan pays + manual in/out; running balance |
 | Staff | `StaffPage.tsx` | Admin invite + role change |
 
 **Stock rules:** no add-to-cart when OOS; checkout blocked if qty > stock; breakage cannot exceed on-hand.
@@ -184,6 +189,7 @@ Form helpers on Products page:
 - [x] Module hubs per domain (Sales/Catalog/Inventory/Purchase/Reports/Expense/Settings)
 - [x] Reports: Top Selling + Profit & Loss (expenses included in net)
 - [x] Expense module (list + types)
+- [x] Cash ledger (opening + auto Cash flows + manual entries)
 - [x] README / SETUP_GUIDE rewritten for Olila + Supabase (no ShopEase/Firebase)
 - [x] Removed unused deps `html2canvas`, `jspdf`
 - [x] Revoked `anon` EXECUTE on shop SECURITY DEFINER RPCs (authenticated only)
@@ -208,7 +214,7 @@ src/utils/productPattern.ts
 src/utils/categorizeProduct.ts
 src/utils/printReceipt.ts
 public/product-patterns/   # 25 pattern-art PNG placeholders
-src/components/{LoginPage,Dashboard,ModuleHubs,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,TopSellingPage,ProfitLossPage,ExpensePage,StaffPage,ReceiptSlip}.tsx
+src/components/{LoginPage,Dashboard,ModuleHubs,ProductsPage,BillingPage,InventoryPage,ChalanPage,BreakagePage,SalesPage,TopSellingPage,ProfitLossPage,ExpensePage,CashLedgerPage,StaffPage,ReceiptSlip}.tsx
 src/components/ui/
 src/components/ui/DeshiChrome.tsx
 .env.example
@@ -220,6 +226,8 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-17 | Sidebar domain rename Catalog → Products; dashboard small-box icons no longer clipped. |
+| 2026-09-16 | Cash ledger: `cash_settings` + `cash_ledger_entries`; merges Cash sales, expenses, Cash chalan payments + manual in/out with running balance; Expense hub + nav. |
 | 2026-09-15 | Module hubs per domain; Staff invite (Edge Function); Top Selling + P&L; Expenses table/UI; README/SETUP rewrite; remove html2canvas/jspdf; revoke anon RPC execute. |
 | 2026-09-15 | Add Product: bulk catalog upload (CSV + Excel via `xlsx`, PDF tip); template download + preview/import; `parseProductCatalog`. |
 | 2026-09-15 | Chalan StepHint buttons clickable: navigate New/List/পাওনা; detail steps open pay/receive panels. |

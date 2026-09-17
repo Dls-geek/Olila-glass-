@@ -13,21 +13,53 @@ export interface StaffProfile {
   created_at: string;
 }
 
-export type ExpenseType =
-  | 'Rent'
-  | 'Salary'
-  | 'Transport'
-  | 'Utilities'
-  | 'Packaging'
-  | 'Misc';
+export interface ExpenseTypeRow {
+  id: string;
+  name: string;
+  created_at: string;
+}
 
 export interface Expense {
   id: string;
   date: string;
-  type: ExpenseType;
+  type: string;
   amount: number;
   notes?: string;
   created_at: string;
+}
+
+export type CashDirection = 'in' | 'out';
+
+export type CashLedgerSource =
+  | 'opening'
+  | 'sale'
+  | 'expense'
+  | 'chalan'
+  | 'manual';
+
+export interface CashSettings {
+  opening_balance: number;
+  opening_date: string;
+}
+
+export interface CashLedgerEntry {
+  id: string;
+  date: string;
+  direction: CashDirection;
+  amount: number;
+  note?: string;
+  created_at: string;
+}
+
+export interface CashLedgerLine {
+  id: string;
+  date: string;
+  direction: CashDirection;
+  amount: number;
+  source: CashLedgerSource;
+  label: string;
+  note?: string;
+  balance: number;
 }
 
 export interface Product {

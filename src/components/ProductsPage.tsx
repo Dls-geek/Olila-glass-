@@ -67,7 +67,7 @@ export function ProductsPage({
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [customCategory, setCustomCategory] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [page, setPage] = useState(1);
   const csvRef = useRef<HTMLInputElement>(null);
   const xlsRef = useRef<HTMLInputElement>(null);
@@ -605,7 +605,6 @@ export function ProductsPage({
       <ModuleHeader
         eyebrow="Products · Catalog"
         title="Product List · পণ্য তালিকা"
-        subtitle="গ্রুপ/ক্যাটাগরি ফিল্টার, CSV এক্সপোর্ট, নতুন পণ্য যোগ।"
         actions={
           <>
             <Button variant="info" size="sm" onClick={exportCsv}>
@@ -628,17 +627,13 @@ export function ProductsPage({
       />
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <StatTile label="মোট SKU · Total" value={products.length} tone="navy" />
-        <StatTile label="গ্রুপ · Groups" value={groupCount} tone="blue" />
-        <StatTile label="কম স্টক · Low" value={lowStockCount} tone="amber" />
-        <StatTile label="শেল্ফ খালি · Out" value={outCount} tone="red" />
+        <StatTile label="মোট SKU" value={products.length} tone="navy" />
+        <StatTile label="Groups" value={groupCount} tone="blue" />
+        <StatTile label="Low stock" value={lowStockCount} tone="amber" />
+        <StatTile label="Out of stock" value={outCount} tone="red" />
       </div>
 
-      <SectionCard
-        title="ক্যাটালগ · All products"
-        subtitle="Search, filter, edit or delete."
-        accent="green"
-      >
+      <SectionCard>
         <div className="grid grid-cols-1 gap-2 border-b border-[#eef1f4] px-4 py-2.5 sm:grid-cols-2">
           <Select
             label="Group"
