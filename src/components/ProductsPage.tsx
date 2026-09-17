@@ -17,11 +17,11 @@ import {
   Input,
   Modal,
   ModuleHeader,
+  ProductSearchBox,
   SectionCard,
   Select,
   StatTile,
   TablePager,
-  TableToolbar,
   darkThead,
   zebraRow,
   useToast,
@@ -209,7 +209,63 @@ export function ProductsPage({
     a.download = 'olila-products.csv';
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Export downloaded.');
+    toast.success('CSV downloaded.');
+  };
+
+  const exportRows = () =>
+    filteredProducts.map((p) => ({
+      Name: p.name,
+      Group: p.group,
+      Category: p.category,
+      SKU: p.sku || '',
+      Cost: p.purchase_price,
+      Selling: p.selling_price,
+      Stock: p.stock,
+    }));
+
+  const exportXl = () => {
+    const ws = XLSX.utils.json_to_sheet(exportRows());
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Products');
+    XLSX.writeFile(wb, 'olila-products.xlsx');
+    toast.success('Excel downloaded.');
+  };
+
+  const exportPdf = () => {
+    const rows = exportRows();
+    const escape = (s: string | number) =>
+      String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    const body = rows
+      .map(
+        (r) =>
+          `<tr><td>${escape(r.Name)}</td><td>${escape(r.Group)}</td><td>${escape(r.Category)}</td><td>${escape(r.SKU)}</td><td>${escape(r.Cost)}</td><td>${escape(r.Selling)}</td><td>${escape(r.Stock)}</td></tr>`
+      )
+      .join('');
+    const html = `<!DOCTYPE html><html><head><title>Olila Products</title>
+<style>
+  body{font-family:system-ui,sans-serif;font-size:11px;color:#111;margin:16px}
+  h1{font-size:16px;margin:0 0 12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{border:1px solid #ccc;padding:4px 6px;text-align:left}
+  th{background:#343a40;color:#fff}
+  @media print{body{margin:0}}
+</style></head><body>
+<h1>Olila Glass · Product List (${rows.length})</h1>
+<table><thead><tr><th>Name</th><th>Group</th><th>Category</th><th>SKU</th><th>Cost</th><th>Selling</th><th>Stock</th></tr></thead>
+<tbody>${body}</tbody></table>
+<script>window.onload=function(){window.print()}</script>
+</body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) {
+      toast.warning('Allow pop-ups to export PDF.');
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   };
 
   const applyImportParse = (
@@ -609,7 +665,15 @@ export function ProductsPage({
           <>
             <Button variant="info" size="sm" onClick={exportCsv}>
               <Download className="h-3.5 w-3.5" />
-              Export CSV
+              CSV
+            </Button>
+            <Button variant="secondary" size="sm" onClick={exportXl}>
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              XL
+            </Button>
+            <Button variant="secondary" size="sm" onClick={exportPdf}>
+              <FileText className="h-3.5 w-3.5" />
+              PDF
             </Button>
             <Button
               size="sm"
@@ -634,10 +698,12 @@ export function ProductsPage({
       </div>
 
       <SectionCard>
-        <div className="grid grid-cols-1 gap-2 border-b border-[#eef1f4] px-4 py-2.5 sm:grid-cols-2">
+        <div className="flex flex-col gap-2 border-b border-[#eef1f4] px-3 py-2 sm:flex-row sm:items-end">
           <Select
             label="Group"
             value={selectedGroup}
+            containerClassName="sm:w-44 sm:shrink-0"
+            className="h-8 text-[13px]"
             onChange={(e) => {
               setSelectedGroup(e.target.value);
               setPage(1);
@@ -655,6 +721,8 @@ export function ProductsPage({
           <Select
             label="Category"
             value={selectedCategory}
+            containerClassName="sm:w-52 sm:shrink-0"
+            className="h-8 text-[13px]"
             onChange={(e) => {
               setSelectedCategory(e.target.value);
               setPage(1);
@@ -669,22 +737,26 @@ export function ProductsPage({
                 </option>
               ))}
           </Select>
+          <div className="min-w-0 flex-1">
+            <span className="mb-1 block text-[12px] font-medium text-[#495057]">
+              Search
+            </span>
+            <ProductSearchBox
+              products={products}
+              value={searchTerm}
+              onChange={(v) => {
+                setSearchTerm(v);
+                setPage(1);
+              }}
+              placeholder="Name, SKU, group…"
+              className="w-full"
+              inputClassName="h-8 pl-8 text-[13px]"
+              showMeta={false}
+              limit={10}
+              aria-label="Search name or SKU"
+            />
+          </div>
         </div>
-
-        <TableToolbar
-          pageSize={pageSize}
-          onPageSize={(n) => {
-            setPageSize(n);
-            setPage(1);
-          }}
-          search={searchTerm}
-          onSearch={(v) => {
-            setSearchTerm(v);
-            setPage(1);
-          }}
-          searchPlaceholder="Name, SKU, group…"
-          suggestProducts={products}
-        />
 
         {paged.length === 0 ? (
           <div className="px-6 py-12 text-center">
@@ -707,19 +779,38 @@ export function ProductsPage({
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[980px] text-[13px]">
+              <table className="w-full min-w-[980px] table-auto text-[13px]">
                 <thead>
                   <tr className={darkThead}>
-                    <th>#</th>
-                    <th>Image</th>
+                    <th className="w-10">#</th>
+                    <th className="w-14">Image</th>
                     <th>নাম</th>
                     <th>Group</th>
                     <th>Category</th>
                     <th>SKU</th>
                     <th>Cost</th>
                     <th>MRP</th>
-                    <th>Stock</th>
-                    <th>Action</th>
+                    <th className="w-16">Stock</th>
+                    <th className="w-0 whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5">
+                        <span>Action</span>
+                        <select
+                          value={pageSize}
+                          onChange={(e) => {
+                            setPageSize(Number(e.target.value));
+                            setPage(1);
+                          }}
+                          className="h-6 rounded border-0 bg-white/95 px-1 text-[11px] font-medium text-[#212529]"
+                          aria-label="Rows per page"
+                        >
+                          {[10, 25, 50].map((n) => (
+                            <option key={n} value={n}>
+                              {n}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -750,8 +841,8 @@ export function ProductsPage({
                         {formatMoney(product.selling_price)}
                       </td>
                       <td className="px-3 py-2.5 font-mono">{product.stock}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex flex-wrap gap-1">
+                      <td className="w-0 whitespace-nowrap px-3 py-2.5">
+                        <div className="inline-flex gap-1">
                           <Button
                             size="sm"
                             variant="info"
