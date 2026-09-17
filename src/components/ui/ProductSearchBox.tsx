@@ -130,37 +130,32 @@ export function ProductSearchBox({
                   role="option"
                   aria-selected={activeRow}
                   className={cn(
-                    'flex w-full items-start gap-2 px-3 py-2 text-left text-[13px]',
+                    'flex w-full items-center gap-2 px-3 py-2 text-left',
                     activeRow ? 'bg-[#e8f5ee]' : 'hover:bg-[#f8f9fa]'
                   )}
                   onMouseEnter={() => setActive(idx)}
                   onClick={() => pick(p)}
                 >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-bold text-[#1a365d]">
-                      {p.name}
+                  <span className="min-w-0 flex-1 truncate text-[14px] font-bold leading-snug text-[#111827]">
+                    {p.name}
+                    <span className="text-[#111827]">
+                      {' '}
+                      Code: {p.sku || p.id}
                     </span>
-                    <span className="mt-0.5 flex flex-wrap gap-x-2 text-[12px] text-[#6c757d]">
-                      <span className="font-mono font-bold text-[#1a365d]">
-                        {p.sku || p.id}
+                    {showMeta ? (
+                      <span className="ml-2 font-bold text-[#15803d]">
+                        {formatMoney(p.selling_price)}
+                        <span
+                          className={
+                            p.stock === 0
+                              ? ' ml-2 text-[#dc3545]'
+                              : ' ml-2 text-[#343a40]'
+                          }
+                        >
+                          Qty {p.stock}
+                        </span>
                       </span>
-                      {showMeta ? (
-                        <>
-                          <span className="font-bold text-[#15803d]">
-                            {formatMoney(p.selling_price)}
-                          </span>
-                          <span
-                            className={
-                              p.stock === 0
-                                ? 'font-bold text-[#dc3545]'
-                                : 'font-bold text-[#343a40]'
-                            }
-                          >
-                            Qty {p.stock}
-                          </span>
-                        </>
-                      ) : null}
-                    </span>
+                    ) : null}
                   </span>
                 </button>
               </li>

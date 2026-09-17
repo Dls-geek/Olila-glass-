@@ -27,14 +27,14 @@
   top: 0;
   z-index: 40;
   display: flex;
-  height: 77px;
+  height: 52px;
   background: #fff;
   border-top: 3px solid #00a65a;
   box-shadow: 4px 1px 5px rgba(0, 0, 0, 0.1);
 }
 .as-topbar-left {
   width: 250px;
-  height: 74px;
+  height: 49px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,15 +55,15 @@
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
-  padding: 0 12px;
-  gap: 6px;
+  padding: 0 10px;
+  gap: 5px;
 }
 .as-user {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  height: 74px;
+  height: 49px;
   padding: 0 14px 0 12px;
   border-left: 1px solid #eee;
   background: #fff;

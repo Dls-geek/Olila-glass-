@@ -27,12 +27,14 @@ export function StatTile({
     <div
       className={`min-w-0 rounded-lg bg-gradient-to-br ${tones[tone]} px-2.5 py-2 text-white shadow-sm`}
     >
-      <p className="truncate text-[10px] font-medium leading-tight text-white/85">
-        {label}
-      </p>
-      <p className="mt-0.5 truncate font-mono text-lg font-bold tabular-nums tracking-tight leading-none">
-        {value}
-      </p>
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-[16px] font-bold leading-tight tracking-tight text-white">
+          {label}
+        </p>
+        <p className="shrink-0 font-mono text-[22px] font-bold tabular-nums leading-none tracking-tight text-white">
+          {value}
+        </p>
+      </div>
       {hint ? (
         <p className="mt-0.5 truncate text-[10px] text-white/70">{hint}</p>
       ) : null}
@@ -66,16 +68,16 @@ export function ModuleHeader({
     >
       <div
         className={cn(
-          'border-b border-[#eef1f4] bg-gradient-to-r px-4 py-3',
+          'border-b border-[#eef1f4] bg-gradient-to-r px-4 py-2.5',
           accents[accent]
         )}
       >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-[#00a65a]">
               {eyebrow}
             </p>
-            <h1 className="mt-0.5 text-[20px] font-bold text-[#1a365d]">
+            <h1 className="mt-0.5 text-[18px] font-bold leading-tight text-[#1a365d]">
               {title}
             </h1>
             {subtitle ? (
@@ -85,7 +87,9 @@ export function ModuleHeader({
             ) : null}
           </div>
           {actions ? (
-            <div className="flex flex-wrap gap-2">{actions}</div>
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              {actions}
+            </div>
           ) : null}
         </div>
       </div>

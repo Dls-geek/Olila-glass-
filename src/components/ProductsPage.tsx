@@ -241,20 +241,59 @@ export function ProductsPage({
     const body = rows
       .map(
         (r) =>
-          `<tr><td>${escape(r.Name)}</td><td>${escape(r.Group)}</td><td>${escape(r.Category)}</td><td>${escape(r.SKU)}</td><td>${escape(r.Cost)}</td><td>${escape(r.Selling)}</td><td>${escape(r.Stock)}</td></tr>`
+          `<tr><td class="n">${escape(r.Name)}</td><td>${escape(r.Group)}</td><td>${escape(r.Category)}</td><td class="sku">${escape(r.SKU)}</td><td class="num">${escape(r.Cost)}</td><td class="num">${escape(r.Selling)}</td><td class="num">${escape(r.Stock)}</td></tr>`
       )
       .join('');
-    const html = `<!DOCTYPE html><html><head><title>Olila Products</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Olila Products</title>
 <style>
-  body{font-family:system-ui,sans-serif;font-size:11px;color:#111;margin:16px}
-  h1{font-size:16px;margin:0 0 12px}
-  table{width:100%;border-collapse:collapse}
-  th,td{border:1px solid #ccc;padding:4px 6px;text-align:left}
-  th{background:#343a40;color:#fff}
-  @media print{body{margin:0}}
+  @page{size:A4 portrait;margin:10mm}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,sans-serif;
+    font-size:8.5pt;
+    line-height:1.25;
+    color:#111;
+    width:190mm;
+    max-width:100%;
+    margin:0 auto;
+    padding:0;
+  }
+  h1{font-size:12pt;margin:0 0 6mm;font-weight:700}
+  .meta{font-size:8pt;color:#555;margin:-4mm 0 5mm}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  thead{display:table-header-group}
+  tr{page-break-inside:avoid}
+  th,td{
+    border:0.4pt solid #999;
+    padding:2.5pt 3pt;
+    text-align:left;
+    vertical-align:top;
+    word-wrap:break-word;
+    overflow-wrap:anywhere;
+  }
+  th{background:#343a40;color:#fff;font-weight:600;font-size:8pt}
+  td.n{width:28%}
+  td.sku,.sku{font-family:ui-monospace,monospace;font-size:7.5pt}
+  td.num,.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  col.c-name{width:28%}
+  col.c-group{width:12%}
+  col.c-cat{width:18%}
+  col.c-sku{width:14%}
+  col.c-cost{width:10%}
+  col.c-mrp{width:10%}
+  col.c-stock{width:8%}
+  @media print{
+    body{width:auto;max-width:none}
+  }
 </style></head><body>
-<h1>Olila Glass · Product List (${rows.length})</h1>
-<table><thead><tr><th>Name</th><th>Group</th><th>Category</th><th>SKU</th><th>Cost</th><th>Selling</th><th>Stock</th></tr></thead>
+<h1>Olila Glass · Product List</h1>
+<p class="meta">${rows.length} products · A4 · ${new Date().toLocaleDateString()}</p>
+<table>
+<colgroup>
+  <col class="c-name"/><col class="c-group"/><col class="c-cat"/><col class="c-sku"/><col class="c-cost"/><col class="c-mrp"/><col class="c-stock"/>
+</colgroup>
+<thead><tr><th>Name</th><th>Group</th><th>Category</th><th>SKU</th><th>Cost</th><th>Selling</th><th>Stock</th></tr></thead>
 <tbody>${body}</tbody></table>
 <script>window.onload=function(){window.print()}</script>
 </body></html>`;
@@ -667,12 +706,12 @@ export function ProductsPage({
               <Download className="h-3.5 w-3.5" />
               CSV
             </Button>
-            <Button variant="secondary" size="sm" onClick={exportXl}>
-              <FileSpreadsheet className="h-3.5 w-3.5" />
+            <Button variant="info" size="sm" onClick={exportXl}>
+              <Download className="h-3.5 w-3.5" />
               XL
             </Button>
-            <Button variant="secondary" size="sm" onClick={exportPdf}>
-              <FileText className="h-3.5 w-3.5" />
+            <Button variant="info" size="sm" onClick={exportPdf}>
+              <Download className="h-3.5 w-3.5" />
               PDF
             </Button>
             <Button
@@ -691,7 +730,7 @@ export function ProductsPage({
       />
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <StatTile label="মোট SKU" value={products.length} tone="navy" />
+        <StatTile label="Total Product" value={products.length} tone="navy" />
         <StatTile label="Groups" value={groupCount} tone="blue" />
         <StatTile label="Low stock" value={lowStockCount} tone="amber" />
         <StatTile label="Out of stock" value={outCount} tone="red" />
@@ -738,7 +777,7 @@ export function ProductsPage({
               ))}
           </Select>
           <div className="min-w-0 flex-1">
-            <span className="mb-1 block text-[12px] font-medium text-[#495057]">
+            <span className="mb-1 block text-[12px] font-bold text-[#212529]">
               Search
             </span>
             <ProductSearchBox
@@ -779,7 +818,7 @@ export function ProductsPage({
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[980px] table-auto text-[13px]">
+              <table className="w-full min-w-[980px] table-auto text-[14px] text-[#212529]">
                 <thead>
                   <tr className={darkThead}>
                     <th className="w-10">#</th>
@@ -816,7 +855,7 @@ export function ProductsPage({
                 <tbody>
                   {paged.map((product, idx) => (
                     <tr key={product.id} className={zebraRow(idx)}>
-                      <td className="px-3 py-2.5 text-[#6c757d]">
+                      <td className="px-3 py-2.5 text-[#495057]">
                         {start + idx}
                       </td>
                       <td className="px-3 py-2.5">
@@ -826,21 +865,27 @@ export function ProductsPage({
                           className="h-10 w-10 rounded object-cover"
                         />
                       </td>
-                      <td className="px-3 py-2.5 font-medium text-[#1a365d]">
+                      <td className="px-3 py-2.5 font-semibold text-[#111827]">
                         {product.name}
                       </td>
-                      <td className="px-3 py-2.5">{product.group}</td>
-                      <td className="px-3 py-2.5">{product.category}</td>
-                      <td className="px-3 py-2.5 font-mono text-[12px]">
+                      <td className="px-3 py-2.5 text-[#212529]">
+                        {product.group}
+                      </td>
+                      <td className="px-3 py-2.5 text-[#212529]">
+                        {product.category}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-[13px] font-bold text-[#111827]">
                         {product.sku || '-'}
                       </td>
-                      <td className="px-3 py-2.5 font-mono">
+                      <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
                         {formatMoney(product.purchase_price)}
                       </td>
-                      <td className="px-3 py-2.5 font-mono">
+                      <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
                         {formatMoney(product.selling_price)}
                       </td>
-                      <td className="px-3 py-2.5 font-mono">{product.stock}</td>
+                      <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
+                        {product.stock}
+                      </td>
                       <td className="w-0 whitespace-nowrap px-3 py-2.5">
                         <div className="inline-flex gap-1">
                           <Button

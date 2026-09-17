@@ -197,16 +197,16 @@ const parents: NavItem[] = [
 function Logo() {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[3px] border-[#00a65a] bg-white text-center text-[9px] font-bold leading-[1.1] text-[#008d4c]">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#00a65a] bg-white text-center text-[8px] font-bold leading-[1.05] text-[#008d4c]">
         অলিলা
         <br />
         গ্লাস
       </div>
       <div className="hidden min-w-0 sm:block">
-        <p className="truncate text-[14px] font-bold leading-tight text-[#008d4c]">
+        <p className="truncate text-[13px] font-bold leading-tight text-[#008d4c]">
           Olila Glass
         </p>
-        <p className="truncate text-[11px] text-[#98a6ad]">Tableware shop</p>
+        <p className="truncate text-[10px] text-[#98a6ad]">Tableware shop</p>
       </div>
     </div>
   );
@@ -352,8 +352,8 @@ function MainApp() {
           <Logo />
         </div>
         <div className="as-topbar-right overflow-x-auto">
-          <span className="hidden text-[13px] text-black md:inline">
-            Quick Links :
+          <span className="hidden shrink-0 text-[12px] font-medium text-[#435966] md:inline">
+            Links:
           </span>
           <button className="as-quick bg-[#00a65a]" onClick={() => go('dashboard')}>
             Dashboard
