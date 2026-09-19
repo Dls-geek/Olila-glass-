@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ClipboardList,
+  FileSpreadsheet,
+  FileText,
   List,
   PackageCheck,
   Plus,
@@ -11,11 +13,13 @@ import {
   Upload,
   Wallet,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import type { Chalan, Product } from '../types';
 import { formatMoney } from '../utils/money';
 import { cn } from '../utils/cn';
 import { previewChalanBulkReceive } from '../utils/matchChalanBulkCsv';
+import { stockMatrixToCsvText } from '../utils/parseStockCsv';
 import { Button, Input, Modal, Select, TablePager, darkThead, zebraRow, useToast } from './ui';
 
 type ChalanMode = 'list' | 'new' | 'paona' | 'bulkRecv';
@@ -177,6 +181,8 @@ export function ChalanPage({
   const toast = useToast();
   const payFileRef = useRef<HTMLInputElement>(null);
   const recvFileRef = useRef<HTMLInputElement>(null);
+  const bulkCsvFileRef = useRef<HTMLInputElement>(null);
+  const bulkXlsFileRef = useRef<HTMLInputElement>(null);
 
   const [chalans, setChalans] = useState<Chalan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,6 +207,7 @@ export function ChalanPage({
   const [showRecv, setShowRecv] = useState(false);
   const [bulkCsvText, setBulkCsvText] = useState('');
   const [bulkChalanId, setBulkChalanId] = useState('');
+  const [bulkFileName, setBulkFileName] = useState('');
   const [bulkPreview, setBulkPreview] = useState<ReturnType<
     typeof previewChalanBulkReceive
   > | null>(null);
@@ -516,6 +523,9 @@ export function ChalanPage({
     setRecvQty(next);
     setBulkCsvText('');
     setBulkPreview(null);
+    setBulkFileName('');
+    if (bulkCsvFileRef.current) bulkCsvFileRef.current.value = '';
+    if (bulkXlsFileRef.current) bulkXlsFileRef.current.value = '';
   };
 
   const applyBulkCsvToDetail = (text: string) => {
@@ -535,6 +545,99 @@ export function ChalanPage({
       toast.info(`${preview.cappedLines} line(s) capped at outstanding qty.`);
     else if (Object.keys(preview.recvQty).length > 0)
       toast.success(`${Object.keys(preview.recvQty).length} line(s) filled.`);
+  };
+
+  const applyBulkCsvOnPage = async (text: string) => {
+    setBulkCsvText(text);
+    if (!bulkChalanId || !text.trim()) {
+      setBulkPreview(null);
+      return;
+    }
+    const full =
+      detail?.id === bulkChalanId ? detail : await getChalan(bulkChalanId);
+    if (!full) return;
+    setDetail(full);
+    const preview = previewChalanBulkReceive(text, full, products);
+    setBulkPreview(preview);
+    if (preview.errors[0]) toast.warning(preview.errors[0]);
+    else if (preview.unmatchedLines > 0)
+      toast.warning(`${preview.unmatchedLines} SKU(s) not on this PO.`);
+    else if (preview.cappedLines > 0)
+      toast.info(`${preview.cappedLines} line(s) capped at outstanding qty.`);
+    else if (Object.keys(preview.recvQty).length > 0)
+      toast.success(`${Object.keys(preview.recvQty).length} line(s) matched.`);
+  };
+
+  const applyBulkImportText = async (text: string) => {
+    if (mode === 'bulkRecv') await applyBulkCsvOnPage(text);
+    else applyBulkCsvToDetail(text);
+  };
+
+  const onPickBulkCsvFile = async (file: File | null) => {
+    if (!file) return;
+    if (mode === 'bulkRecv' && !bulkChalanId) {
+      toast.warning('Select a purchase order / chalan first.');
+      if (bulkCsvFileRef.current) bulkCsvFileRef.current.value = '';
+      return;
+    }
+    if (mode !== 'bulkRecv' && !detail) {
+      toast.warning('Open a chalan first.');
+      return;
+    }
+    const text = await file.text();
+    setBulkFileName(file.name);
+    await applyBulkImportText(text);
+  };
+
+  const onPickBulkExcelFile = async (file: File | null) => {
+    if (!file) return;
+    if (mode === 'bulkRecv' && !bulkChalanId) {
+      toast.warning('Select a purchase order / chalan first.');
+      if (bulkXlsFileRef.current) bulkXlsFileRef.current.value = '';
+      return;
+    }
+    if (mode !== 'bulkRecv' && !detail) {
+      toast.warning('Open a chalan first.');
+      return;
+    }
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      if (!sheet) {
+        toast.error('Excel sheet is empty.');
+        return;
+      }
+      const matrix = XLSX.utils.sheet_to_json<
+        Array<string | number | null | undefined>
+      >(sheet, {
+        header: 1,
+        defval: '',
+        raw: false,
+      }) as Array<Array<string | number | null | undefined>>;
+      const text = stockMatrixToCsvText(matrix);
+      if (!text.trim()) {
+        toast.error('Excel sheet has no SKU/quantity rows.');
+        return;
+      }
+      setBulkFileName(file.name);
+      await applyBulkImportText(text);
+    } catch {
+      toast.error('Could not read Excel file.');
+    }
+  };
+
+  const downloadBulkRecvTemplate = () => {
+    const blob = new Blob(['SKU,quantity\n81290,12\n851445,6\n'], {
+      type: 'text/csv;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'olila-bulk-receive-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Template CSV downloaded.');
   };
 
   const openChalansWithOutstanding = useMemo(
@@ -572,7 +675,10 @@ export function ChalanPage({
       if (ok) {
         setBulkCsvText('');
         setBulkPreview(null);
+        setBulkFileName('');
         setRecvNotes('');
+        if (bulkCsvFileRef.current) bulkCsvFileRef.current.value = '';
+        if (bulkXlsFileRef.current) bulkXlsFileRef.current.value = '';
         await refresh();
         await openDetail(bulkChalanId);
       }
@@ -583,6 +689,26 @@ export function ChalanPage({
 
   return (
     <div className="space-y-3">
+      <input
+        ref={bulkCsvFileRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          void onPickBulkCsvFile(f);
+        }}
+      />
+      <input
+        ref={bulkXlsFileRef}
+        type="file"
+        accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          void onPickBulkExcelFile(f);
+        }}
+      />
       <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
         <div className="border-b border-[#eef1f4] bg-gradient-to-r from-[#f4fbf7] to-white px-4 py-3">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1271,7 +1397,7 @@ export function ChalanPage({
               Bulk receive · বাল্ক রিসিভ
             </h2>
             <p className="text-[12px] text-[#6c757d]">
-              After PO, paste the SKUs you received. Qty caps at outstanding.
+              Upload CSV/Excel or paste SKU + qty. Qty caps at outstanding.
             </p>
           </div>
           <div className="space-y-4 p-4">
@@ -1282,6 +1408,9 @@ export function ChalanPage({
                 setBulkChalanId(e.target.value);
                 setBulkCsvText('');
                 setBulkPreview(null);
+                setBulkFileName('');
+                if (bulkCsvFileRef.current) bulkCsvFileRef.current.value = '';
+                if (bulkXlsFileRef.current) bulkXlsFileRef.current.value = '';
                 if (e.target.value) void openDetail(e.target.value);
               }}
             >
@@ -1293,39 +1422,80 @@ export function ChalanPage({
                 </option>
               ))}
             </Select>
-            <div>
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[12px] font-bold text-[#212529]">
+                  Upload or paste · SKU,quantity
+                </p>
+                <Button
+                  size="sm"
+                  variant="info"
+                  onClick={downloadBulkRecvTemplate}
+                >
+                  Template CSV
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={!bulkChalanId}
+                  onClick={() => bulkCsvFileRef.current?.click()}
+                  className="flex items-center gap-3 rounded-lg border border-[#28a745]/35 bg-[#f4fbf7] px-3 py-3 text-left transition hover:border-[#28a745] hover:bg-[#e8f5ec] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <FileText className="h-7 w-7 shrink-0 text-[#28a745]" />
+                  <span>
+                    <span className="block text-sm font-bold text-[#111827]">
+                      CSV
+                    </span>
+                    <span className="text-[12px] text-[#6c757d]">
+                      Upload .csv with SKU + quantity
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  disabled={!bulkChalanId}
+                  onClick={() => bulkXlsFileRef.current?.click()}
+                  className="flex items-center gap-3 rounded-lg border border-[#1a365d]/25 bg-[#eef2f7] px-3 py-3 text-left transition hover:border-[#1a365d] hover:bg-[#e2e8f0] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <FileSpreadsheet className="h-7 w-7 shrink-0 text-[#1a365d]" />
+                  <span>
+                    <span className="block text-sm font-bold text-[#111827]">
+                      Excel
+                    </span>
+                    <span className="text-[12px] text-[#6c757d]">
+                      Upload .xlsx / .xls sheet
+                    </span>
+                  </span>
+                </button>
+              </div>
+              {bulkFileName ? (
+                <p className="text-[12px] text-[#495057]">
+                  File: <span className="font-semibold">{bulkFileName}</span>
+                  <button
+                    type="button"
+                    className="ml-2 text-[#dc3545] hover:underline"
+                    onClick={() => {
+                      setBulkFileName('');
+                      setBulkCsvText('');
+                      setBulkPreview(null);
+                      if (bulkCsvFileRef.current)
+                        bulkCsvFileRef.current.value = '';
+                      if (bulkXlsFileRef.current)
+                        bulkXlsFileRef.current.value = '';
+                    }}
+                  >
+                    Clear
+                  </button>
+                </p>
+              ) : null}
               <label className="mb-1 block text-[12px] font-bold text-[#212529]">
-                Paste CSV (SKU,quantity)
+                Or paste CSV
               </label>
               <textarea
                 value={bulkCsvText}
                 onChange={(e) => {
-                  const text = e.target.value;
-                  setBulkCsvText(text);
-                  if (!bulkChalanId || !text.trim()) {
-                    setBulkPreview(null);
-                    return;
-                  }
-                  const c =
-                    detail?.id === bulkChalanId
-                      ? detail
-                      : chalans.find((x) => x.id === bulkChalanId);
-                  if (!c) return;
-                  // Prefer full detail with items
-                  void (async () => {
-                    const full =
-                      detail?.id === bulkChalanId
-                        ? detail
-                        : await getChalan(bulkChalanId);
-                    if (!full) return;
-                    setDetail(full);
-                    const preview = previewChalanBulkReceive(
-                      text,
-                      full,
-                      products
-                    );
-                    setBulkPreview(preview);
-                  })();
+                  void applyBulkCsvOnPage(e.target.value);
                 }}
                 rows={6}
                 className="w-full rounded-[4px] border border-[#ced4da] p-2 font-mono text-[13px]"
@@ -1693,9 +1863,51 @@ export function ChalanPage({
                   </div>
                 </div>
                 <div className="mt-3 space-y-2 rounded-md border border-[#dee2e6] bg-[#f8fafb] p-3">
-                  <p className="text-[12px] font-semibold text-[#1a365d]">
-                    Bulk paste · SKU,quantity
-                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[12px] font-semibold text-[#1a365d]">
+                      Bulk upload / paste · SKU,quantity
+                    </p>
+                    <button
+                      type="button"
+                      className="text-[12px] font-medium text-[#007bff] hover:underline"
+                      onClick={downloadBulkRecvTemplate}
+                    >
+                      Template CSV
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => bulkCsvFileRef.current?.click()}
+                      className="flex items-center gap-2 rounded-md border border-[#28a745]/35 bg-white px-2.5 py-2 text-left text-[12px] transition hover:bg-[#f4fbf7]"
+                    >
+                      <FileText className="h-5 w-5 shrink-0 text-[#28a745]" />
+                      <span>
+                        <span className="block font-bold text-[#111827]">
+                          CSV
+                        </span>
+                        <span className="text-[#6c757d]">.csv file</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => bulkXlsFileRef.current?.click()}
+                      className="flex items-center gap-2 rounded-md border border-[#1a365d]/25 bg-white px-2.5 py-2 text-left text-[12px] transition hover:bg-[#eef2f7]"
+                    >
+                      <FileSpreadsheet className="h-5 w-5 shrink-0 text-[#1a365d]" />
+                      <span>
+                        <span className="block font-bold text-[#111827]">
+                          Excel
+                        </span>
+                        <span className="text-[#6c757d]">.xlsx / .xls</span>
+                      </span>
+                    </button>
+                  </div>
+                  {bulkFileName ? (
+                    <p className="text-[11px] text-[#495057]">
+                      File: <span className="font-semibold">{bulkFileName}</span>
+                    </p>
+                  ) : null}
                   <textarea
                     value={bulkCsvText}
                     onChange={(e) => applyBulkCsvToDetail(e.target.value)}

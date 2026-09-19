@@ -86,3 +86,17 @@ export function parseStockCsv(text: string): StockCsvParseResult {
 
   return { rows, errors };
 }
+
+/** Turn an Excel/CSV matrix (rows of cells) into CSV text for `parseStockCsv`. */
+export function stockMatrixToCsvText(
+  matrix: Array<Array<string | number | null | undefined>>
+): string {
+  return matrix
+    .map((row) =>
+      row
+        .map((c) => String(c ?? '').trim())
+        .join(',')
+    )
+    .filter((line) => line.replace(/,/g, '').trim())
+    .join('\n');
+}

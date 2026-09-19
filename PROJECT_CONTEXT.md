@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-19 (Company breakage return + bulk PO receive)
+Last updated: 2026-09-19 (Bulk receive CSV/Excel file upload)
 
 ---
 
@@ -84,7 +84,7 @@ Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children ar
 - Checkout: RPC `complete_sale` (atomic stock decrement + sale + items + sell logs).
 - Restock / breakage: update `products.stock` + insert `inventory_logs`. Break rows may set `supplier`, optional `chalan_id`, `return_status` (`pending`|`replaced`), `replaced_qty`. `receiveBreakageReplacement` adds stock + `add` log and updates the break row (partial OK).
 - Stock intake (bulk / CSV / company purchase): RPC `record_purchase` + optional receipt in Storage bucket `purchase-receipts`; tables `purchases`, `purchase_items`.
-- **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). **Bulk receive:** paste/CSV `SKU,quantity` matched to PO outstanding via [`matchChalanBulkCsv.ts`](src/utils/matchChalanBulkCsv.ts) (cap at remaining; unmatched SKUs skipped). Hash `#/chalanBulkRecv` + receive-modal paste. Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
+- **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). **Bulk receive:** paste or upload CSV/Excel `SKU,quantity` matched to PO outstanding via [`matchChalanBulkCsv.ts`](src/utils/matchChalanBulkCsv.ts) (cap at remaining; unmatched SKUs skipped). Hash `#/chalanBulkRecv` + receive-modal upload/paste. Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
 - **Staff:** Edge Function `invite-staff` (admin JWT + service role); `profiles.email`; `is_admin()` helper.
 - **Expenses:** table `expenses` (type/amount/date/notes); feeds P&L net profit.
 - **Cash ledger:** `cash_settings` (opening balance/date) + `cash_ledger_entries` (manual in/out); UI merges Cash sales, expenses, Cash chalan payments, and manual entries with running balance.
@@ -149,7 +149,7 @@ Form helpers on Products page:
 | Products | `ProductsPage.tsx` | List + Add; CSV/Excel catalog import; PDF document preview; CRUD |
 | POS | `BillingPage.tsx` | Cart, payment, phone, print |
 | Inventory | `InventoryPage.tsx` | Stock list (status/group/search) + intake modals via hash |
-| Chalan | `ChalanPage.tsx` | List / PO / পাওনা / Bulk receive; pay + line or CSV receive |
+| Chalan | `ChalanPage.tsx` | List / PO / পাওনা / Bulk receive; pay + line or CSV/Excel receive |
 | Breakage | `BreakagePage.tsx` | Damage log + company return (pending → receive replacement); history filters |
 | Sales | `SalesPage.tsx` | Sale list From/To (default today); filter row + Action page-size like Product List |
 | Top Selling | `TopSellingPage.tsx` | Ranked SKUs + chart by date range |
@@ -194,7 +194,7 @@ Form helpers on Products page:
 - [x] Removed unused deps `html2canvas`, `jspdf`
 - [x] Revoked `anon` EXECUTE on shop SECURITY DEFINER RPCs (authenticated only)
 - [x] Company breakage return (supplier/chalan link, pending/replaced, receive replacement stock)
-- [x] Bulk PO receive (CSV/paste SKU+qty against chalan remaining; Purchase Hub + `#/chalanBulkRecv`)
+- [x] Bulk PO receive (CSV/Excel upload or paste SKU+qty against chalan remaining; Purchase Hub + `#/chalanBulkRecv`)
 - [x] Applied migration `supabase/migrations/20260919_breakage_company_return.sql` (`supplier`, `chalan_id`, `return_status`, `replaced_qty` on `inventory_logs`)
 - [ ] Enable **leaked-password protection** in Supabase Auth Dashboard (HaveIBeenPwned) — cannot toggle via MCP
 - [ ] Role ACL on screens (admin-only destructive actions beyond staff invite)
@@ -230,6 +230,7 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-19 | Bulk receive: CSV/Excel file upload (Add Product–style) + template download on `#/chalanBulkRecv` and receive modal. |
 | 2026-09-19 | Company breakage return: link break to supplier/chalan; pending→replaced + receive replacement stock; migration SQL for `inventory_logs` columns. |
 | 2026-09-19 | Bulk PO receive: CSV/paste SKU+qty vs outstanding (`matchChalanBulkCsv`); `#/chalanBulkRecv` + receive-modal paste; Purchase Hub card. |
 | 2026-09-19 | Chalan list/detail match Product List: labeled filters, dark tables, 2-col pay/receive forms. |
