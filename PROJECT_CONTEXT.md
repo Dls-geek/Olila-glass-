@@ -2,7 +2,7 @@
 
 > Living project track. **Any agent working in this repo must read this file first, follow it, and update it when something material changes** (new features, architecture, data model, conventions, or known gaps).
 
-Last updated: 2026-09-17 (Products nav rename + small-box icons)
+Last updated: 2026-09-19 (Company breakage return + bulk PO receive)
 
 ---
 
@@ -66,7 +66,7 @@ Hash pages in [`src/App.tsx`](src/App.tsx) (no router library):
 | `sales` | `#/sales` | Sale list |
 | `billing` | `#/billing` | POS (full screen) |
 | `breakage` | `#/breakage` | Breakage |
-| `chalan` / `chalanNew` / `chalanPaona` | matching hashes | Chalan list / PO / পাওনা |
+| `chalan` / `chalanNew` / `chalanPaona` / `chalanBulkRecv` | matching hashes | Chalan list / PO / পাওনা / bulk SKU+qty receive |
 | `topSelling` | `#/topSelling` | Top selling report |
 | `profitLoss` | `#/profitLoss` | Profit & loss |
 | `expenses` | `#/expenses` | Expense list |
@@ -82,9 +82,9 @@ Sidebar: each domain **parent opens its hub** (KPIs + action cards). Children ar
 - On auth: load `products`, `sales` (+ `sale_items`), `inventory_logs`.
 - Cart: client-only.
 - Checkout: RPC `complete_sale` (atomic stock decrement + sale + items + sell logs).
-- Restock / breakage: update `products.stock` + insert `inventory_logs`.
+- Restock / breakage: update `products.stock` + insert `inventory_logs`. Break rows may set `supplier`, optional `chalan_id`, `return_status` (`pending`|`replaced`), `replaced_qty`. `receiveBreakageReplacement` adds stock + `add` log and updates the break row (partial OK).
 - Stock intake (bulk / CSV / company purchase): RPC `record_purchase` + optional receipt in Storage bucket `purchase-receipts`; tables `purchases`, `purchase_items`.
-- **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
+- **Chalan flow:** create order (`create_chalan`) → linked payments (`add_chalan_payment`, separate but FK to chalan) → partial receive (`receive_chalan` updates stock + paona). **Bulk receive:** paste/CSV `SKU,quantity` matched to PO outstanding via [`matchChalanBulkCsv.ts`](src/utils/matchChalanBulkCsv.ts) (cap at remaining; unmatched SKUs skipped). Hash `#/chalanBulkRecv` + receive-modal paste. Tables: `chalans`, `chalan_items`, `chalan_payments`, `chalan_receives`, `chalan_receive_items`. Line rate defaults to catalog `purchase_price` (editable).
 - **Staff:** Edge Function `invite-staff` (admin JWT + service role); `profiles.email`; `is_admin()` helper.
 - **Expenses:** table `expenses` (type/amount/date/notes); feeds P&L net profit.
 - **Cash ledger:** `cash_settings` (opening balance/date) + `cash_ledger_entries` (manual in/out); UI merges Cash sales, expenses, Cash chalan payments, and manual entries with running balance.
@@ -103,7 +103,7 @@ Product {
 
 Sale { id, date, total_amount, discount?, customer_name?, customer_phone?, payment_method?, paid_amount?, items }
 SaleItem { product_id, product_name, quantity, price, subtotal }
-InventoryLog { id, product_id, product_name, change_type: 'add'|'sell'|'break', quantity, date }
+InventoryLog { id, product_id, product_name, change_type: 'add'|'sell'|'break', quantity, date, supplier?, chalan_id?, return_status?: 'pending'|'replaced', replaced_qty? }
 CartItem { product, quantity }
 User { id, name, email, role: 'admin'|'staff' }
 StaffProfile { id, name, email, role, created_at }
@@ -146,12 +146,12 @@ Form helpers on Products page:
 | Login | `LoginPage.tsx` | Supabase `signInWithPassword`; fill helper for shop admin |
 | Dashboard | `Dashboard.tsx` | Shop-wide overview charts/tiles |
 | Module hubs | `ModuleHubs.tsx` | Per-domain hub (KPIs + `HubActionCard` links); parents open hubs |
-| Products | `ProductsPage.tsx` | List + Add; CSV/Excel catalog import; CRUD |
+| Products | `ProductsPage.tsx` | List + Add; CSV/Excel catalog import; PDF document preview; CRUD |
 | POS | `BillingPage.tsx` | Cart, payment, phone, print |
-| Inventory | `InventoryPage.tsx` | Stock + intake modals via hash |
-| Chalan | `ChalanPage.tsx` | List / PO / পাওনা; pay + receive |
-| Breakage | `BreakagePage.tsx` | Damage logging |
-| Sales | `SalesPage.tsx` | Sale list From/To (default today) |
+| Inventory | `InventoryPage.tsx` | Stock list (status/group/search) + intake modals via hash |
+| Chalan | `ChalanPage.tsx` | List / PO / পাওনা / Bulk receive; pay + line or CSV receive |
+| Breakage | `BreakagePage.tsx` | Damage log + company return (pending → receive replacement); history filters |
+| Sales | `SalesPage.tsx` | Sale list From/To (default today); filter row + Action page-size like Product List |
 | Top Selling | `TopSellingPage.tsx` | Ranked SKUs + chart by date range |
 | P&L | `ProfitLossPage.tsx` | Revenue − COGS − expenses |
 | Expense | `ExpensePage.tsx` | Add/list/delete shop expenses |
@@ -193,6 +193,9 @@ Form helpers on Products page:
 - [x] README / SETUP_GUIDE rewritten for Olila + Supabase (no ShopEase/Firebase)
 - [x] Removed unused deps `html2canvas`, `jspdf`
 - [x] Revoked `anon` EXECUTE on shop SECURITY DEFINER RPCs (authenticated only)
+- [x] Company breakage return (supplier/chalan link, pending/replaced, receive replacement stock)
+- [x] Bulk PO receive (CSV/paste SKU+qty against chalan remaining; Purchase Hub + `#/chalanBulkRecv`)
+- [x] Applied migration `supabase/migrations/20260919_breakage_company_return.sql` (`supplier`, `chalan_id`, `return_status`, `replaced_qty` on `inventory_logs`)
 - [ ] Enable **leaked-password protection** in Supabase Auth Dashboard (HaveIBeenPwned) — cannot toggle via MCP
 - [ ] Role ACL on screens (admin-only destructive actions beyond staff invite)
 - [ ] Real product photos (replace pattern placeholders)
@@ -210,6 +213,7 @@ src/types/index.ts
 src/data/masterProducts.ts
 src/utils/money.ts
 src/utils/parseStockCsv.ts
+src/utils/matchChalanBulkCsv.ts
 src/utils/productPattern.ts
 src/utils/categorizeProduct.ts
 src/utils/printReceipt.ts
@@ -226,6 +230,16 @@ src/components/ui/DeshiChrome.tsx
 
 | Date | Change |
 |------|--------|
+| 2026-09-19 | Company breakage return: link break to supplier/chalan; pending→replaced + receive replacement stock; migration SQL for `inventory_logs` columns. |
+| 2026-09-19 | Bulk PO receive: CSV/paste SKU+qty vs outstanding (`matchChalanBulkCsv`); `#/chalanBulkRecv` + receive-modal paste; Purchase Hub card. |
+| 2026-09-19 | Chalan list/detail match Product List: labeled filters, dark tables, 2-col pay/receive forms. |
+| 2026-09-19 | Breakage UI aligned with web/Product List: compact 2-col record form, Show+Search history row. |
+| 2026-09-19 | Add Product bulk card: document preview pane (PDF iframe, CSV/Excel row table). |
+| 2026-09-19 | Sale List toolbar aligned with Product List: From/To/Search filter row, page size in Action header. |
+| 2026-09-19 | Sales Hub + Sales sidebar now include Top Selling (same report as Reports). |
+| 2026-09-18 | Breakage record UI: 2-col item pick on top, quantity below, history full-width (Add Product layout). |
+| 2026-09-18 | Current Stock UI aligned with Product List: compact KPIs, status/group/search row, denser table + logs. |
+| 2026-09-18 | Removed deprecated `baseUrl` from `tsconfig.json`; `@/*` paths stay relative to the config file. |
 | 2026-09-17 | Sidebar domain rename Catalog → Products; dashboard small-box icons no longer clipped. |
 | 2026-09-16 | Cash ledger: `cash_settings` + `cash_ledger_entries`; merges Cash sales, expenses, Cash chalan payments + manual in/out with running balance; Expense hub + nav. |
 | 2026-09-15 | Module hubs per domain; Staff invite (Edge Function); Top Selling + P&L; Expenses table/UI; README/SETUP rewrite; remove html2canvas/jspdf; revoke anon RPC execute. |

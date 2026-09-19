@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ClipboardList,
   List,
@@ -15,9 +15,10 @@ import { useApp } from '../context/AppContext';
 import type { Chalan, Product } from '../types';
 import { formatMoney } from '../utils/money';
 import { cn } from '../utils/cn';
-import { Button, Input, Modal, Select, useToast } from './ui';
+import { previewChalanBulkReceive } from '../utils/matchChalanBulkCsv';
+import { Button, Input, Modal, Select, TablePager, darkThead, zebraRow, useToast } from './ui';
 
-type ChalanMode = 'list' | 'new' | 'paona';
+type ChalanMode = 'list' | 'new' | 'paona' | 'bulkRecv';
 
 type DraftLine = {
   productId: string;
@@ -198,6 +199,11 @@ export function ChalanPage({
   const [recvNotes, setRecvNotes] = useState('');
   const [recvFile, setRecvFile] = useState<File | null>(null);
   const [showRecv, setShowRecv] = useState(false);
+  const [bulkCsvText, setBulkCsvText] = useState('');
+  const [bulkChalanId, setBulkChalanId] = useState('');
+  const [bulkPreview, setBulkPreview] = useState<ReturnType<
+    typeof previewChalanBulkReceive
+  > | null>(null);
 
   const [productSearch, setProductSearch] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
@@ -508,45 +514,71 @@ export function ChalanPage({
     const next: Record<string, string> = {};
     for (const i of detail.items) next[i.product_id] = '';
     setRecvQty(next);
+    setBulkCsvText('');
+    setBulkPreview(null);
   };
 
-  const pageButtons = (current: number, total: number, set: (n: number) => void) => {
-    const nums: number[] = [];
-    const maxShow = Math.min(total, 5);
-    let start = Math.max(1, current - 2);
-    const end = Math.min(total, start + maxShow - 1);
-    start = Math.max(1, end - maxShow + 1);
-    for (let i = start; i <= end; i++) nums.push(i);
-    return (
-      <div className="flex flex-wrap items-center gap-1">
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={current <= 1}
-          onClick={() => set(current - 1)}
-        >
-          Previous
-        </Button>
-        {nums.map((n) => (
-          <Button
-            key={n}
-            size="sm"
-            variant={n === current ? 'primary' : 'secondary'}
-            onClick={() => set(n)}
-          >
-            {n}
-          </Button>
-        ))}
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={current >= total}
-          onClick={() => set(current + 1)}
-        >
-          Next
-        </Button>
-      </div>
-    );
+  const applyBulkCsvToDetail = (text: string) => {
+    if (!detail) return;
+    setBulkCsvText(text);
+    if (!text.trim()) {
+      setBulkPreview(null);
+      return;
+    }
+    const preview = previewChalanBulkReceive(text, detail, products);
+    setBulkPreview(preview);
+    setRecvQty((prev) => ({ ...prev, ...preview.recvQty }));
+    if (preview.errors[0]) toast.warning(preview.errors[0]);
+    else if (preview.unmatchedLines > 0)
+      toast.warning(`${preview.unmatchedLines} SKU(s) not on this PO.`);
+    else if (preview.cappedLines > 0)
+      toast.info(`${preview.cappedLines} line(s) capped at outstanding qty.`);
+    else if (Object.keys(preview.recvQty).length > 0)
+      toast.success(`${Object.keys(preview.recvQty).length} line(s) filled.`);
+  };
+
+  const openChalansWithOutstanding = useMemo(
+    () =>
+      chalans.filter(
+        (c) =>
+          c.remaining_units > 0 &&
+          (c.status === 'open' || c.status === 'partial')
+      ),
+    [chalans]
+  );
+
+  const runBulkRecvFromPage = async () => {
+    if (!bulkChalanId) {
+      toast.warning('Select a purchase order / chalan.');
+      return;
+    }
+    if (!bulkPreview || Object.keys(bulkPreview.recvQty).length === 0) {
+      toast.warning('Paste SKU,quantity and preview first.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const items = Object.entries(bulkPreview.recvQty).map(
+        ([product_id, quantity]) => ({
+          product_id,
+          quantity: Math.floor(Number(quantity)),
+        })
+      );
+      const ok = await receiveChalan({
+        chalanId: bulkChalanId,
+        items,
+        notes: recvNotes,
+      });
+      if (ok) {
+        setBulkCsvText('');
+        setBulkPreview(null);
+        setRecvNotes('');
+        await refresh();
+        await openDetail(bulkChalanId);
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -625,6 +657,13 @@ export function ChalanPage({
                   tone: 'red',
                   active: mode === 'paona',
                   onClick: () => onNavigate?.('chalanPaona'),
+                },
+                {
+                  n: 6,
+                  title: 'Bulk Receive',
+                  tone: 'amber',
+                  active: mode === 'bulkRecv',
+                  onClick: () => onNavigate?.('chalanBulkRecv'),
                 },
               ]}
             />
@@ -901,65 +940,37 @@ export function ChalanPage({
 
       {mode === 'list' && (
         <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eef1f4] bg-[#f8fafb] px-4 py-3">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-1 rounded-full bg-[#1b4f72]" />
-              <div>
-                <h2 className="text-[15px] font-bold text-[#1a365d]">
-                  চালান তালিকা · All chalans
-                </h2>
-                <p className="text-[12px] text-[#6c757d]">
-                  খুলে পেমেন্ট যোগ করুন বা মাল রিসিভ করুন।
-                </p>
-              </div>
-            </div>
-            <Button size="sm" onClick={() => onNavigate?.('chalanNew')}>
+          <div className="flex flex-col gap-2 border-b border-[#eef1f4] px-3 py-2 sm:flex-row sm:items-end">
+            <Select
+              label="Status"
+              value={statusFilter}
+              containerClassName="sm:w-44 sm:shrink-0"
+              className="h-8 text-[13px]"
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All status</option>
+              <option value="openish">Open / partial</option>
+              <option value="open">Open</option>
+              <option value="partial">Partial</option>
+              <option value="closed">Closed</option>
+            </Select>
+            <Input
+              label="Search"
+              value={listSearch}
+              onChange={(e) => setListSearch(e.target.value)}
+              placeholder="Chalan / supplier / SKU…"
+              icon={<Search className="h-3.5 w-3.5" />}
+              containerClassName="min-w-0 flex-1"
+              className="h-8 text-[13px]"
+            />
+            <Button
+              size="sm"
+              className="sm:mb-0.5"
+              onClick={() => onNavigate?.('chalanNew')}
+            >
               <Plus className="h-3.5 w-3.5" />
               New
             </Button>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef1f4] px-4 py-2.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-1.5 text-[13px] text-[#495057]">
-                Show
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
-                >
-                  {[10, 25, 50].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-                entries
-              </label>
-              <Select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                containerClassName="w-[160px]"
-              >
-                <option value="all">সব স্ট্যাটাস</option>
-                <option value="openish">খোলা / আংশিক</option>
-                <option value="open">খোলা</option>
-                <option value="partial">আংশিক</option>
-                <option value="closed">শেষ</option>
-              </Select>
-            </div>
-            <label className="flex items-center gap-2 text-[13px] text-[#495057]">
-              Search:
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6c757d]" />
-                <input
-                  value={listSearch}
-                  onChange={(e) => setListSearch(e.target.value)}
-                  placeholder="চালান / কোম্পানি / SKU…"
-                  className="h-8 w-52 rounded-md border border-[#ced4da] bg-white pl-7 pr-2 text-[13px] outline-none focus:border-[#00a65a] sm:w-64"
-                />
-              </div>
-            </label>
           </div>
 
           {loading ? (
@@ -1001,128 +1012,117 @@ export function ChalanPage({
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[920px] text-[13px] text-[#212529]">
+                <table className="w-full min-w-[920px] table-auto text-[14px] text-[#212529]">
                   <thead>
-                    <tr className="bg-[#1a365d] text-left text-white">
-                      <th className="px-3 py-2.5 font-semibold">#</th>
-                      <th className="px-3 py-2.5 font-semibold">তারিখ</th>
-                      <th className="px-3 py-2.5 font-semibold">চালান</th>
-                      <th className="px-3 py-2.5 font-semibold">কোম্পানি</th>
-                      <th className="px-3 py-2.5 font-semibold">স্ট্যাটাস</th>
-                      <th className="px-3 py-2.5 font-semibold">অর্ডার</th>
-                      <th className="px-3 py-2.5 font-semibold">রিসিভ</th>
-                      <th className="px-3 py-2.5 font-semibold">পাওনা</th>
-                      <th className="px-3 py-2.5 font-semibold">পরিশোধ</th>
+                    <tr className={darkThead}>
+                      <th className="w-10">#</th>
+                      <th>Date</th>
+                      <th>Chalan</th>
+                      <th>Supplier</th>
+                      <th>Order</th>
+                      <th>Received</th>
+                      <th>Outstanding</th>
+                      <th>Paid</th>
+                      <th className="w-0 whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5">
+                          <span>Action</span>
+                          <select
+                            value={pageSize}
+                            onChange={(e) => setPageSize(Number(e.target.value))}
+                            className="h-6 rounded border-0 bg-white/95 px-1 text-[11px] font-medium text-[#212529]"
+                            aria-label="Rows per page"
+                          >
+                            {[10, 25, 50].map((n) => (
+                              <option key={n} value={n}>
+                                {n}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {pagedChalans.map((c, idx) => {
-                      const rowBg = idx % 2 ? 'bg-[#e9eef3]' : 'bg-white';
-                      const accent =
-                        c.remaining_units > 0
-                          ? 'border-l-4 border-l-[#fd7e14]'
-                          : 'border-l-4 border-l-transparent';
-                      return (
-                        <Fragment key={c.id}>
-                          <tr
-                            className={`hover:bg-[#dceaf5] ${rowBg} ${accent}`}
+                    {pagedChalans.map((c, idx) => (
+                      <tr
+                        key={c.id}
+                        className={zebraRow(
+                          idx,
+                          'cursor-default transition-colors hover:!bg-[#c3e6cb]'
+                        )}
+                      >
+                        <td className="px-3 py-2.5 text-[#495057]">
+                          {listStart + idx}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-[13px] font-bold text-[#111827]">
+                          {c.date}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <button
+                            type="button"
+                            title={c.id}
+                            className="font-bold text-[#0056b3] hover:underline"
+                            onClick={() => void openDetail(c.id)}
                           >
-                            <td className="px-3 pt-2.5 pb-1 font-semibold text-[#495057]">
-                              {listStart + idx}
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1">
-                              <span className="inline-flex rounded border border-[#1a365d]/25 bg-[#1a365d] px-2 py-0.5 font-mono text-[12px] font-semibold text-white">
-                                {c.date}
-                              </span>
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1">
-                              <button
-                                type="button"
-                                title={c.id}
-                                className="font-bold text-[#0056b3] hover:underline"
-                                onClick={() => void openDetail(c.id)}
-                              >
-                                {shortId(c.id)}
-                              </button>
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1 font-medium text-[#212529]">
-                              {c.supplier || '—'}
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1">
-                              <StatusPill status={c.status} />
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1">
-                              <span className="font-mono font-semibold tabular-nums">
-                                {c.ordered_units}
-                              </span>
-                              <span className="text-[#6c757d]"> · </span>
-                              <span className="font-mono font-semibold tabular-nums text-[#0f5132]">
-                                {formatMoney(c.ordered_amount)}
-                              </span>
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1 font-mono font-semibold tabular-nums text-[#212529]">
-                              {c.received_units}
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1 font-mono font-bold tabular-nums text-[#b02a37]">
-                              {c.remaining_units}
-                            </td>
-                            <td className="px-3 pt-2.5 pb-1 font-mono font-semibold tabular-nums text-[#0f5132]">
-                              {formatMoney(c.paid_amount)}
-                            </td>
-                          </tr>
-                          <tr
-                            className={`border-b-2 border-[#ced4da] ${rowBg} ${accent}`}
-                          >
-                            <td
-                              colSpan={9}
-                              className="border-t border-[#ced4da]/70 px-3 pb-2.5 pt-1.5"
+                            {shortId(c.id)}
+                          </button>
+                        </td>
+                        <td className="px-3 py-2.5 font-medium text-[#212529]">
+                          {c.supplier || '—'}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
+                          {c.ordered_units}
+                          <span className="text-[#6c757d]"> · </span>
+                          {formatMoney(c.ordered_amount)}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
+                          {c.received_units}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#dc3545]">
+                          {c.remaining_units}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#15803d]">
+                          {formatMoney(c.paid_amount)}
+                        </td>
+                        <td className="w-0 whitespace-nowrap px-3 py-2.5">
+                          <div className="inline-flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="info"
+                              onClick={() => void openDetail(c.id)}
                             >
-                              <div className="flex w-full gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="info"
-                                  fullWidth
-                                  onClick={() => void openDetail(c.id)}
-                                >
-                                  খুলুন
-                                </Button>
-                                {c.remaining_units > 0 ? (
-                                  <Button
-                                    size="sm"
-                                    variant="success"
-                                    fullWidth
-                                    onClick={() =>
-                                      void openDetail(c.id, { recv: true })
-                                    }
-                                  >
-                                    রিসিভ
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    fullWidth
-                                    disabled
-                                  >
-                                    রিসিভ হয়েছে
-                                  </Button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        </Fragment>
-                      );
-                    })}
+                              View
+                            </Button>
+                            {c.remaining_units > 0 ? (
+                              <Button
+                                size="sm"
+                                variant="success"
+                                onClick={() =>
+                                  void openDetail(c.id, { recv: true })
+                                }
+                              >
+                                Receive
+                              </Button>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <StatusPill status={c.status} />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#eef1f4] px-4 py-3 text-[13px] text-[#495057]">
-                <p>
-                  Showing {listStart} to {listEnd} of {filteredChalans.length}{' '}
-                  entries
-                </p>
-                {pageButtons(listPage, listTotalPages, setPage)}
-              </div>
+              <TablePager
+                start={listStart}
+                end={listEnd}
+                total={filteredChalans.length}
+                page={listPage}
+                totalPages={listTotalPages}
+                onPage={setPage}
+              />
             </>
           )}
         </div>
@@ -1168,47 +1168,46 @@ export function ChalanPage({
             </div>
           ) : (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef1f4] px-4 py-2.5">
-                <label className="flex items-center gap-1.5 text-[13px] text-[#495057]">
-                  Show
-                  <select
-                    value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-8 rounded-md border border-[#ced4da] bg-white px-2 text-[13px]"
-                  >
-                    {[10, 25, 50].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                  entries
-                </label>
+              <div className="flex flex-col gap-2 border-b border-[#eef1f4] px-3 py-2 sm:flex-row sm:items-end">
+                <Select
+                  label="Show"
+                  value={String(pageSize)}
+                  containerClassName="sm:w-28 sm:shrink-0"
+                  className="h-8 text-[13px]"
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                >
+                  {[10, 25, 50].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </Select>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px] text-[13px]">
+                <table className="w-full min-w-[800px] table-auto text-[14px] text-[#212529]">
                   <thead>
-                    <tr className="bg-[#d97706] text-left text-white">
-                      <th className="px-3 py-2.5">#</th>
-                      <th className="px-3 py-2.5">চালান</th>
-                      <th className="px-3 py-2.5">কোম্পানি</th>
-                      <th className="px-3 py-2.5">SKU</th>
-                      <th className="px-3 py-2.5">পণ্য</th>
-                      <th className="px-3 py-2.5">বাকি পিস</th>
-                      <th className="px-3 py-2.5">রেট</th>
-                      <th className="px-3 py-2.5">মূল্য</th>
-                      <th className="px-3 py-2.5">Action</th>
+                    <tr className={darkThead}>
+                      <th className="w-10">#</th>
+                      <th>Chalan</th>
+                      <th>Supplier</th>
+                      <th>SKU</th>
+                      <th>Name</th>
+                      <th>Outstanding</th>
+                      <th>Rate</th>
+                      <th>Value</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {pagedPaona.map((r, idx) => (
                       <tr
                         key={`${r.chalan_id}-${r.product_id}`}
-                        className={`border-b border-[#eef1f4] hover:bg-[#fffbeb] ${
-                          idx % 2 ? 'bg-[#fffaf3]' : 'bg-white'
-                        }`}
+                        className={zebraRow(
+                          idx,
+                          'cursor-default transition-colors hover:!bg-[#c3e6cb]'
+                        )}
                       >
-                        <td className="px-3 py-2.5 text-[#6c757d]">
+                        <td className="px-3 py-2.5 text-[#495057]">
                           {paonaStart + idx}
                         </td>
                         <td className="px-3 py-2.5">
@@ -1221,20 +1220,22 @@ export function ChalanPage({
                           </button>
                         </td>
                         <td className="px-3 py-2.5">{r.supplier || '—'}</td>
-                        <td className="px-3 py-2.5 font-mono text-[12px]">
+                        <td className="px-3 py-2.5 font-mono text-[13px] font-bold text-[#111827]">
                           {r.sku || '—'}
                         </td>
-                        <td className="px-3 py-2.5">{r.product_name}</td>
+                        <td className="px-3 py-2.5 font-semibold text-[#111827]">
+                          {r.product_name}
+                        </td>
                         <td className="px-3 py-2.5 font-mono font-bold text-[#dc3545]">
                           {r.remaining}
                         </td>
-                        <td className="px-3 py-2.5 font-mono">
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
                           {formatMoney(r.unit_rate)}
                         </td>
-                        <td className="px-3 py-2.5 font-mono font-semibold">
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#111827]">
                           {formatMoney(r.remaining * r.unit_rate)}
                         </td>
-                        <td className="px-3 py-2.5">
+                        <td className="w-0 whitespace-nowrap px-3 py-2.5">
                           <Button
                             size="sm"
                             variant="success"
@@ -1242,8 +1243,7 @@ export function ChalanPage({
                               void openDetail(r.chalan_id, { recv: true })
                             }
                           >
-                            <Truck className="h-3.5 w-3.5" />
-                            রিসিভ
+                            Receive
                           </Button>
                         </td>
                       </tr>
@@ -1251,15 +1251,162 @@ export function ChalanPage({
                   </tbody>
                 </table>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#eef1f4] px-4 py-3 text-[13px] text-[#495057]">
-                <p>
-                  Showing {paonaStart} to {paonaEnd} of {paonaRows.length}{' '}
-                  entries
-                </p>
-                {pageButtons(paonaPageSafe, paonaTotalPages, setPaonaPage)}
-              </div>
+              <TablePager
+                start={paonaStart}
+                end={paonaEnd}
+                total={paonaRows.length}
+                page={paonaPageSafe}
+                totalPages={paonaTotalPages}
+                onPage={setPaonaPage}
+              />
             </>
           )}
+        </div>
+      )}
+
+      {mode === 'bulkRecv' && (
+        <div className="overflow-hidden rounded-xl border border-[#dee2e6] bg-white shadow-sm">
+          <div className="border-b border-[#eef1f4] bg-[#f4fbf7] px-4 py-3">
+            <h2 className="text-[15px] font-bold text-[#1a365d]">
+              Bulk receive · বাল্ক রিসিভ
+            </h2>
+            <p className="text-[12px] text-[#6c757d]">
+              After PO, paste the SKUs you received. Qty caps at outstanding.
+            </p>
+          </div>
+          <div className="space-y-4 p-4">
+            <Select
+              label="Purchase order / chalan *"
+              value={bulkChalanId}
+              onChange={(e) => {
+                setBulkChalanId(e.target.value);
+                setBulkCsvText('');
+                setBulkPreview(null);
+                if (e.target.value) void openDetail(e.target.value);
+              }}
+            >
+              <option value="">Select chalan with outstanding…</option>
+              {openChalansWithOutstanding.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {shortId(c.id)} · {c.date} · {c.supplier || '—'} · outstanding{' '}
+                  {c.remaining_units}
+                </option>
+              ))}
+            </Select>
+            <div>
+              <label className="mb-1 block text-[12px] font-bold text-[#212529]">
+                Paste CSV (SKU,quantity)
+              </label>
+              <textarea
+                value={bulkCsvText}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setBulkCsvText(text);
+                  if (!bulkChalanId || !text.trim()) {
+                    setBulkPreview(null);
+                    return;
+                  }
+                  const c =
+                    detail?.id === bulkChalanId
+                      ? detail
+                      : chalans.find((x) => x.id === bulkChalanId);
+                  if (!c) return;
+                  // Prefer full detail with items
+                  void (async () => {
+                    const full =
+                      detail?.id === bulkChalanId
+                        ? detail
+                        : await getChalan(bulkChalanId);
+                    if (!full) return;
+                    setDetail(full);
+                    const preview = previewChalanBulkReceive(
+                      text,
+                      full,
+                      products
+                    );
+                    setBulkPreview(preview);
+                  })();
+                }}
+                rows={6}
+                className="w-full rounded-[4px] border border-[#ced4da] p-2 font-mono text-[13px]"
+                placeholder={'SKU,quantity\n81290,12\n851445,6'}
+                disabled={!bulkChalanId}
+              />
+            </div>
+            <Input
+              label="Notes (optional)"
+              value={recvNotes}
+              onChange={(e) => setRecvNotes(e.target.value)}
+            />
+            {bulkPreview && bulkPreview.rows.length > 0 ? (
+              <div className="overflow-x-auto rounded-md border border-[#dee2e6]">
+                <table className="w-full text-[14px] text-[#212529]">
+                  <thead>
+                    <tr className={darkThead}>
+                      <th>SKU</th>
+                      <th>Name</th>
+                      <th>Requested</th>
+                      <th>Will receive</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bulkPreview.rows.map((r, idx) => (
+                      <tr key={`${r.sku}-${idx}`} className={zebraRow(idx)}>
+                        <td className="px-3 py-2.5 font-mono font-bold">
+                          {r.sku}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          {r.product_name || '—'}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono">{r.requested}</td>
+                        <td className="px-3 py-2.5 font-mono font-bold">
+                          {r.applied}
+                        </td>
+                        <td
+                          className={
+                            r.status === 'ok'
+                              ? 'px-3 py-2.5 text-[#28a745]'
+                              : r.status === 'capped'
+                                ? 'px-3 py-2.5 text-[#b35900]'
+                                : 'px-3 py-2.5 text-[#dc3545]'
+                          }
+                        >
+                          {r.status}
+                          {r.note ? ` · ${r.note}` : ''}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : openChalansWithOutstanding.length === 0 ? (
+              <p className="text-sm text-[#6c757d]">
+                No open chalans with outstanding qty. Create a PO first.
+              </p>
+            ) : null}
+            <div className="flex justify-end gap-2 border-t border-[#eef1f4] pt-4">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => onNavigate?.('chalan')}
+              >
+                Back to list
+              </Button>
+              <Button
+                size="sm"
+                variant="success"
+                disabled={
+                  saving ||
+                  !bulkPreview ||
+                  Object.keys(bulkPreview.recvQty).length === 0
+                }
+                onClick={() => void runBulkRecvFromPage()}
+              >
+                {saving ? 'Saving…' : 'Receive matched lines'}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1270,45 +1417,46 @@ export function ChalanPage({
           setShowPay(false);
           setShowRecv(false);
         }}
-        title={detail ? `চালান ${shortId(detail.id)}` : 'চালান'}
+        title={detail ? `Chalan ${shortId(detail.id)}` : 'Chalan'}
         subtitle={
           detail
-            ? `${detail.date} · ${detail.supplier || 'কোম্পানি নেই'} · পাওনা ${detail.remaining_units} পিস`
+            ? `${detail.date} · ${detail.supplier || 'No supplier'} · Outstanding ${detail.remaining_units} pcs`
             : undefined
         }
         size="xl"
       >
         {detail && (
-          <div className="max-h-[75vh] space-y-4 overflow-y-auto p-4">
+          <div className="space-y-4 p-5">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-lg border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2">
-                <p className="text-[11px] text-[#6c757d]">স্ট্যাটাস</p>
+                <p className="text-[11px] text-[#6c757d]">Status</p>
                 <div className="mt-1">
                   <StatusPill status={detail.status} />
                 </div>
               </div>
               <div className="rounded-lg border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2">
-                <p className="text-[11px] text-[#6c757d]">অর্ডার মূল্য</p>
+                <p className="text-[11px] text-[#6c757d]">Order</p>
                 <p className="mt-0.5 font-mono font-bold text-[#15803d]">
                   {formatMoney(detail.ordered_amount)}
                 </p>
               </div>
               <div className="rounded-lg border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2">
-                <p className="text-[11px] text-[#6c757d]">পরিশোধ</p>
+                <p className="text-[11px] text-[#6c757d]">Paid</p>
                 <p className="mt-0.5 font-mono font-bold text-[#1b4f72]">
                   {formatMoney(detail.paid_amount)}
                 </p>
               </div>
-              <div className="rounded-lg border border-[#fd7e14]/30 bg-[#fff7ed] px-3 py-2">
-                <p className="text-[11px] text-[#b35900]">পাওনা পিস</p>
-                <p className="mt-0.5 font-mono text-lg font-bold text-[#dc3545]">
-                  {detail.remaining_units}
+              <div className="rounded-lg border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2">
+                <p className="text-[11px] text-[#6c757d]">Outstanding</p>
+                <p className="mt-0.5 font-mono font-bold text-[#dc3545]">
+                  {detail.remaining_units} pcs
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-end gap-2">
               <Button
+                size="sm"
                 variant="secondary"
                 onClick={() => {
                   const due = Math.max(
@@ -1321,10 +1469,11 @@ export function ChalanPage({
                 }}
               >
                 <Wallet className="h-4 w-4" />
-                পেমেন্ট লিংক করুন
+                Link payment
               </Button>
               {detail.remaining_units > 0 && (
                 <Button
+                  size="sm"
                   variant="success"
                   onClick={() => {
                     setShowRecv(true);
@@ -1332,45 +1481,48 @@ export function ChalanPage({
                   }}
                 >
                   <Truck className="h-4 w-4" />
-                  মাল রিসিভ করুন
+                  Receive goods
                 </Button>
               )}
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-[#dee2e6]">
-              <table className="w-full text-[13px]">
+            <div className="overflow-x-auto rounded-md border border-[#dee2e6]">
+              <table className="w-full text-[14px] text-[#212529]">
                 <thead>
-                  <tr className="bg-[#f1f5f9] text-left text-[#1a365d]">
-                    <th className="px-3 py-2">SKU</th>
-                    <th className="px-3 py-2">নাম</th>
-                    <th className="px-3 py-2">অর্ডার</th>
-                    <th className="px-3 py-2">রিসিভ</th>
-                    <th className="px-3 py-2">পাওনা</th>
-                    <th className="px-3 py-2">রেট</th>
+                  <tr className={darkThead}>
+                    <th>SKU</th>
+                    <th>Name</th>
+                    <th>Ordered</th>
+                    <th>Received</th>
+                    <th>Outstanding</th>
+                    <th>Rate</th>
                   </tr>
                 </thead>
                 <tbody>
                   {detail.items.map((i, idx) => (
                     <tr
                       key={i.id}
-                      className={`border-t border-[#eef1f4] ${
-                        i.remaining_qty > 0
-                          ? 'bg-[#fffbeb]'
-                          : idx % 2
-                            ? 'bg-[#fafbfc]'
-                            : ''
-                      }`}
+                      className={zebraRow(
+                        idx,
+                        'cursor-default transition-colors hover:!bg-[#c3e6cb]'
+                      )}
                     >
-                      <td className="px-3 py-2 font-mono text-[12px]">
+                      <td className="px-3 py-2.5 font-mono text-[13px] font-bold text-[#111827]">
                         {i.sku}
                       </td>
-                      <td className="px-3 py-2">{i.product_name}</td>
-                      <td className="px-3 py-2 font-mono">{i.ordered_qty}</td>
-                      <td className="px-3 py-2 font-mono">{i.received_qty}</td>
-                      <td className="px-3 py-2 font-mono font-bold text-[#dc3545]">
+                      <td className="px-3 py-2.5 font-semibold text-[#111827]">
+                        {i.product_name}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono font-bold">
+                        {i.ordered_qty}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono font-bold">
+                        {i.received_qty}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono font-bold text-[#dc3545]">
                         {i.remaining_qty}
                       </td>
-                      <td className="px-3 py-2 font-mono">
+                      <td className="px-3 py-2.5 font-mono font-bold">
                         {formatMoney(i.unit_rate)}
                       </td>
                     </tr>
@@ -1379,94 +1531,87 @@ export function ChalanPage({
               </table>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#dee2e6] bg-[#f8fafb] px-3 py-1.5 text-[13px]">
-              <span className="shrink-0 font-semibold text-[#1a365d]">
-                লিংকড পেমেন্ট · Linked payments
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="text-[11px] text-[#6c757d]">Due</span>
-                <strong className="font-mono text-[#b45309]">
-                  {formatMoney(
-                    Math.max(0, detail.ordered_amount - detail.paid_amount)
-                  )}
-                </strong>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="text-[11px] text-[#6c757d]">Pending</span>
-                <strong className="font-mono text-[#dc3545]">
-                  {formatMoney(
-                    detail.items.reduce(
-                      (sum, i) => sum + i.remaining_qty * i.unit_rate,
-                      0
-                    )
-                  )}
-                </strong>
-                <span className="text-[11px] text-[#6c757d]">
-                  ({detail.remaining_units} pcs)
-                </span>
-              </span>
-              {detail.payments.length === 0 ? (
-                <span className="text-[#6c757d]">এখনও কোনো পেমেন্ট নেই</span>
-              ) : (
-                detail.payments.map((p) => (
-                  <span
-                    key={p.id}
-                    className="inline-flex flex-wrap items-center gap-2"
-                  >
-                    <span className="font-mono text-[12px] text-[#6c757d]">
-                      {p.paid_at}
-                    </span>
-                    <strong className="font-mono text-[#15803d]">
-                      {formatMoney(p.amount)}
-                    </strong>
-                    <span className="rounded border border-[#dee2e6] bg-white px-1.5 py-0.5 text-[11px]">
-                      {p.method}
-                    </span>
-                    {p.receipt_url ? (
-                      <a
-                        href={p.receipt_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[12px] text-[#007bff]"
+            <div className="overflow-x-auto rounded-md border border-[#dee2e6]">
+              <table className="w-full text-[14px] text-[#212529]">
+                <thead>
+                  <tr className={darkThead}>
+                    <th>Linked payments</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Receipt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.payments.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="px-3 py-6 text-center text-sm text-[#6c757d]"
                       >
-                        রসিদ
-                      </a>
-                    ) : null}
-                  </span>
-                ))
-              )}
+                        No payments linked yet. Due{' '}
+                        {formatMoney(
+                          Math.max(
+                            0,
+                            detail.ordered_amount - detail.paid_amount
+                          )
+                        )}
+                        .
+                      </td>
+                    </tr>
+                  ) : (
+                    detail.payments.map((p, idx) => (
+                      <tr key={p.id} className={zebraRow(idx)}>
+                        <td className="px-3 py-2.5 font-mono text-[13px] font-bold text-[#111827]">
+                          {p.paid_at}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-[#15803d]">
+                          {formatMoney(p.amount)}
+                        </td>
+                        <td className="px-3 py-2.5">{p.method}</td>
+                        <td className="px-3 py-2.5">
+                          {p.receipt_url ? (
+                            <a
+                              href={p.receipt_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[13px] font-medium text-[#007bff] hover:underline"
+                            >
+                              Open
+                            </a>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
 
             {showPay && (
-              <div className="space-y-3 rounded-xl border border-[#1b4f72]/25 bg-[#f0f7fb] p-4">
-                <div className="flex items-start gap-2">
-                  <Wallet className="mt-0.5 h-5 w-5 text-[#1b4f72]" />
-                  <div>
-                    <h4 className="font-bold text-[#1a365d]">
-                      পেমেন্ট যোগ · Link payment
-                    </h4>
-                    <p className="text-[12px] text-[#6c757d]">
-                      এই চালানের সাথে টাকা লিংক হবে (আলাদা এন্ট্রি)। অর্ডার মূল্য{' '}
-                      <strong className="text-[#d97706]">
-                        {formatMoney(detail.ordered_amount)}
-                      </strong>
-                      , ইতিমধ্যে পরিশোধ{' '}
-                      <strong>{formatMoney(detail.paid_amount)}</strong>।
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              <div className="rounded-md border border-[#dee2e6] bg-white p-4">
+                <h4 className="text-[13px] font-semibold tracking-wide text-[#1a365d]">
+                  Link payment
+                </h4>
+                <p className="mt-1 text-[12px] text-[#6c757d]">
+                  Order {formatMoney(detail.ordered_amount)} · paid{' '}
+                  {formatMoney(detail.paid_amount)} · due{' '}
+                  {formatMoney(
+                    Math.max(0, detail.ordered_amount - detail.paid_amount)
+                  )}
+                </p>
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Input
-                    label="পরিমাণ (৳) *"
+                    label="Amount (৳) *"
                     type="number"
                     min={1}
                     value={payAmount}
                     onChange={(e) => setPayAmount(e.target.value)}
-                    placeholder="যেমন 50000"
-                    hint={`বাকি লিংক: ${formatMoney(Math.max(0, detail.ordered_amount - detail.paid_amount))}`}
+                    placeholder="50000"
                   />
                   <Select
-                    label="মাধ্যম"
+                    label="Method"
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value)}
                   >
@@ -1475,21 +1620,22 @@ export function ChalanPage({
                     <option>Bank</option>
                     <option>Card</option>
                   </Select>
+                  <Input
+                    label="Notes"
+                    value={payNotes}
+                    onChange={(e) => setPayNotes(e.target.value)}
+                    placeholder="Reference"
+                    containerClassName="md:col-span-2"
+                  />
                 </div>
-                <Input
-                  label="নোট"
-                  value={payNotes}
-                  onChange={(e) => setPayNotes(e.target.value)}
-                  placeholder="কে টাকা নিলেন / রেফারেন্স"
-                />
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button
                     size="sm"
                     variant="secondary"
                     onClick={() => payFileRef.current?.click()}
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    পেমেন্ট রসিদ
+                    Receipt
                   </Button>
                   <input
                     ref={payFileRef}
@@ -1499,89 +1645,145 @@ export function ChalanPage({
                     onChange={(e) => setPayFile(e.target.files?.[0] || null)}
                   />
                   <span className="text-[12px] text-[#6c757d]">
-                    {payFile?.name || 'ঐচ্ছিক'}
+                    {payFile?.name || 'Optional'}
                   </span>
                 </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="secondary" onClick={() => setShowPay(false)}>
-                    বাতিল
+                <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-[#eef1f4] pt-4">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowPay(false)}
+                  >
+                    Cancel
                   </Button>
-                  <Button onClick={() => void submitPay()} disabled={saving}>
-                    <Save className="h-4 w-4" />
-                    পেমেন্ট সেভ
+                  <Button
+                    size="sm"
+                    onClick={() => void submitPay()}
+                    disabled={saving}
+                  >
+                    Save
                   </Button>
                 </div>
               </div>
             )}
 
             {showRecv && (
-              <div className="space-y-3 rounded-xl border border-[#00a65a]/30 bg-[#f4fbf7] p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="flex items-start gap-2">
-                    <Truck className="mt-0.5 h-5 w-5 text-[#00a65a]" />
-                    <div>
-                      <h4 className="font-bold text-[#1a365d]">
-                        মাল রিসিভ · Receive goods
-                      </h4>
-                      <p className="text-[12px] text-[#6c757d]">
-                        শুধু যেটা এসেছে সেই পরিমাণ দিন। স্টক এখনই বাড়বে; বাকি
-                        পাওনায় থাকবে।
-                      </p>
-                    </div>
+              <div className="rounded-md border border-[#dee2e6] bg-white p-4">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <div>
+                    <h4 className="text-[13px] font-semibold tracking-wide text-[#1a365d]">
+                      Receive goods
+                    </h4>
+                    <p className="mt-1 text-[12px] text-[#6c757d]">
+                      Enter qty received. Leftover stays outstanding from
+                      supplier.
+                    </p>
                   </div>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="secondary" onClick={fillAllRemaining}>
-                      সব পাওনা ভরুন
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={fillAllRemaining}
+                    >
+                      Fill remaining
                     </Button>
                     <Button size="sm" variant="ghost" onClick={clearRecvQty}>
-                      খালি
+                      Clear
                     </Button>
                   </div>
                 </div>
-                {detail.items
-                  .filter((i) => i.remaining_qty > 0)
-                  .map((i) => (
-                    <div
-                      key={i.id}
-                      className="grid grid-cols-1 items-end gap-2 rounded-lg border border-[#dee2e6] bg-white p-2 md:grid-cols-3"
-                    >
-                      <p className="text-[13px] md:col-span-2">
-                        <span className="font-mono text-[12px] text-[#6c757d]">
-                          {i.sku}
-                        </span>{' '}
-                        — {i.product_name}
-                        <span className="ml-1 rounded bg-[#fff7ed] px-1.5 py-0.5 text-[11px] font-semibold text-[#b35900]">
-                          পাওনা {i.remaining_qty}
-                        </span>
-                      </p>
-                      <Input
-                        label="রিসিভ পরিমাণ"
-                        type="number"
-                        min={0}
-                        max={i.remaining_qty}
-                        value={recvQty[i.product_id] || ''}
-                        onChange={(e) =>
-                          setRecvQty((prev) => ({
-                            ...prev,
-                            [i.product_id]: e.target.value,
-                          }))
-                        }
-                      />
+                <div className="mt-3 space-y-2 rounded-md border border-[#dee2e6] bg-[#f8fafb] p-3">
+                  <p className="text-[12px] font-semibold text-[#1a365d]">
+                    Bulk paste · SKU,quantity
+                  </p>
+                  <textarea
+                    value={bulkCsvText}
+                    onChange={(e) => applyBulkCsvToDetail(e.target.value)}
+                    rows={3}
+                    className="w-full rounded-[4px] border border-[#ced4da] p-2 font-mono text-[12px]"
+                    placeholder={'SKU,quantity\n81290,12\n851445,6'}
+                  />
+                  {bulkPreview && bulkPreview.rows.length > 0 ? (
+                    <div className="max-h-40 overflow-auto rounded border border-[#dee2e6] bg-white text-[12px]">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-[#f8f9fa] text-left">
+                            <th className="px-2 py-1">SKU</th>
+                            <th className="px-2 py-1">Req</th>
+                            <th className="px-2 py-1">Apply</th>
+                            <th className="px-2 py-1">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bulkPreview.rows.map((r) => (
+                            <tr
+                              key={`${r.sku}-${r.requested}`}
+                              className="border-t"
+                            >
+                              <td className="px-2 py-1 font-mono">{r.sku}</td>
+                              <td className="px-2 py-1">{r.requested}</td>
+                              <td className="px-2 py-1">{r.applied}</td>
+                              <td
+                                className={
+                                  r.status === 'ok'
+                                    ? 'px-2 py-1 text-[#28a745]'
+                                    : r.status === 'capped'
+                                      ? 'px-2 py-1 text-[#b35900]'
+                                      : 'px-2 py-1 text-[#dc3545]'
+                                }
+                              >
+                                {r.status}
+                                {r.note ? ` · ${r.note}` : ''}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  ))}
-                <Input
-                  label="নোট"
-                  value={recvNotes}
-                  onChange={(e) => setRecvNotes(e.target.value)}
-                />
-                <div className="flex flex-wrap items-center gap-2">
+                  ) : null}
+                </div>
+                <div className="mt-4 space-y-3">
+                  {detail.items
+                    .filter((i) => i.remaining_qty > 0)
+                    .map((i) => (
+                      <div
+                        key={i.id}
+                        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                      >
+                        <Input
+                          label="Product"
+                          value={`${i.sku} — ${i.product_name} (outstanding ${i.remaining_qty})`}
+                          readOnly
+                        />
+                        <Input
+                          label="Receive qty *"
+                          type="number"
+                          min={0}
+                          max={i.remaining_qty}
+                          value={recvQty[i.product_id] || ''}
+                          onChange={(e) =>
+                            setRecvQty((prev) => ({
+                              ...prev,
+                              [i.product_id]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    ))}
+                  <Input
+                    label="Notes"
+                    value={recvNotes}
+                    onChange={(e) => setRecvNotes(e.target.value)}
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button
                     size="sm"
                     variant="secondary"
                     onClick={() => recvFileRef.current?.click()}
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    ডেলিভারি ছবি
+                    Delivery photo
                   </Button>
                   <input
                     ref={recvFileRef}
@@ -1591,19 +1793,24 @@ export function ChalanPage({
                     onChange={(e) => setRecvFile(e.target.files?.[0] || null)}
                   />
                   <span className="text-[12px] text-[#6c757d]">
-                    {recvFile?.name || 'ঐচ্ছিক'}
+                    {recvFile?.name || 'Optional'}
                   </span>
                 </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="secondary" onClick={() => setShowRecv(false)}>
-                    বাতিল
+                <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-[#eef1f4] pt-4">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowRecv(false)}
+                  >
+                    Cancel
                   </Button>
                   <Button
+                    size="sm"
                     variant="success"
                     onClick={() => void submitRecv()}
                     disabled={saving}
                   >
-                    রিসিভ নিশ্চিত করুন
+                    Save
                   </Button>
                 </div>
               </div>

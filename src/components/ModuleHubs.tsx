@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   List,
   BookOpen,
+  Trophy,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatMoney } from '../utils/money';
@@ -65,7 +66,7 @@ export function SalesHub({ onNavigate }: { onNavigate: Go }) {
         <StatTile label="এই মাসের ইনভয়েস" value={monthCount} tone="blue" />
       </div>
       <SectionCard title="Actions" subtitle="একটা কাজ বেছে নিন" accent="navy">
-        <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
           <HubActionCard
             tone="green"
             title="New Sale · POS"
@@ -79,6 +80,13 @@ export function SalesHub({ onNavigate }: { onNavigate: Go }) {
             description="তারিখ রেঞ্জ দিয়ে ইনভয়েস দেখুন ও প্রিন্ট করুন।"
             icon={<List className="h-5 w-5" />}
             onClick={() => onNavigate('sales')}
+          />
+          <HubActionCard
+            tone="amber"
+            title="Top Selling"
+            description="রেঞ্জ অনুযায়ী সবচেয়ে বেশি বিক্রি।"
+            icon={<Trophy className="h-5 w-5" />}
+            onClick={() => onNavigate('topSelling')}
           />
         </div>
       </SectionCard>
@@ -189,11 +197,16 @@ export function PurchaseHub({ onNavigate }: { onNavigate: Go }) {
           hint="Company order"
           tone="navy"
         />
-        <StatTile label="Outstanding" value="পাওনা" hint="Open receive" tone="amber" />
+        <StatTile
+          label="Outstanding from supplier"
+          value="পাওনা"
+          hint="Open receive"
+          tone="amber"
+        />
         <StatTile label="Quick intake" value="Bulk / CSV" hint="Restock" tone="green" />
       </div>
       <SectionCard title="Chalan & পাওনা" accent="navy">
-        <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
           <HubActionCard
             tone="green"
             title="Purchase Status"
@@ -214,6 +227,13 @@ export function PurchaseHub({ onNavigate }: { onNavigate: Go }) {
             description="বাকি মাল রিসিভ করুন।"
             icon={<Truck className="h-5 w-5" />}
             onClick={() => onNavigate('chalanPaona')}
+          />
+          <HubActionCard
+            tone="blue"
+            title="Bulk Receive"
+            description="PO-এর পর SKU + qty পেস্ট করে রিসিভ।"
+            icon={<Upload className="h-5 w-5" />}
+            onClick={() => onNavigate('chalanBulkRecv')}
           />
         </div>
       </SectionCard>

@@ -28,6 +28,7 @@ type AppAction =
   | { type: 'ADD_SALE'; payload: Sale }
   | { type: 'SET_LOGS'; payload: InventoryLog[] }
   | { type: 'ADD_LOG'; payload: InventoryLog }
+  | { type: 'UPDATE_LOG'; payload: InventoryLog }
   | { type: 'ADD_TO_CART'; payload: CartItem }
   | { type: 'UPDATE_CART_QUANTITY'; payload: { productId: string; quantity: number } }
   | { type: 'REMOVE_FROM_CART'; payload: string }
@@ -71,6 +72,13 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, inventoryLogs: action.payload };
     case 'ADD_LOG':
       return { ...state, inventoryLogs: [action.payload, ...state.inventoryLogs] };
+    case 'UPDATE_LOG':
+      return {
+        ...state,
+        inventoryLogs: state.inventoryLogs.map((l) =>
+          l.id === action.payload.id ? action.payload : l
+        ),
+      };
     case 'ADD_TO_CART': {
       const existing = state.cart.find(
         (item) => item.product.id === action.payload.product.id
@@ -133,7 +141,15 @@ interface AppContextType extends AppState {
   adjustStock: (
     productId: string,
     quantity: number,
-    change_type: 'add' | 'break'
+    change_type: 'add' | 'break',
+    opts?: {
+      supplier?: string;
+      chalanId?: string;
+    }
+  ) => Promise<boolean>;
+  receiveBreakageReplacement: (
+    logId: string,
+    quantity: number
   ) => Promise<boolean>;
   uploadPurchaseReceipt: (file: File) => Promise<string | null>;
   recordPurchase: (input: {
@@ -326,6 +342,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         quantity: Number(l.quantity),
         date: String(l.date).slice(0, 10),
         purchase_id: l.purchase_id ?? undefined,
+        supplier: l.supplier ?? undefined,
+        chalan_id: l.chalan_id ?? undefined,
+        return_status: (l.return_status as InventoryLog['return_status']) || undefined,
+        replaced_qty: l.replaced_qty != null ? Number(l.replaced_qty) : undefined,
       })),
     });
   };
@@ -612,7 +632,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const adjustStock = async (
     productId: string,
     quantity: number,
-    change_type: 'add' | 'break'
+    change_type: 'add' | 'break',
+    opts?: {
+      supplier?: string;
+      chalanId?: string;
+    }
   ): Promise<boolean> => {
     const product = state.products.find((p) => p.id === productId);
     const qty = Math.floor(Number(quantity));
@@ -638,6 +662,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
+    const supplier =
+      change_type === 'break' ? opts?.supplier?.trim() || undefined : undefined;
+    const chalanId =
+      change_type === 'break' ? opts?.chalanId?.trim() || undefined : undefined;
+
     const log: InventoryLog = {
       id: 'L' + Date.now() + productId,
       product_id: product.id,
@@ -645,8 +674,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       change_type,
       quantity: qty,
       date: new Date().toISOString().slice(0, 10),
+      ...(supplier
+        ? {
+            supplier,
+            chalan_id: chalanId,
+            return_status: 'pending' as const,
+            replaced_qty: 0,
+          }
+        : {}),
     };
-    const { error: logError } = await supabase.from('inventory_logs').insert(log);
+    const { error: logError } = await supabase.from('inventory_logs').insert({
+      id: log.id,
+      product_id: log.product_id,
+      product_name: log.product_name,
+      change_type: log.change_type,
+      quantity: log.quantity,
+      date: log.date,
+      supplier: log.supplier ?? null,
+      chalan_id: log.chalan_id ?? null,
+      return_status: log.return_status ?? null,
+      replaced_qty: log.replaced_qty ?? 0,
+    });
     if (logError) {
       toast.error(logError.message);
       return false;
@@ -657,7 +705,114 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast.success(
       change_type === 'add'
         ? `Restocked ${qty} × ${product.name}.`
-        : `Recorded ${qty} broken ${product.name}.`
+        : supplier
+          ? `Recorded ${qty} broken ${product.name} · return to ${supplier}.`
+          : `Recorded ${qty} broken ${product.name}.`
+    );
+    return true;
+  };
+
+  const receiveBreakageReplacement = async (
+    logId: string,
+    quantity: number
+  ): Promise<boolean> => {
+    const log = state.inventoryLogs.find((l) => l.id === logId);
+    const qty = Math.floor(Number(quantity));
+    if (!log || log.change_type !== 'break') {
+      toast.warning('Breakage record not found.');
+      return false;
+    }
+    if (!log.supplier || !log.return_status) {
+      toast.warning('This breakage is not linked to a company return.');
+      return false;
+    }
+    const already = Number(log.replaced_qty) || 0;
+    const remaining = log.quantity - already;
+    if (qty <= 0) {
+      toast.warning('Enter a valid replacement quantity.');
+      return false;
+    }
+    if (qty > remaining) {
+      toast.error(`Only ${remaining} unit(s) still pending replacement.`);
+      return false;
+    }
+
+    const product = state.products.find((p) => p.id === log.product_id);
+    if (!product) {
+      toast.error('Product missing from catalog.');
+      return false;
+    }
+
+    const nextStock = product.stock + qty;
+    const { data: productRow, error: stockError } = await supabase
+      .from('products')
+      .update({ stock: nextStock })
+      .eq('id', product.id)
+      .select('*')
+      .single();
+    if (stockError) {
+      toast.error(stockError.message);
+      return false;
+    }
+
+    const newReplaced = already + qty;
+    const returnStatus =
+      newReplaced >= log.quantity ? ('replaced' as const) : ('pending' as const);
+    const updated: InventoryLog = {
+      ...log,
+      replaced_qty: newReplaced,
+      return_status: returnStatus,
+    };
+
+    const { error: logError } = await supabase
+      .from('inventory_logs')
+      .update({
+        replaced_qty: newReplaced,
+        return_status: returnStatus,
+      })
+      .eq('id', logId);
+    if (logError) {
+      toast.error(logError.message);
+      return false;
+    }
+
+    const addLog: InventoryLog = {
+      id: 'L' + Date.now() + product.id + 'R',
+      product_id: product.id,
+      product_name: product.name,
+      change_type: 'add',
+      quantity: qty,
+      date: new Date().toISOString().slice(0, 10),
+      supplier: log.supplier,
+      chalan_id: log.chalan_id,
+    };
+    const { error: addLogError } = await supabase.from('inventory_logs').insert({
+      id: addLog.id,
+      product_id: addLog.product_id,
+      product_name: addLog.product_name,
+      change_type: addLog.change_type,
+      quantity: addLog.quantity,
+      date: addLog.date,
+      supplier: addLog.supplier ?? null,
+      chalan_id: addLog.chalan_id ?? null,
+      return_status: null,
+      replaced_qty: 0,
+    });
+    if (addLogError) {
+      toast.error(addLogError.message);
+      return false;
+    }
+
+    dispatch({
+      type: 'UPDATE_PRODUCT',
+      payload: mapProduct(productRow as ProductRow),
+    });
+    dispatch({ type: 'UPDATE_LOG', payload: updated });
+    dispatch({ type: 'ADD_LOG', payload: addLog });
+    toast.success(
+      returnStatus === 'replaced'
+        ? `Replacement complete · +${qty} ${product.name}.`
+        : `Received +${qty} replacement · ${log.quantity - newReplaced} still pending.`
     );
     return true;
   };
@@ -1512,6 +1667,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         clearCart,
         completeSale,
         adjustStock,
+        receiveBreakageReplacement,
         uploadPurchaseReceipt,
         recordPurchase,
         listChalans,

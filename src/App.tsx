@@ -57,6 +57,7 @@ type Page =
   | 'chalan'
   | 'chalanNew'
   | 'chalanPaona'
+  | 'chalanBulkRecv'
   | 'stockBulk'
   | 'stockCsv'
   | 'stockPurchase'
@@ -84,6 +85,7 @@ const HASH_PAGES: Page[] = [
   'chalan',
   'chalanNew',
   'chalanPaona',
+  'chalanBulkRecv',
   'stockBulk',
   'stockCsv',
   'stockPurchase',
@@ -95,8 +97,9 @@ const HASH_PAGES: Page[] = [
 ];
 
 function pageFromHash(): Page {
-  const raw = window.location.hash.replace(/^#\/?/, '') as Page;
-  return HASH_PAGES.includes(raw) ? raw : 'dashboard';
+  const raw = window.location.hash.replace(/^#\/?/, '').trim();
+  if ((HASH_PAGES as readonly string[]).includes(raw)) return raw as Page;
+  return 'dashboard';
 }
 
 type NavChild = { label: string; page: Page | null };
@@ -119,15 +122,15 @@ const parents: NavItem[] = [
       { label: 'Overview', page: 'salesHome' },
       { label: 'New Sale (POS)', page: 'billing' },
       { label: 'Sale List', page: 'sales' },
+      { label: 'Top Selling', page: 'topSelling' },
     ],
   },
   {
     id: 'catalog',
     label: 'Products',
     icon: Package,
-    page: 'catalogHome',
+    page: 'products',
     children: [
-      { label: 'Overview', page: 'catalogHome' },
       { label: 'Product List', page: 'products' },
       { label: 'Add Product', page: 'addProduct' },
     ],
@@ -153,6 +156,7 @@ const parents: NavItem[] = [
       { label: 'Purchase Status', page: 'chalan' },
       { label: 'Purchase Order', page: 'chalanNew' },
       { label: 'Pending', page: 'chalanPaona' },
+      { label: 'Bulk Receive', page: 'chalanBulkRecv' },
       { label: 'Bulk Restock', page: 'stockBulk' },
       { label: 'Import CSV', page: 'stockCsv' },
       { label: 'Purchase + Receipt', page: 'stockPurchase' },
@@ -313,9 +317,18 @@ function MainApp() {
   };
 
   const chalanMode =
-    page === 'chalanNew' ? 'new' : page === 'chalanPaona' ? 'paona' : 'list';
+    page === 'chalanNew'
+      ? 'new'
+      : page === 'chalanPaona'
+        ? 'paona'
+        : page === 'chalanBulkRecv'
+          ? 'bulkRecv'
+          : 'list';
   const showChalan =
-    page === 'chalan' || page === 'chalanNew' || page === 'chalanPaona';
+    page === 'chalan' ||
+    page === 'chalanNew' ||
+    page === 'chalanPaona' ||
+    page === 'chalanBulkRecv';
 
   const inventoryIntake =
     page === 'stockBulk'

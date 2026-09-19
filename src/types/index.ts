@@ -96,6 +96,8 @@ export interface SaleItem {
   subtotal: number;
 }
 
+export type BreakageReturnStatus = 'pending' | 'replaced';
+
 export interface InventoryLog {
   id: string;
   product_id: string;
@@ -104,6 +106,14 @@ export interface InventoryLog {
   quantity: number;
   date: string;
   purchase_id?: string;
+  /** Company receiving broken goods for replacement (break rows). */
+  supplier?: string;
+  /** Optional open chalan linked to this breakage return. */
+  chalan_id?: string;
+  /** pending = awaiting replacement; replaced = fully replaced; omitted = no company link. */
+  return_status?: BreakageReturnStatus;
+  /** Units already replaced by company (partial allowed). */
+  replaced_qty?: number;
 }
 
 export interface CartItem {
